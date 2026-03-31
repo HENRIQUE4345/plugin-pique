@@ -1,7 +1,11 @@
 ---
 description: Configura perfil social para as skills /social-*. Roda uma vez por perfil. Auto-descobre arquivos existentes e pergunta o que falta.
-allowed-tools: Agent, Read, Write, Edit, Glob, Grep, mcp__clickup__clickup_get_workspace_hierarchy, mcp__clickup__clickup_get_list
+allowed-tools: Agent, Read, Write, Edit, Glob, Grep
 ---
+
+## Delegacao de agents
+
+- **Operacoes ClickUp** (buscar hierarquia, lists): delegar ao agent `gestor-clickup`
 
 # Setup Social — Configurar Perfil
 

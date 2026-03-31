@@ -1,5 +1,11 @@
 Processamento pos-reuniao. Recebe transcricao de reuniao e extrai tudo que e acionavel. Execute este fluxo EXATAMENTE, sem pular etapas.
 
+## Delegacao de agents
+
+- **Operacoes ClickUp** (criar tasks): delegar ao agent `gestor-clickup`
+- **Google Calendar** (criar eventos, buscar reunioes): chamar diretamente (connector leve)
+- **Gmail** (buscar anotacoes Gemini): chamar diretamente (connector leve)
+
 ## Quando usar
 
 - Apos qualquer reuniao gravada (cliente, interna, prospect, parceiro)

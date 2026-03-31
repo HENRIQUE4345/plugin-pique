@@ -1,7 +1,12 @@
 ---
 description: Curadoria semanal de tendencias — concorrentes IG, Google Trends, TikTok, X, noticias IA. Cruza com perfil e gera relatorio de pauta.
-allowed-tools: Agent, Bash, Read, Write, Edit, Glob, Grep, mcp__apify_*, mcp__Apify__*
+allowed-tools: Agent, Bash, Read, Write, Edit, Glob, Grep
 ---
+
+## Delegacao de agents
+
+- **Coleta Instagram** (scrapar posts recentes dos concorrentes): delegar ao agent `coletor-instagram`
+- **Estrategia** (cruzar tendencias com cerebro): delegar ao agent `estrategista-conteudo`
 
 # Radar Semanal — {{perfil}}
 

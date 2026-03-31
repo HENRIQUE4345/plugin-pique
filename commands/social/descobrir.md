@@ -1,7 +1,11 @@
 ---
 description: Descobre perfis de referencia no Instagram via curadoria web. Fluxo iterativo - busca, avalia, refina, repete. Pre-requisito para analise de conteudo social. Funciona com qualquer perfil configurado via /social-setup.
-allowed-tools: Agent, Bash, Read, Write, Edit, Glob, Grep, mcp__apify_*, mcp__Apify__*
+allowed-tools: Agent, Bash, Read, Write, Edit, Glob, Grep
 ---
+
+## Delegacao de agents
+
+- **Coleta Instagram** (scrapar perfis, validar dados): delegar ao agent `coletor-instagram`
 
 # Descobrir Perfis de Referencia
 

@@ -1,5 +1,10 @@
 Ritual de fechamento do dia. Execute este fluxo EXATAMENTE, sem pular etapas.
 
+## Delegacao de agents
+
+- **Operacoes ClickUp** (buscar tasks, atualizar status): delegar ao agent `gestor-clickup`
+- **Google Calendar**: chamar diretamente (connector leve)
+
 ## Configuracao
 
 Antes de iniciar, leia `plugin-pique.local.md` na raiz do projeto para obter:

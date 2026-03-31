@@ -1,5 +1,10 @@
 Ritual de planejamento semanal. Execute este fluxo EXATAMENTE, sem pular etapas.
 
+## Delegacao de agents
+
+- **Operacoes ClickUp** (buscar tasks, criar tasks, atualizar status): delegar ao agent `gestor-clickup`
+- **Google Calendar**: chamar diretamente (connector leve)
+
 Este ritual tem 2 tempos: ANTES da reuniao (reconhecimento) e DEPOIS (processamento da transcricao). O usuario vai avisar quando muda de tempo.
 
 ## Configuracao

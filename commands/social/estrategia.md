@@ -1,7 +1,12 @@
 ---
 description: Analisa a estrategia macro de um perfil de referencia — frequencia, mix de formatos, temas, evolucao, feed, funil. Visao floresta, nao arvore. Funciona com qualquer perfil configurado via /social-setup.
-allowed-tools: Agent, Bash, Read, Write, Edit, Glob, Grep, mcp__apify_*, mcp__Apify__*
+allowed-tools: Agent, Bash, Read, Write, Edit, Glob, Grep
 ---
+
+## Delegacao de agents
+
+- **Coleta Instagram** (scrapar perfil, posts, metricas): delegar ao agent `coletor-instagram`
+- **Analise de imagens** (analise visual do feed): delegar ao agent `analista-visual`
 
 # Analisar Estrategia de Perfil
 

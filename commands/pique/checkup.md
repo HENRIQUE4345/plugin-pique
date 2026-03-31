@@ -1,5 +1,9 @@
 Check-up de gestao do ClickUp. Auditoria completa de um ou mais Spaces. Execute este fluxo EXATAMENTE, sem pular etapas.
 
+## Delegacao de agents
+
+- **TODAS as operacoes ClickUp**: delegar ao agent `gestor-clickup`
+
 ## Configuracao
 
 - **Workspace ID:** 36702200

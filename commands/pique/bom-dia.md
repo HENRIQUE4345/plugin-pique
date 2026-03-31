@@ -1,5 +1,10 @@
 Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
 
+## Delegacao de agents
+
+- **Operacoes ClickUp** (buscar tasks, atualizar status, criar tasks): delegar ao agent `gestor-clickup`
+- **Google Calendar e Gmail**: chamar diretamente (connectors leves)
+
 ## Configuracao
 
 Antes de iniciar, leia `plugin-pique.local.md` na raiz do projeto para obter:

@@ -1,7 +1,13 @@
 ---
 description: Preenche o cardapio da semana (ou mes) — minera cerebro + ClickUp + radar + analises. Entrega pronto pra aprovar e mandar pro {{editor}}.
-allowed-tools: Agent, Read, Write, Edit, Glob, Grep, mcp__clickup__clickup_filter_tasks, mcp__clickup__clickup_get_task, mcp__clickup__clickup_get_task_comments, mcp__claude_ai_Google_Calendar__gcal_list_events
+allowed-tools: Agent, Read, Write, Edit, Glob, Grep
 ---
+
+## Delegacao de agents
+
+- **Operacoes ClickUp** (filtrar tasks de ideias): delegar ao agent `gestor-clickup`
+- **Estrategia** (cruzar cerebro + analises): delegar ao agent `estrategista-conteudo`
+- **Google Calendar**: chamar diretamente (connector leve)
 
 # Sugerir Cardapio
 

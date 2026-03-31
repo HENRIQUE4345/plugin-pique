@@ -1,7 +1,11 @@
 ---
 description: Filtra e organiza o backlog de ideias no ClickUp — classifica por pilar e maturidade, mescla duplicatas, enriquece com cerebro, descarta irrelevantes. Rodar antes do /social-sugerir.
-allowed-tools: Agent, Read, Write, Edit, Glob, Grep, mcp__clickup__clickup_filter_tasks, mcp__clickup__clickup_get_task, mcp__clickup__clickup_get_task_comments, mcp__clickup__clickup_update_task, mcp__clickup__clickup_add_tag_to_task, mcp__clickup__clickup_remove_tag_from_task, mcp__clickup__clickup_delete_task, mcp__clickup__clickup_create_task_comment
+allowed-tools: Agent, Read, Write, Edit, Glob, Grep
 ---
+
+## Delegacao de agents
+
+- **TODAS as operacoes ClickUp** (filtrar, atualizar, tags, comentarios): delegar ao agent `gestor-clickup`
 
 # Triagem de Ideias
 

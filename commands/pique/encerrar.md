@@ -1,5 +1,10 @@
 Encerramento de conversa. Processa tudo que foi discutido e distribui para os lugares certos no cerebro e ferramentas. Execute este fluxo EXATAMENTE, sem pular etapas.
 
+## Delegacao de agents
+
+- **Operacoes ClickUp** (criar tasks, atualizar): delegar ao agent `gestor-clickup`
+- **Google Calendar** (criar eventos): chamar diretamente (connector leve)
+
 ## Quando usar
 
 - Ao final de qualquer conversa que teve conteudo acionavel

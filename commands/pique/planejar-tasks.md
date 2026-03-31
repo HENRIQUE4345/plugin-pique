@@ -1,5 +1,9 @@
 Planeje e crie tasks no ClickUp usando o processo iterativo de gestor de projeto. NUNCA crie tasks direto — sempre passe pelo ciclo completo abaixo.
 
+## Delegacao de agents
+
+- **TODAS as operacoes ClickUp** (criar tasks, buscar, atualizar): delegar ao agent `gestor-clickup`
+
 Argumento opcional: nome do Folder ou area a popular (ex: `/planejar-tasks Burocratico`). Se nao informado, perguntar.
 
 ---

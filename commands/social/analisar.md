@@ -1,7 +1,14 @@
 ---
 description: Analisa posts dos perfis de referencia — carrossel (imagem e video), Reels, estaticos. Claude Vision pra imagem, Gemini pra video. Gera relatorio com padroes. Funciona com qualquer perfil configurado via /social-setup.
-allowed-tools: Agent, Bash, Read, Write, Edit, Glob, Grep, mcp__apify_*, mcp__Apify__*, mcp__gemini_*
+allowed-tools: Agent, Bash, Read, Write, Edit, Glob, Grep
 ---
+
+## Delegacao de agents
+
+- **Coleta Instagram** (scrapar posts, perfis): delegar ao agent `coletor-instagram`
+- **Analise de imagens** (slides, capas, estaticos): delegar ao agent `analista-visual`
+- **Analise de video** (Reels, video carrosseis): delegar ao agent `analista-video`
+- **Operacoes ClickUp** (se precisar atualizar tasks): delegar ao agent `gestor-clickup`
 
 # Analisar Posts dos Perfis de Referencia
 
