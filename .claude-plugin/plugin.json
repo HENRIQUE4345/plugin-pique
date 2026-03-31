@@ -1,0 +1,31 @@
+{
+  "name": "plugin-pique",
+  "version": "1.0.0",
+  "description": "Workflows completos da Pique Digital — rituais diarios, gestao ClickUp, processamento de reunioes, conteudo social, e automacoes de time.",
+  "author": {
+    "name": "Pique Digital",
+    "url": "https://github.com/pique-digital"
+  },
+  "keywords": [
+    "pique-digital",
+    "clickup",
+    "rituais",
+    "gestao",
+    "social-media",
+    "instagram",
+    "carrossel",
+    "conteudo",
+    "stand-up",
+    "review"
+  ],
+  "agents": [
+    "./agents/gestor-clickup.md",
+    "./agents/coletor-instagram.md",
+    "./agents/analista-visual.md",
+    "./agents/analista-video.md",
+    "./agents/estrategista-conteudo.md"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}
