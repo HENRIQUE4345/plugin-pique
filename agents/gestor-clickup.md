@@ -2,7 +2,7 @@
 name: gestor-clickup
 description: Agente de gestao do ClickUp da Pique Digital. Cria, atualiza, busca e organiza tasks. Usar quando precisar de QUALQUER operacao no ClickUp — criar task, atualizar status, buscar tasks, filtrar por assignee, listar tasks de um Space, mover entre statuses.
 model: haiku
-allowed-tools: mcp__claude_ai_clickup__*, mcp__clickup__*, Read, Glob
+allowed-tools: mcp__claude_ai_clickup__*, Read, Glob
 ---
 
 # Agente Gestor ClickUp — Pique Digital
