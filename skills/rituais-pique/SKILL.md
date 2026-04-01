@@ -60,12 +60,12 @@ Cada diario em `{diarios_path}/YYYY-MM-DD.md` segue:
 
 ## Comandos disponiveis
 
-- `/pique:bom-dia` — executa stand-up completo
-- `/pique:boa-noite` — executa fechamento do dia
-- `/pique:planejamento-semanal` — ritual de segunda
-- `/pique:review-semanal` — ritual de sexta
-- `/pique:pos-reuniao` — processa transcricao de reuniao
-- `/pique:encerrar` — fecha conversa e distribui
+- `/plugin-pique:bom-dia` — executa stand-up completo
+- `/plugin-pique:boa-noite` — executa fechamento do dia
+- `/plugin-pique:planejamento-semanal` — ritual de segunda
+- `/plugin-pique:review-semanal` — ritual de sexta
+- `/plugin-pique:pos-reuniao` — processa transcricao de reuniao
+- `/plugin-pique:encerrar` — fecha conversa e distribui
 
 ## Regras importantes
 

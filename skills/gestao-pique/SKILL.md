@@ -13,55 +13,29 @@ Esta skill deve ser invocada quando o usuario mencionar:
 - Gestao, organizacao, planejamento
 - Status, workflow, kanban, board
 
-## Regras de criacao de tasks
+## Regras de gestao
 
-Toda task no ClickUp DEVE ter:
+Todas as regras de criacao de tasks, workflow de status, membros, Spaces e limites de capacidade estao em `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md`. Consulte-o para aplicar as regras corretamente.
 
-1. **Nome**: verbo no infinitivo ("Configurar...", "Criar...", "Revisar...")
-2. **Assignee**: pelo menos 1 responsavel
-3. **Due date**: prazo obrigatorio
-4. **Prioridade**: 1 urgente, 2 alta, 3 normal, 4 baixa
-5. **Descricao**: usar `markdown_description` com template:
-
-```markdown
-## Contexto
-Por que essa task existe.
-
-## O que fazer
-Passos concretos, numerados.
-
-## Criterio de pronto
-Como saber que esta finalizada.
-```
-
-6. **Escopo**: fazivel em 1-4h. Maior = dividir.
-7. **Pos-criacao**: time_estimate, start_date, dependencias
-
-## Workflow de status
-
-```
-A fazer → Essa semana → Hoje → Fazendo → Feito/Finalizado
-```
-
-## Limites de capacidade
-
-- Max 2-3 tasks por pessoa por dia
-- Max 6-7 tasks por pessoa por semana
+Resumo rapido:
+- Tasks: verbo infinitivo + assignee + due_date + prioridade + descricao estruturada
+- Escopo: 1-4h por task. Maior = dividir.
+- Limite anti-TDAH: max 2-3 tasks/dia, 6-7/semana por pessoa
 - Task empurrada 2+ vezes = bloqueio cronico
 - Calendar > ClickUp (reunioes definem teto do dia)
 
 ## Comandos disponiveis
 
-- `/pique:bom-dia` — stand-up matinal (puxa tasks do dia)
-- `/pique:boa-noite` — fechamento (marca completas, registra pendentes)
-- `/pique:checkup` — auditoria completa de um Space
-- `/pique:planejar-tasks` — criar tasks com processo iterativo
-- `/pique:planejamento-semanal` — planejamento de segunda
-- `/pique:review-semanal` — review de sexta
+- `/plugin-pique:bom-dia` — stand-up matinal (puxa tasks do dia)
+- `/plugin-pique:boa-noite` — fechamento (marca completas, registra pendentes)
+- `/plugin-pique:checkup` — auditoria completa de um Space
+- `/plugin-pique:planejar-tasks` — criar tasks com processo iterativo
+- `/plugin-pique:planejamento-semanal` — planejamento de segunda
+- `/plugin-pique:review-semanal` — review de sexta
 
 ## Agent dedicado
 
 Para operacoes no ClickUp, delegar ao agent `gestor-clickup` que tem:
 - MCP ClickUp scoped (nao carrega globalmente)
-- Todas as regras embutidas no system prompt
-- IDs de Spaces e membros
+- Todas as regras embutidas
+- IDs de Spaces e membros via CLAUDE.md

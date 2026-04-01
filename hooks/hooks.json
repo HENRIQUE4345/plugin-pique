@@ -24,7 +24,7 @@
     ],
     "Stop": [
       {
-        "matcher": "plugin-pique:(social:.*|pique:.*)",
+        "matcher": "plugin-pique:.*",
         "hooks": [
           {
             "type": "prompt",

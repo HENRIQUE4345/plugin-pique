@@ -25,7 +25,7 @@ Campos disponiveis no frontmatter:
 4. Calendar > ClickUp: o dia real define o teto, tasks preenchem o espaco.
 5. Task empurrada 2+ vezes = bloqueio cronico (sinalizar na review).
 6. Nunca julgar produtividade. TDAH = semanas variam. Registrar e seguir.
-7. Cerebro compartilhado: `pique/` e submodule Git. Sincronizar com /pique:sincronizar.
+7. Cerebro compartilhado: `pique/` e submodule Git. Sincronizar com /plugin-pique:sincronizar.
 8. Setup ClickUp: consultar `pique/infra/clickup-setup.md` para IDs, Spaces, Folders, Lists.
 9. Acoes destrutivas (deletar, sobrescrever): NUNCA sem aprovacao explicita.
 10. Dados do Apify consomem creditos: nunca scrapar mesmo perfil duas vezes na mesma sessao.
