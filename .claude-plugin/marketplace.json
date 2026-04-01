@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "plugin-pique",
-      "source": ".",
+      "source": "./",
       "description": "Workflows completos da Pique Digital — rituais diarios, gestao ClickUp, processamento de reunioes, conteudo social, e automacoes de time."
     }
   ]
