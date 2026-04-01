@@ -26,6 +26,6 @@
     "./agents/estrategista-conteudo.md"
   ],
   "skills": "./skills/",
-  "hooks": "./hooks/hooks.json",
+
   "mcpServers": "./.mcp.json"
 }
