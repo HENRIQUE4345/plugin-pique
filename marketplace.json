@@ -1,0 +1,14 @@
+{
+  "name": "pique-marketplace",
+  "plugins": [
+    {
+      "name": "plugin-pique",
+      "version": "1.0.0",
+      "description": "Workflows completos da Pique Digital — rituais diarios, gestao ClickUp, processamento de reunioes, conteudo social, e automacoes de time.",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/HENRIQUE4345/plugin-pique.git"
+      }
+    }
+  ]
+}

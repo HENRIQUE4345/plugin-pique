@@ -4,10 +4,10 @@ description: Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pul
 
 Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
 
-## Delegacao de agents
+## Ferramentas
 
-- **Operacoes ClickUp** (buscar tasks, atualizar status, criar tasks): delegar ao agent `gestor-clickup`
-- **Google Calendar e Gmail**: chamar diretamente (connectors leves)
+- **ClickUp**: usar `mcp__clickup__*` diretamente (connector OAuth da sessao)
+- **Google Calendar**: usar `mcp__claude_ai_Google_Calendar__*` diretamente
 
 ## Configuracao
 
