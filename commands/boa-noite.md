@@ -4,10 +4,12 @@ description: Ritual de fechamento do dia. Execute este fluxo EXATAMENTE, sem pul
 
 Ritual de fechamento do dia. Execute este fluxo EXATAMENTE, sem pular etapas.
 
-## Delegacao de agents
+## Ferramentas
 
 - **Operacoes ClickUp** (buscar tasks, atualizar status): delegar ao agent `gestor-clickup`
 - **Google Calendar**: chamar diretamente (connector leve)
+
+> **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis (agent gestor-clickup falhar), avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
 
 ## Configuracao
 
@@ -212,13 +214,20 @@ Avalie a execucao com base nestas perguntas:
 3. Tasks que nao foram feitas foram registradas sem julgamento?
 4. O fechamento levou menos de 10 minutos?
 
-Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao, mostre:
+Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
+1. Mostre ao usuario:
 ```
 [AUTO-AVALIACAO]
 - [descricao da melhoria 1]
 - [descricao da melhoria 2]
-Quer que eu aplique essas melhorias na skill? (s/n)
+```
+
+2. Anexe em `pique/infra/melhorias-plugin.md` no formato:
+```
+## YYYY-MM-DD — boa-noite (usuario)
+- [melhoria 1]
+- [melhoria 2]
 ```
 
 Se nao identificar nada concreto, nao mostre nada.

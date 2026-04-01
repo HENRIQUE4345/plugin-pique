@@ -4,9 +4,11 @@ description: Check-up de gestao do ClickUp. Auditoria completa de um ou mais Spa
 
 Check-up de gestao do ClickUp. Auditoria completa de um ou mais Spaces. Execute este fluxo EXATAMENTE, sem pular etapas.
 
-## Delegacao de agents
+## Ferramentas
 
 - **TODAS as operacoes ClickUp**: delegar ao agent `gestor-clickup`
+
+> **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis (agent gestor-clickup falhar), avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
 
 ## Configuracao
 
@@ -153,13 +155,20 @@ Avalie a execucao com base nestas perguntas:
 3. Alguma regra do clickup-setup.md nao foi verificada?
 4. O usuario rejeitou muitas sugestoes? (indica calibragem errada)
 
-Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao, mostre:
+Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
+1. Mostre ao usuario:
 ```
 [AUTO-AVALIACAO]
 - [descricao da melhoria 1]
 - [descricao da melhoria 2]
-Quer que eu aplique essas melhorias na skill? (s/n)
+```
+
+2. Anexe em `pique/infra/melhorias-plugin.md` no formato:
+```
+## YYYY-MM-DD — checkup (usuario)
+- [melhoria 1]
+- [melhoria 2]
 ```
 
 Se nao identificar nada concreto, nao mostre nada.

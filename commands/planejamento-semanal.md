@@ -4,10 +4,12 @@ description: Ritual de planejamento semanal. Execute este fluxo EXATAMENTE, sem 
 
 Ritual de planejamento semanal. Execute este fluxo EXATAMENTE, sem pular etapas.
 
-## Delegacao de agents
+## Ferramentas
 
 - **Operacoes ClickUp** (buscar tasks, criar tasks, atualizar status): delegar ao agent `gestor-clickup`
 - **Google Calendar**: chamar diretamente (connector leve)
+
+> **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis (agent gestor-clickup falhar), avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
 
 Este ritual tem 2 tempos: ANTES da reuniao (reconhecimento) e DEPOIS (processamento da transcricao). O usuario vai avisar quando muda de tempo.
 
@@ -338,13 +340,20 @@ Avalie a execucao com base nestas perguntas:
 3. O insumo da review de sexta foi aproveitado?
 4. O Tempo 2 (pos-reuniao) processou corretamente a transcricao?
 
-Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao, mostre:
+Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
+1. Mostre ao usuario:
 ```
 [AUTO-AVALIACAO]
 - [descricao da melhoria 1]
 - [descricao da melhoria 2]
-Quer que eu aplique essas melhorias na skill? (s/n)
+```
+
+2. Anexe em `pique/infra/melhorias-plugin.md` no formato:
+```
+## YYYY-MM-DD — planejamento-semanal (usuario)
+- [melhoria 1]
+- [melhoria 2]
 ```
 
 Se nao identificar nada concreto, nao mostre nada.

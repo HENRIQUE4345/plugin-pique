@@ -172,13 +172,20 @@ Avalie a execucao com base nestas perguntas:
 3. O usuario pediu muitos ajustes? (indica gap no entendimento do briefing)
 4. O design seguiu o padrao visual da Pique?
 
-Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao, mostre:
+Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
+1. Mostre ao usuario:
 ```
 [AUTO-AVALIACAO]
 - [descricao da melhoria 1]
 - [descricao da melhoria 2]
-Quer que eu aplique essas melhorias na skill? (s/n)
+```
+
+2. Anexe em `pique/infra/melhorias-plugin.md` no formato:
+```
+## YYYY-MM-DD — apresentacao (usuario)
+- [melhoria 1]
+- [melhoria 2]
 ```
 
 Se nao identificar nada concreto, nao mostre nada.

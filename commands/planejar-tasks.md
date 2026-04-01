@@ -4,9 +4,11 @@ description: Planeje e crie tasks no ClickUp usando o processo iterativo de gest
 
 Planeje e crie tasks no ClickUp usando o processo iterativo de gestor de projeto. NUNCA crie tasks direto — sempre passe pelo ciclo completo abaixo.
 
-## Delegacao de agents
+## Ferramentas
 
 - **TODAS as operacoes ClickUp** (criar tasks, buscar, atualizar): delegar ao agent `gestor-clickup`
+
+> **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis (agent gestor-clickup falhar), avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
 
 Argumento opcional: nome do Folder ou area a popular (ex: `/planejar-tasks Burocratico`). Se nao informado, perguntar.
 
@@ -214,13 +216,20 @@ Avalie a execucao com base nestas perguntas:
 3. O usuario mudou muito o rascunho? (indica gap na investigacao)
 4. Estimativas, prioridades e dependencias foram definidas?
 
-Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao, mostre:
+Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
+1. Mostre ao usuario:
 ```
 [AUTO-AVALIACAO]
 - [descricao da melhoria 1]
 - [descricao da melhoria 2]
-Quer que eu aplique essas melhorias na skill? (s/n)
+```
+
+2. Anexe em `pique/infra/melhorias-plugin.md` no formato:
+```
+## YYYY-MM-DD — planejar-tasks (usuario)
+- [melhoria 1]
+- [melhoria 2]
 ```
 
 Se nao identificar nada concreto, nao mostre nada.

@@ -6,8 +6,10 @@ Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
 
 ## Ferramentas
 
-- **ClickUp**: usar `mcp__clickup__*` diretamente (connector OAuth da sessao)
+- **ClickUp**: usar `mcp__claude_ai_clickup__*` diretamente (connector OAuth do usuario)
 - **Google Calendar**: usar `mcp__claude_ai_Google_Calendar__*` diretamente
+
+> **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis, avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
 
 ## Configuracao
 
@@ -283,13 +285,20 @@ Avalie a execucao com base nestas perguntas:
 4. As reunioes do calendario foram integradas corretamente no planejamento?
 5. A proposta final respeitou o limite de 2-3 tasks/dia?
 
-Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao, mostre:
+Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
+1. Mostre ao usuario:
 ```
 [AUTO-AVALIACAO]
 - [descricao da melhoria 1]
 - [descricao da melhoria 2]
-Quer que eu aplique essas melhorias na skill? (s/n)
+```
+
+2. Anexe em `pique/infra/melhorias-plugin.md` no formato:
+```
+## YYYY-MM-DD — bom-dia (usuario)
+- [melhoria 1]
+- [melhoria 2]
 ```
 
 Se nao identificar nada concreto, nao mostre nada.
