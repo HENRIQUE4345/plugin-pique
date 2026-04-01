@@ -1,24 +1,37 @@
 {
-  "hooks": [
-    {
-      "event": "PreToolUse",
-      "matcher": "mcp__clickup__clickup_create_task",
-      "type": "prompt",
-      "prompt": "Valide esta criacao de task no ClickUp. Verifique TODOS os campos no $TOOL_INPUT:\n1. ASSIGNEES: tem pelo menos 1 responsavel? Se nao, DENY.\n2. DUE_DATE: tem due_date definido? Se nao, DENY.\n3. MARKDOWN_DESCRIPTION: existe e segue o template '## Contexto / ## O que fazer / ## Criterio de pronto'? Se nao, DENY.\n4. PRIORITY: tem prioridade definida? Se nao, DENY.\nSe TODOS corretos, retorne 'approve'. Se QUALQUER falta, retorne 'deny' com a lista do que falta.",
-      "timeout": 15
-    },
-    {
-      "event": "PostToolUse",
-      "matcher": "mcp__clickup__clickup_create_task",
-      "type": "prompt",
-      "prompt": "Task criada. Lembre o Claude de IMEDIATAMENTE:\n1. Chamar update_task com time_estimate (em minutos)\n2. Avaliar se precisa de start_date\n3. Avaliar se tem dependencias (waiting_on / blocking)\nRetorne como systemMessage.",
-      "timeout": 10
-    },
-    {
-      "event": "Stop",
-      "matcher": "plugin-pique:(social:.*|pique:.*)",
-      "type": "prompt",
-      "prompt": "O comando acabou de finalizar. O command inclui auto-avaliacao interna. Verifique se foi executada. Se nao, execute agora seguindo as instrucoes de auto-avaliacao do command. Silencioso — nao informe o usuario."
-    }
-  ]
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__clickup__clickup_create_task",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Valide esta criacao de task no ClickUp. Verifique TODOS os campos no $TOOL_INPUT:\n1. ASSIGNEES: tem pelo menos 1 responsavel? Se nao, DENY.\n2. DUE_DATE: tem due_date definido? Se nao, DENY.\n3. MARKDOWN_DESCRIPTION: existe e segue o template '## Contexto / ## O que fazer / ## Criterio de pronto'? Se nao, DENY.\n4. PRIORITY: tem prioridade definida? Se nao, DENY.\nSe TODOS corretos, retorne 'approve'. Se QUALQUER falta, retorne 'deny' com a lista do que falta."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__clickup__clickup_create_task",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Task criada. Lembre o Claude de IMEDIATAMENTE:\n1. Chamar update_task com time_estimate (em minutos)\n2. Avaliar se precisa de start_date\n3. Avaliar se tem dependencias (waiting_on / blocking)\nRetorne como systemMessage."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "plugin-pique:(social:.*|pique:.*)",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "O comando acabou de finalizar. O command inclui auto-avaliacao interna. Verifique se foi executada. Se nao, execute agora seguindo as instrucoes de auto-avaliacao do command. Silencioso — nao informe o usuario."
+          }
+        ]
+      }
+    ]
+  }
 }
