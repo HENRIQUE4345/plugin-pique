@@ -1,3 +1,7 @@
+---
+description: Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
+---
+
 Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
 
 ## Delegacao de agents

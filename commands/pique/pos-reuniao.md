@@ -1,3 +1,7 @@
+---
+description: Processamento pos-reuniao. Recebe transcricao de reuniao e extrai tudo que e acionavel. Execute este fluxo EXATAMENTE, sem pular etapas.
+---
+
 Processamento pos-reuniao. Recebe transcricao de reuniao e extrai tudo que e acionavel. Execute este fluxo EXATAMENTE, sem pular etapas.
 
 ## Delegacao de agents

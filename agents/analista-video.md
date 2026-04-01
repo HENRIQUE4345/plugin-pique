@@ -3,8 +3,6 @@ name: analista-video
 description: Agente de analise de video via Gemini. Analisa Reels, videos de carrosseis e conteudo em video do Instagram. Usar quando precisar analisar conteudo de VIDEO (nao imagem).
 model: sonnet
 allowed-tools: Read, Write, Glob, mcp__gemini__*
-mcpServers:
-  - gemini
 ---
 
 # Agente Analista de Video

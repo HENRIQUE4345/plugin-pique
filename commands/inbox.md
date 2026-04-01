@@ -1,3 +1,7 @@
+---
+description: Processa meu inbox completo. Siga este fluxo EXATAMENTE, sem pular etapas.
+---
+
 Processa meu inbox completo. Siga este fluxo EXATAMENTE:
 
 ## Fase 1: Leitura

@@ -1,3 +1,7 @@
+---
+description: Processamento de capitulo de livro. Ajudo o Henrique a fixar o que leu com resumo + insights pessoais.
+---
+
 Processamento de capitulo de livro. Ajudo o Henrique a fixar o que leu com resumo + insights pessoais.
 
 ## Fluxo

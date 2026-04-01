@@ -1,3 +1,7 @@
+---
+description: Ritual de review semanal. Execute este fluxo EXATAMENTE, sem pular etapas.
+---
+
 Ritual de review semanal. Execute este fluxo EXATAMENTE, sem pular etapas.
 
 ## Delegacao de agents

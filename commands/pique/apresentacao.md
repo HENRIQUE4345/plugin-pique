@@ -1,3 +1,7 @@
+---
+description: Gera apresentacoes HTML no padrao visual da Pique. Execute este fluxo EXATAMENTE, sem pular etapas.
+---
+
 Gera apresentacoes HTML no padrao visual da Pique. Execute este fluxo EXATAMENTE, sem pular etapas.
 
 Argumento opcional: descricao curta do contexto (ex: "reuniao quinzenal Daniel sobre Beto Carvalho" ou "pitch pra novo cliente")

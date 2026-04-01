@@ -1,3 +1,7 @@
+---
+description: Check-up de gestao do ClickUp. Auditoria completa de um ou mais Spaces. Execute este fluxo EXATAMENTE, sem pular etapas.
+---
+
 Check-up de gestao do ClickUp. Auditoria completa de um ou mais Spaces. Execute este fluxo EXATAMENTE, sem pular etapas.
 
 ## Delegacao de agents

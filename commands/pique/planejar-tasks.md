@@ -1,3 +1,7 @@
+---
+description: Planeje e crie tasks no ClickUp usando o processo iterativo de gestor de projeto. NUNCA crie tasks direto — sempre passe pelo ciclo completo abaixo.
+---
+
 Planeje e crie tasks no ClickUp usando o processo iterativo de gestor de projeto. NUNCA crie tasks direto — sempre passe pelo ciclo completo abaixo.
 
 ## Delegacao de agents

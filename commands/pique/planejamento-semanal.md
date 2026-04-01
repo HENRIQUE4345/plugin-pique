@@ -1,3 +1,7 @@
+---
+description: Ritual de planejamento semanal. Execute este fluxo EXATAMENTE, sem pular etapas.
+---
+
 Ritual de planejamento semanal. Execute este fluxo EXATAMENTE, sem pular etapas.
 
 ## Delegacao de agents

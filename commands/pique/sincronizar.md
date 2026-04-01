@@ -1,3 +1,7 @@
+---
+description: Sincroniza o cerebro compartilhado da Pique (pull + commit + push). Execute este fluxo EXATAMENTE.
+---
+
 Sincroniza o cerebro compartilhado da Pique (pull + commit + push). Execute este fluxo EXATAMENTE.
 
 ## Fase 1: Status atual
