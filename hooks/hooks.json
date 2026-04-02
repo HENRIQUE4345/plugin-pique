@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "BLOQUEIO: Operacoes diretas no ClickUp nao sao permitidas no contexto principal.\n\nToda operacao de ClickUp DEVE ser delegada ao agent 'gestor-clickup' via Agent tool (subagent_type: 'plugin-pique:gestor-clickup').\n\nO agent tem as regras de formatacao, validacao de campos obrigatorios, e conhece os IDs/Spaces/membros.\n\nRetorne DENY com a mensagem: 'Delegue esta operacao ao agent gestor-clickup. Monte um prompt com a especificacao completa (acao, campos, contexto) e spawne o agent.'"
+            "prompt": "Verifique se voce e o agent 'gestor-clickup' (subagent_type: plugin-pique:gestor-clickup). Se voce for o agent gestor-clickup, retorne ALLOW — voce tem autorizacao para operar o ClickUp diretamente.\n\nSe voce for o Claude principal (conversa direta com o usuario), retorne DENY com a mensagem: 'Operacoes ClickUp devem ser delegadas ao agent gestor-clickup. Monte um prompt com a spec completa (acao, campos, contexto) e spawne o agent via Agent tool (subagent_type: plugin-pique:gestor-clickup).'"
           }
         ]
       }
