@@ -37,11 +37,28 @@ Toda task DEVE receber do Claude principal:
 | `due_date` | String YYYY-MM-DD | "2026-04-11" |
 | `priority` | String: "urgent", "high", "normal", "low" | "normal" |
 | `markdown_description` | Template abaixo (NAO usar `description`) | Ver template |
-| `time_estimate` | String em MINUTOS | "120" (= 2h) |
+| `time_estimate` | String em MILISSEGUNDOS (min × 60000) | "7200000" (= 2h) |
 | `list_id` | ID da List destino | "901313561086" |
 
 **Se qualquer campo obrigatorio estiver ausente, REJEITE com:**
 > "Spec incompleta. Faltam: [lista]. Retorne com todos os campos preenchidos."
+
+### Excecao: ideias de conteudo
+
+Para tasks no **Space Conteudo** com status **"Ideia"**, os campos obrigatorios sao REDUZIDOS:
+
+| Campo | Obrigatorio? |
+|-------|-------------|
+| `name` | SIM |
+| `assignees` | SIM |
+| `markdown_description` | SIM |
+| `list_id` | SIM |
+| `tags` | SIM (pilar + formato + maturidade) |
+| `due_date` | NAO — ideias nao tem prazo |
+| `time_estimate` | NAO — ideias nao tem estimativa |
+| `priority` | NAO — ideias nao tem prioridade |
+
+Nao rejeitar spec de ideia por faltar esses 3 campos. Se vierem, aplicar normalmente.
 
 ### Template de descricao (markdown_description)
 
@@ -74,27 +91,27 @@ Antes de criar qualquer task, buscar tasks existentes no mesmo Space/List:
 ### Etapa 2: Update task
 
 2. **Update task** IMEDIATAMENTE apos, com:
-   - `time_estimate`: string em minutos (ex: "120" para 2h, "30" para 30min)
+   - `time_estimate`: string em MILISSEGUNDOS (minutos × 60000. Ex: "7200000" para 2h, "1800000" para 30min)
    - `start_date`: se veio na spec
    - Dependencias via `clickup_add_task_dependency` se aplicavel
 
 IMPORTANTE sobre formatos:
-- `time_estimate` e STRING em MINUTOS. "120" = 2 horas. NAO usar milissegundos.
+- `time_estimate` e STRING em MILISSEGUNDOS. Converter: minutos × 60000. Ex: 2h = "7200000", 30min = "1800000", 1h = "3600000". A API do ClickUp NAO aceita minutos.
 - `priority` e STRING: "urgent", "high", "normal", "low". NAO usar numeros.
 - `description` gera \n literal — SEMPRE usar `markdown_description`.
 
 ## Faixas de referencia para time_estimate
 
-Se o Claude principal nao informar estimativa, REJEITE. Mas se informar um valor, valide contra estas faixas:
+Se o Claude principal nao informar estimativa, REJEITE (exceto para ideias de conteudo — ver excecao acima). Se informar um valor, valide contra estas faixas:
 
-| Tipo de task | Faixa aceitavel |
-|---|---|
-| Config/ajuste simples | 15-60 min |
-| Feature pequena | 60-120 min |
-| Feature media | 120-240 min |
-| Investigacao/pesquisa | 60-120 min |
-| Criacao de conteudo | 60-180 min |
-| Reuniao/workshop | duracao do evento |
+| Tipo de task | Faixa aceitavel (min) | Valor em ms |
+|---|---|---|
+| Config/ajuste simples | 15-60 min | 900000-3600000 |
+| Feature pequena | 60-120 min | 3600000-7200000 |
+| Feature media | 120-240 min | 7200000-14400000 |
+| Investigacao/pesquisa | 60-120 min | 3600000-7200000 |
+| Criacao de conteudo | 60-180 min | 3600000-10800000 |
+| Reuniao/workshop | duracao do evento | calcular |
 
 Se a estimativa estiver fora da faixa, execute mas AVISE: "Estimativa de Xmin parece fora do range para este tipo de task (faixa: Y-Z min)."
 
