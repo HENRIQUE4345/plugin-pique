@@ -132,6 +132,46 @@ Apos aprovacao, execute na ordem:
 - Inclua TODOS os arquivos alterados/criados nesta conversa
 - Se nao houver mudancas pendentes, pule este passo
 
+### 3.8 Registrar telemetria enriquecida
+
+Registra 1 linha JSONL com metadata desta conversa em `~/.claude/telemetria/chats-enriquecidos.jsonl`. E o que alimenta `/pique:tempo` e a fase 1.5 do `/pique:review-semanal`.
+
+**Passo 1 — localizar JSONL da sessao atual:**
+- Derive o slug do `cwd` atual (regras em `/pique:tempo` secao "Como ler": `\`, `/`, espaco -> `-`; `:` -> `--`).
+- Rode `ls -t ~/.claude/projects/<slug>/*.jsonl | head -1` pra pegar o arquivo mais recente (e a sessao em andamento).
+- Se a pasta-projeto nao existir ou estiver vazia: **PULE silencioso, nao quebre o encerrar.** Primeiro uso do cwd nunca teve JSONL antes de hoje.
+
+**Passo 2 — extrair dados do JSONL nativo** (usar `Grep`, nao `Read` integral):
+- `session_id`: do nome do arquivo ou do campo `sessionId` de qualquer linha
+- `first_ts`: `timestamp` da primeira linha com `"type":"user"`
+- `last_ts`: `timestamp` da ultima linha do arquivo
+- `modelos`: `message.model` distintos de linhas `"type":"assistant"`
+- `primeiro_prompt`: primeira ocorrencia de `message.content[*].text` no primeiro `"type":"user"` (pular `<ide_opened_file>` e `<command-name>` se houver, pegar o texto real)
+- `wall_seconds`: `last_ts - first_ts` em segundos. Aceitar que subestima 2-5s (o proprio encerrar ainda nao escreveu a linha final).
+
+**Passo 3 — Claude classifica (sem perguntar ao usuario):**
+Claude tem TODO o contexto da conversa que acabou de encerrar. Classifique direto:
+- `tema`: 3-5 palavras descrevendo do que a conversa tratou
+- `resumo`: 1 linha <= 120 caracteres
+- `categoria`: uma das 3 letras
+  - **A** = mecanico (tasks operacionais, comandos, consultas rapidas)
+  - **B** = processamento (refactor medio, analise, brainstorm com saida concreta, reviews)
+  - **C** = estrategico (decisao de rumo, arquitetura, planejamento, mudanca de produto)
+- `projeto`: ultima componente do `cwd` normalizada (ex: `MEU-CEREBRO`, `plugin-pique`)
+
+**Passo 4 — escrever 1 linha JSONL append em `~/.claude/telemetria/chats-enriquecidos.jsonl`:**
+
+Schema:
+```json
+{"ts":"<ISO UTC fim>","session_id":"<uuid>","cwd":"<cwd>","projeto":"<nome>","tema":"...","resumo":"...","categoria":"B","wall_seconds":1234,"modelos":["claude-opus-4-6"],"primeiro_prompt":"..."}
+```
+
+Use `Bash: echo '<linha-json>' >> ~/.claude/telemetria/chats-enriquecidos.jsonl` (com aspas simples pra preservar JSON interno, escape de aspas duplas no tema/resumo).
+
+Se o append falhar (permissao, disco), silenciar — nao bloqueia o encerrar.
+
+**Regra critica:** categoria e classificacao subjetiva do proprio Claude. Nao pergunte ao usuario, nao mostre no resumo final da Fase 4. E metadado silencioso pra analise posterior.
+
 ---
 
 ## Fase 4: Confirmacao final

@@ -192,7 +192,33 @@ Feito:
 Fica pra amanha: [task / nada]
 ```
 
-### 5.4 Encerrar
+### 5.4 Bloco telemetria do dia
+
+Gere 4-6 linhas factuais sobre o uso de Claude Code hoje. **Regra critica:** zero interpretacao, zero sugestao de corte, zero "voce passou muito tempo em X". SO numeros.
+
+Leia `~/.claude/telemetria/chats.jsonl`, filtre eventos `start`/`end` cujo `ts` caia em "hoje" BRT (UTC-03, hoje BRT comeca 03:00Z do dia civil). Pareie por `session_id`. Para cada sessao com `start` mas sem `end`, use `Date.now()` como fim (sessao ativa).
+
+Para enriquecer cada sessao, use `Grep` pontual (NUNCA `Read` integral — estoura contexto em dias pesados) em `~/.claude/projects/<slug-cwd>/<sessionId>.jsonl`:
+- `grep -m1 '"message":{"model"'` — captura modelo usado
+- `grep -m1 '"type":"user"'` — captura primeiro prompt
+
+Regras completas de parsing (slug cwd, wall time, primeiro prompt, modelos) em `/pique:tempo` secao "Como ler". Siga elas.
+
+Formato do bloco (adicionar apos a mensagem WhatsApp, antes do Encerrar):
+
+```
+Telemetria hoje:
+- [N] chats, [Xh]h total (maior: [Yh]h — [projeto] / "[primeiro prompt resumido 6-8 palavras]")
+- Projetos: [A] [%], [B] [%], [C] [%]
+- Modelos: opus ([n]), sonnet ([n]), haiku ([n])
+- Primeiros prompts: "[...]", "[...]", "[...]"
+```
+
+Se nao houver nenhum chat de hoje alem do proprio (ex: primeiro uso do dia e foi direto no boa-noite), escreva linha unica: `Telemetria hoje: so este chat ([Xm]m ate agora).`
+
+Nao comente os numeros. Nao diga se foi muito/pouco. Nao compare com ontem.
+
+### 5.5 Encerrar
 Diga: "Dia fechado. Descansa que amanha o /pique:bom-dia puxa esse contexto automatico."
 
 ---

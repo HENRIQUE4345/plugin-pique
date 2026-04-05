@@ -1,54 +1,50 @@
 ---
-description: Ritual de review semanal. Execute este fluxo EXATAMENTE, sem pular etapas.
+description: Ritual de review semanal PESSOAL. Cada socio roda o seu. Output principal = "Levar pro fechamento" (ponte pro /pique:fechamento-semana).
 ---
 
-Ritual de review semanal. Execute este fluxo EXATAMENTE, sem pular etapas.
+Ritual de review semanal **pessoal**. Execute este fluxo EXATAMENTE, sem pular etapas.
+
+Este ritual e o IRMAO do `/pique:fechamento-semana`. Primeiro cada socio roda o SEU review (este command); depois os dois juntos rodam o fechamento de empresa. Tudo aqui e do usuario atual — nada do outro socio aparece.
 
 ## Ferramentas
 
-- **Operacoes ClickUp** (buscar tasks, criar tasks, atualizar status): delegar ao agent `gestor-clickup`
+- **Operacoes ClickUp** (buscar tasks do usuario): delegar ao agent `gestor-clickup`
 - **Google Calendar**: chamar diretamente (connector leve)
 
 > **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis (agent gestor-clickup falhar), avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
 
-Este ritual tem 2 tempos: ANTES da reuniao (reconhecimento) e DEPOIS (processamento da transcricao). O usuario vai avisar quando muda de tempo.
-
 ## Configuracao
 
-Antes de iniciar, leia `plugin-pique.local.md` na raiz do projeto para obter identidade do usuario.
-Consultar CLAUDE.md do plugin para IDs de todos os membros, Spaces e calendarios.
+Antes de iniciar, leia `plugin-pique.local.md` na raiz do projeto para obter:
+- **Usuario atual:** `user_name` (user_id ClickUp: `user_clickup_id`)
+- **Diarios pessoal:** `diarios_path`
+- **Calendarios:** `calendarios.*`
+- **Areas pessoais:** campo opcional `areas_pessoais` (lista, ex: `["saude", "financas", "estudos"]`). Se nao existir, pular Fase 1.8.
 
-- **Usuarios:** consultar tabela de Membros no CLAUDE.md do plugin
-- **Quando:** Sexta, primeiro horario
-- **Prep Marco:** pauta (feito/travou/metricas) ate quinta a noite ou sexta de manha
-- **Prep Henrique:** planilha financeira atualizada ate sexta de manha
-- **Sessao anterior:** buscar `sessoes/*-review-semanal*.md` mais recente
-- **Planejamento da semana:** buscar `sessoes/*-planejamento-semanal*.md` mais recente
+Se o arquivo nao existir, pergunte o `user_name` e crie usando o template.
+
+**Normalizacao do user_name pra nome de arquivo:** lowercase, sem sobrenome, sem acento. Ex: "Henrique Carvalho" -> `henrique`. "Marco" -> `marco`.
+
+- **Quando:** Sexta, 16h. Apos este ritual, rodar `/pique:fechamento-semana` com o outro socio as 17h.
+- **Sessao de planejamento da semana:** buscar `sessoes/*-planejamento-semanal*.md` mais recente
+- **Review pessoal anterior:** buscar `sessoes/*-review-semanal-<user_name>.md` mais recente
 
 ---
 
-## TEMPO 1: PRE-REUNIAO
+## Fase 1: Reconhecimento (paralelo, NAO pergunte nada ainda)
 
-### Fase 1: Reconhecimento (automatico, NAO pergunte nada ainda)
+Execute TUDO em paralelo. Tudo filtrado pelo usuario atual.
 
-Execute TUDO em paralelo:
+### 1.1 Sessao do planejamento da semana
 
-#### 1.1 Sessao do planejamento de segunda
+Busque `sessoes/*-planejamento-semanal*.md` mais recente. Extraia APENAS o que e do usuario atual (tasks dele, decisoes que ele tomou, blockers dele).
 
-Busque `sessoes/*-planejamento-semanal*.md` mais recente.
-Extraia:
-- Tasks definidas por pessoa (Henrique e Marco)
-- Decisoes tomadas
-- Blockers identificados
-- Contexto/notas relevantes
+Se nao existir: "Sem planejamento registrado esta semana — vou comparar direto com o ClickUp."
 
-Se NAO existir sessao de planejamento dessa semana, sinalize: "Sem planejamento registrado essa semana — vou comparar direto com o ClickUp."
+### 1.2 ClickUp — Foto completa da semana (SO do usuario)
 
-#### 1.2 ClickUp — Foto completa da semana
+Delegar ao `gestor-clickup` com filtro por assignee = `user_clickup_id`. Buscar em TODOS os Spaces ativos:
 
-Consulte `pique/infra/clickup-setup.md` para IDs.
-
-Busque em TODOS os Spaces ativos:
 - Pique Digital (901313561086)
 - Conteudo (901313561098)
 - Yabadoo (901313567191)
@@ -57,296 +53,223 @@ Busque em TODOS os Spaces ativos:
 
 | O que buscar | Por que |
 |---|---|
-| Tasks com status "Finalizado" (ultimos 7 dias) | O que foi feito |
-| Tasks com status "Hoje" ou "Fazendo" | O que ficou em andamento |
-| Tasks com status "Essa semana" | O que foi definido mas nao foi puxado |
-| Tasks criadas essa semana (qualquer status) | O que surgiu no meio do caminho |
+| Tasks "Finalizado" (ultimos 7 dias) | O que foi feito |
+| Tasks "Hoje" ou "Fazendo" | O que ficou em andamento |
+| Tasks "Essa semana" | O que foi definido mas nao puxado |
+| Tasks criadas essa semana | O que surgiu no meio |
 
-#### 1.3 Diarios da semana
+### 1.3 Diarios dos ultimos 5 dias uteis
 
-Leia os diarios dos ultimos 5 dias uteis (`diarios/YYYY-MM-DD.md`).
+Leia `diarios/YYYY-MM-DD.md` dos 5 dias uteis da semana (path: `diarios_path` do local.md).
+
 Extraia:
 - Blockers recorrentes
-- Tasks extras que surgiram (nao planejadas)
-- Padroes (ex: "3 dias travou no mesmo tema", "nenhum check-out registrado")
+- Tasks extras que surgiram
+- Padroes (ex: "3 dias travou no mesmo tema", "nenhum check-out")
 - Notas relevantes
 
-#### 1.4 Google Calendar — Semana que passou
+### 1.4 Google Calendar — semana que passou
 
-Liste eventos de SEGUNDA ate HOJE (todos os calendarios — IDs em plugin-pique.local.md + CLAUDE.md do plugin).
+Liste eventos de SEGUNDA ate HOJE dos calendarios do usuario (ver `calendarios.*` no local.md). Identifique:
+- Reunioes que aconteceram
+- Reunioes canceladas/remarcadas
 
-Identifique:
-- Reunioes que aconteceram (consumiram tempo produtivo)
-- Reunioes que NAO aconteceram (canceladas/remarcadas)
+### 1.5 Telemetria pessoal da semana
 
-#### 1.5 Checagem de alertas
+Leia `~/.claude/telemetria/chats.jsonl` + `~/.claude/telemetria/chats-enriquecidos.jsonl` dos ultimos 7 dias.
 
-- Planilha financeira (`pique/financeiro/resumo-financeiro.md`): foi atualizada essa semana?
-- Stand-ups: quantos dias tiveram check-in e check-out nos diarios?
-- Conteudo: houve progresso em tasks do Space Conteudo?
+Regras de parsing em `/pique:tempo` secao "Como ler" (slug cwd, pareamento start/end, wall time).
 
-#### 1.6 Review anterior
+**Filtre por cwds do usuario**: todos os `cwd` cujo path contenha `Henrique Carvalho` (ou equivalente do user_name do local.md). Na pratica hoje = todos os chats da maquina do Henrique. Se o Marco rodar daqui uma vez, filtrar pelo home dele.
 
-Busque `sessoes/*-review-semanal*.md` mais recente (semana passada).
-Extraia:
-- Decisoes que foram tomadas — foram executadas?
-- Ajustes propostos — foram implementados?
-- Pendencias que ficaram — foram resolvidas?
+Agregue:
+- Horas totais na semana (wall)
+- Distribuicao por projeto (ultima componente do cwd)
+- N de chats total
+- Distribuicao A/B/C (se `chats-enriquecidos.jsonl` tem dado)
+- Chat mais longo da semana (+ projeto + primeiro prompt)
+
+Se `chats-enriquecidos.jsonl` nao existir ou estiver vazio, informar: "telemetria enriquecida indisponivel — so horas brutas, categorias A/B/C nao disponiveis ainda".
+
+### 1.6 Conteudo publicado na semana
+
+Delegar ao `gestor-clickup`: tasks no Space Conteudo (901313561098) com assignee = `user_clickup_id` e status "Finalizado" nos ultimos 7 dias.
+
+Liste titulos + tipo (artigo, carrossel, video, etc).
+
+Se nenhum: "Nenhum conteudo publicado esta semana".
+
+### 1.7 Aprendizados da semana
+
+Leia os diarios de 1.3 buscando padroes textuais: "aprendi", "descobri", "entendi", "ficou claro que", "percebi", "notei que".
+
+Extraia frases contextualizadas (3-5 itens maximo). Nada de inventar — so o que esta escrito.
+
+### 1.8 Areas pessoais (opcional)
+
+Se `areas_pessoais` existir no local.md, buscar menções nos diarios de cada area listada. Extrair 1-2 linhas por area sobre o que foi registrado.
+
+Se `areas_pessoais` nao existir: pular sem avisar. Se existir mas sem menção: "Area X — sem registros esta semana".
+
+### 1.9 Review pessoal anterior — follow-up
+
+Busque `sessoes/*-review-semanal-<user_name>.md` mais recente (semana passada). Extraia:
+- Decisoes que estavam no "Levar pro fechamento" anterior — foram executadas?
+- Pendencias pessoais — resolvidas?
 
 ---
 
-### Fase 2: Placar da semana
+## Fase 2: Placar pessoal
 
-Apresente neste formato:
+Apresente neste formato (UMA tabela, SO do usuario atual):
 
 ```
-## Review Semanal — [DD/MM a DD/MM]
+## Review Semanal — <user_name> — [DD/MM a DD/MM]
 
 ### Placar
-
-**Planejado na segunda:** [X] tasks ([Y] Henrique, [Z] Marco)
+**Planejado na segunda:** [X] tasks
 **Finalizado:** [N]
 **Em andamento:** [N]
 **Nao iniciado:** [N]
 **Extras (nao planejado):** [N]
-**Taxa de execucao:** [%] (finalizado / planejado)
+**Taxa de execucao:** [%]
 
----
-
-### Henrique — Semana
+### Tasks da semana
 
 | Task | Status | Planejado? | Notas |
 |------|--------|-----------|-------|
 | [Task A] | Finalizado | Sim | — |
-| [Task B] | Fazendo | Sim | Travou terca (motivo do diario) |
+| [Task B] | Fazendo | Sim | Travou terca (motivo) |
 | [Task C] | Essa semana | Sim | Nao iniciado |
-| [Task G] | Finalizado | Nao | Surgiu quarta |
+| [Task D] | Finalizado | Nao | Surgiu quarta |
 
-### Marco — Semana
+### Tempo no Claude Code esta semana
+- Total: [Xh]h em [N] chats
+- Por projeto: MEU-CEREBRO [X%], plugin-pique [Y%], ...
+- Chat mais longo: [Xh]h — "[primeiro prompt resumido]"
+- Tipos (A/B/C): A [X%], B [Y%], C [Z%] — cobertura: [M de N] chats enriquecidos
 
-| Task | Status | Planejado? | Notas |
-|------|--------|-----------|-------|
-| [Task D] | Finalizado | Sim | — |
-| [Task E] | Finalizado | Sim | — |
-| [Task F] | Removido | Sim | [motivo se identificavel] |
+### Conteudo publicado
+- [titulo 1] ([tipo])
+- [titulo 2] ([tipo])
+(ou: "Nenhum esta semana")
 
----
+### Aprendizados da semana
+- [aprendizado 1 — diario DD/MM]
+- [aprendizado 2 — diario DD/MM]
 
-### Reunioes da semana
-- [SEG] Planejamento semanal (H+M)
-- [QUA] Brainstorm conteudo (H+M+G)
-- [QUI] Call com [cliente] (Marco)
-- Tempo em reunioes: ~[X]h
+### Areas pessoais (se aplicavel)
+- [area 1]: [o que apareceu]
+- [area 2]: [o que apareceu]
 
-### Blockers / Padroes
-- [blocker recorrente se houver]
-- [padrao identificado nos diarios]
+### Blockers / padroes pessoais
+- [blocker recorrente]
+- [padrao nos diarios]
 
 ### Alertas
-- Financeiro: [atualizado / NAO atualizado essa semana]
-- Stand-ups: [X/5 dias com check-in, Y/5 com check-out]
-- Conteudo: [progresso / parado]
+- Stand-ups: [X/5 check-in, Y/5 check-out]
 
-### Review anterior — Follow-up
-- [Decisao X da semana passada] — [executada / nao executada]
-- [Pendencia Y] — [resolvida / ainda pendente]
+### Review anterior — follow-up
+- [decisao que levei pro fechamento passado] — [executada / nao]
 ```
 
 Depois pergunte (MAXIMO 3 perguntas, diretas):
 
-1. Faltou algo que voces fizeram essa semana e nao ta no ClickUp?
-2. Tem decisao pendente que precisa resolver nessa reuniao?
-3. (Se taxa de execucao < 50%) O que atrapalhou? Muita demanda nao planejada ou prioridades mudaram?
+1. Faltou algo que voce fez essa semana e nao ta no ClickUp?
+2. (Se taxa < 50%) O que atrapalhou?
+3. Algum aprendizado grande que o diario nao capturou?
 
 ESPERE a resposta antes de continuar.
 
 ---
 
-### Fase 3: Pre-selecao proxima semana
+## Fase 3: Levar pro fechamento
 
-Com base no review:
+Este e o **deliverable principal** deste ritual. E a ponte pro `/pique:fechamento-semana` que voce vai rodar as 17h com o outro socio.
 
-1. Liste tasks que ficaram pendentes (candidatas a voltar na segunda).
-2. Liste tasks do pool "A fazer" que fazem sentido como proximas.
-3. Sinalize se alguma task esta atrasada (prazo passou).
-4. NAO defina prioridades — isso e trabalho do planejamento de segunda. Apenas prepare o terreno.
+Com base em TUDO da Fase 1 + respostas da Fase 2, monte:
 
 ```
-### Insumos pro planejamento de segunda:
+### Levar pro fechamento (sexta [DD/MM]):
 
-**Carrega da semana (ficou pendente):**
-- [task] — [contexto de onde parou]
+**Destaques da semana (o que quero compartilhar):**
+- [destaque 1]
+- [destaque 2]
 
-**Pool disponivel:**
-- [task] [Space] — [prioridade se identificavel]
+**Bloqueios que dependem do outro socio:**
+- [bloqueio 1] — o que preciso que [outro socio] faça
+- (ou: "Nenhum")
 
-**Atrasadas (prazo passou):**
-- [task] — venceu [data]
+**Decisoes de empresa que quero propor:**
+- [decisao 1] — contexto: [por que]
+- [decisao 2] — contexto: [por que]
+- (ou: "Nenhuma")
 
-**Decisoes pra segunda:**
-- [questao que precisa ser decidida]
+**Proxima semana — meus compromissos:**
+- [compromisso 1 — dia, hora]
+- [compromisso 2]
 ```
 
-ESPERE confirmacao antes de continuar.
+**Regra:** se alguma secao esta vazia, escreva "Nenhum(a)" explicitamente. Nao omita secao — o fechamento espera as 4.
+
+ESPERE confirmacao do usuario antes de salvar.
 
 ---
 
-### Fase 4: PAUSA — Reuniao
+## Fase 4: Salvar sessao
 
-Diga:
-
-> "Placar pronto. Agora voces fazem o review. Gravem o audio.
-> Quando terminar, cola a transcricao aqui que eu processo."
-
-Se for sexta QUINZENAL (a cada 2 sextas), lembre:
-
-> "Essa sexta tem a extensao estrategica (+1h). Apos o review operacional, entrem nas questoes estrategicas: roadmap, oportunidades, decisoes de negocio."
-
-**NAO faca mais nada ate o usuario voltar com a transcricao ou dizer que terminou.**
-
----
-
-## TEMPO 2: POS-REUNIAO
-
-### Fase 5: Processar transcricao
-
-Quando o usuario colar a transcricao:
-
-1. **Cruze com o Tempo 1.** Identifique o que e NOVO vs o que ja estava no placar.
-2. **Extraia:**
-   - Decisoes tomadas (qualquer "vamos fazer X" ou "nao vamos fazer Y")
-   - Tasks novas que surgiram
-   - Tasks que foram oficialmente canceladas/adiadas
-   - Ajustes em processos ou estrategia
-   - Compromissos de agenda (reunioes marcadas, prazos combinados)
-   - Contexto novo (informacao que nao existia antes)
-   - Questoes estrategicas discutidas (se extensao quinzenal)
-   - Feedbacks entre Henrique e Marco
-3. **NAO repita** o que ja estava no placar. Foque no delta.
-
-Apresente:
-
-```
-## Resultado do review:
-
-### Decisoes tomadas
-1. [Decisao] — Motivo: [por que]
-
-### Tasks — Acoes
-- Criar: [task] → [quem], [prazo]
-- Mover pra Finalizado: [task] (confirmado na reuniao)
-- Cancelar/Adiar: [task] — [motivo]
-- Atualizar: [task] — [novo contexto]
-
-### Compromissos agendados
-- [evento] — [dia, horario, quem]
-
-### Estrategia (se extensao quinzenal)
-- [questao discutida] — [conclusao]
-- [ajuste no roadmap] — [o que muda]
-
-### Insumos pro planejamento de segunda
-- [prioridade definida na reuniao]
-- [contexto que o planejamento precisa saber]
-
-Posso executar?
-```
-
-ESPERE confirmacao antes de executar.
-
----
-
-### Fase 6: Execucao
-
-Apos confirmacao:
-
-#### 6.1 ClickUp
-- Mover tasks confirmadas como finalizadas para **"Finalizado"**
-- Criar tasks novas seguindo as regras do CLAUDE.md
-- Atualizar descricao de tasks que ganharam contexto novo
-- Tasks canceladas: perguntar se volta pra "A fazer" ou remove
-
-#### 6.2 Google Calendar
-- Se foram agendados novos compromissos, criar no calendario Pique Agenda
-- Adicionar participantes como convidados
-
-#### 6.3 Salvar sessao no cerebro
-
-Crie `sessoes/YYYY-MM-DD-HHMM-review-semanal.md` com:
+Crie `sessoes/YYYY-MM-DD-HHMM-review-semanal-<user_name>.md`:
 
 ```markdown
-# Sessao — Review Semanal [DD/MM a DD/MM]
+# Sessao — Review Semanal <user_name> [DD/MM a DD/MM]
 
 **Criado:** YYYY-MM-DD HH:MM
 **Status:** ativo
-**Tags:** sessao, pique-digital, review
+**Tags:** sessao, review, <user_name>
 
 ## Contexto
-Review semanal de sexta-feira. Henrique + Marco.
+Review semanal pessoal. Usuario: <user_name>.
 
-## Placar da semana
-- Planejado: [X] | Finalizado: [Y] | Taxa: [Z%]
-- Extras: [N]
+## Placar
+[conteudo completo da Fase 2]
 
-### Henrique
-- [x] [task finalizada]
-- [ ] [task nao feita] — [motivo]
+## Aprendizados
+[da Fase 1.7]
 
-### Marco
-- [x] [task finalizada]
-- [ ] [task nao feita] — [motivo]
-
-## Decisoes
-- [decisao 1] — Motivo: [por que]
-- [decisao 2] — Motivo: [por que]
-
-## Estrategia (se quinzenal)
-- [questao] — [conclusao]
-
-## Insumos pro planejamento de segunda
-- [prioridade definida]
-- [tasks que voltam]
-- [contexto relevante]
-
-## Alertas / Padroes
-- [blocker recorrente]
-- [padrao identificado]
+## Levar pro fechamento
+[conteudo completo da Fase 3 — este e o bloco que o /pique:fechamento-semana vai ler]
 
 ## Relacionado
-- Planejamento da semana: [link sessao de segunda]
+- Planejamento semanal: [link sessao de segunda]
 - Review anterior: [link se existir]
 ```
 
-#### 6.4 Atualizar arquivos do cerebro
-- Se houve decisoes que afetam arquivos existentes (estrategia, roadmap, processos), atualize
-- Se houve ajustes em processos, atualize o arquivo do processo
+**NAO** execute ClickUp ou Calendar neste ritual — esses sao jobs do `/pique:fechamento-semana` (tasks do time) e do `/pique:encerrar` (atualizacoes gerais).
 
-#### 6.5 Atualizar _mapa.md
-Se criou arquivo novo, adicione ao mapa.
+**NAO** atualize `_mapa.md` individual — o encerrar faz isso no final da conversa.
 
-#### 6.6 Encerrar
-
-Diga: "Semana revisada. Sessao salva, ClickUp atualizado. O planejamento de segunda vai puxar esses insumos automaticamente. Bom fim de semana."
+Diga: "Review pessoal salvo. Agora rode `/pique:fechamento-semana` as 17h com o outro socio — ele vai puxar este arquivo."
 
 ---
 
 ## Regras
 
-- NAO julgue a taxa de execucao. TDAH = semanas variam. 40% pode ter sido uma semana com muita demanda nao planejada. Registre e siga.
-- O placar e FACTUAL — numeros, nao opiniao. O agente mostra, os humanos interpretam.
-- Se o Marco nao preparou a pauta (feito/travou/metricas), sinalize mas NAO cobre. O review acontece de qualquer forma com os dados do ClickUp + diarios.
-- A extensao estrategica quinzenal e OPCIONAL — se voces nao quiserem fazer, pulem. O agente so lembra.
-- O review de sexta alimenta o planejamento de segunda. Capriche nos "Insumos pro planejamento" — e a ponte entre os dois rituais.
-- Se o usuario nao trouxer transcricao e disser "ja terminamos, nao gravou", pule pra Fase 6 usando as respostas da Fase 2.
+- **Tudo e do usuario atual.** Nada do outro socio aparece. Zero menção a "o que ele fez".
+- **Output principal e a secao 'Levar pro fechamento'.** E a ponte pro `/pique:fechamento-semana`. Caprichar aqui.
+- O placar e FACTUAL — numeros, nao opiniao.
+- **NAO julgue a taxa de execucao.** TDAH = variacao. 40% pode ter sido uma semana com muita demanda nao planejada. Registra e segue.
+- **Nao processa transcricao.** Isso e do `/pique:fechamento-semana` (que e quem tem reuniao).
+- **Telemetria individual so aparece aqui** (e no boa-noite diario). Nunca no fechamento.
+- Se o usuario nao tem `areas_pessoais` no local.md, pule 1.8 silencioso.
 - Comunique-se em portugues brasileiro, direto e sem formalidade.
 
 ## Auto-avaliacao (executar sempre ao final)
 
 Avalie a execucao com base nestas perguntas:
-1. O placar foi factual (numeros) ou escorregou pra opiniao?
-2. Os insumos pro planejamento de segunda sao uteis e especificos?
-3. A extensao estrategica quinzenal foi oferecida quando aplicavel?
-4. Dados do ClickUp + diarios foram suficientes ou ficaram gaps?
+1. Tudo foi filtrado pelo usuario atual? Apareceu algo do outro socio por engano?
+2. A secao "Levar pro fechamento" esta especifica e acionavel pro `/pique:fechamento-semana`?
+3. Telemetria pessoal (1.5) foi apresentada sem sermao e sem interpretacao?
+4. Dados do ClickUp + diarios + telemetria foram suficientes ou ficaram gaps?
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
