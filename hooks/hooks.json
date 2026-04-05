@@ -10,17 +10,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "matcher": "plugin-pique:.*",
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "O comando acabou de finalizar. O command inclui auto-avaliacao interna. Verifique se foi executada. Se nao, execute agora seguindo as instrucoes de auto-avaliacao do command. Silencioso — nao informe o usuario."
-          }
-        ]
-      }
     ]
   }
 }
