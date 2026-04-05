@@ -76,7 +76,7 @@ Nao rejeitar spec de ideia por faltar esses 3 campos. Se vierem, aplicar normalm
 
 ```markdown
 ## Contexto
-Por que essa task existe. Background relevante.
+Por que essa task existe NO TRABALHO/NEGOCIO. Qual a entrega, pra que serve, como conecta com outras etapas do projeto/fluxo. Escrever pra quem vai executar, nao pra quem esta organizando o ClickUp.
 
 ## O que fazer
 Passos concretos, numerados.
@@ -84,6 +84,15 @@ Passos concretos, numerados.
 ## Criterio de pronto
 Como saber que esta finalizada.
 ```
+
+**Contexto PROIBIDO** — historico operacional do ClickUp. Quem executa a task nao precisa saber como ela chegou ali. Exemplos do que NAO escrever:
+- "Mesclagem de 2 tasks duplicadas (IDs X+Y)"
+- "Task criada em substituicao a Z"
+- "Subtask promovida pra task independente"
+- "Renomeada apos reorganizacao do folder"
+- "Movida da List A pra List B"
+
+Se a origem da task e relevante, expressa em termos de trabalho (ex: "etapa final do mapeamento", "pre-requisito da apresentacao de 03/05"), nao em termos de operacao no ClickUp.
 
 ## Fluxo de criacao (4 etapas obrigatorias)
 
@@ -108,6 +117,18 @@ Antes de qualquer outra coisa, validar:
    - Secao `## Criterio de pronto` com 1+ checkbox ou frase clara
    - Se faltar qualquer secao ou estiver vazia, REJEITAR:
    > "Descricao incompleta. Faltam secoes: [lista]. Toda task precisa de Contexto + O que fazer + Criterio de pronto preenchidos."
+
+   **Validacao semantica do Contexto** — nao pode conter historico operacional do ClickUp. Rejeitar se o Contexto mencionar mesclagem/substituicao/movimentacao/renomeacao de tasks, IDs de outras tasks, ou qualquer referencia a como a task foi criada/reorganizada. Gatilhos de rejeicao (case-insensitive):
+   - "mesclagem", "mescla", "fusao", "duplicada(s)"
+   - "substitui(cao)", "substituta", "em substituicao a"
+   - "promovida", "subtask promovida", "virou task"
+   - "renomeada", "renomeacao"
+   - "movida da list", "movida de", "migrada"
+   - "apos reorganizacao", "durante a reorganizacao"
+   - IDs de tasks entre parenteses no texto do Contexto (ex: "(86ag3pmj2)")
+
+   Se detectar, REJEITAR:
+   > "Contexto contem historico operacional do ClickUp (gatilho: [termo]). O Contexto deve explicar o proposito da task NO TRABALHO, nao como ela foi criada/reorganizada. Reescreva focando em: qual a entrega, pra que serve, como conecta com outras etapas."
 
 5. **Policies por pessoa** (ver secao "Policies por pessoa" abaixo)
 
