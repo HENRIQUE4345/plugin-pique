@@ -1,5 +1,6 @@
 ---
 description: Ritual de fechamento do dia. Execute este fluxo EXATAMENTE, sem pular etapas.
+model: sonnet
 ---
 
 Ritual de fechamento do dia. Execute este fluxo EXATAMENTE, sem pular etapas.

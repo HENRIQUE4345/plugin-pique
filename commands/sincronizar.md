@@ -1,5 +1,6 @@
 ---
 description: Sincroniza o cerebro compartilhado da Pique (pull + commit + push). Execute este fluxo EXATAMENTE.
+model: sonnet
 ---
 
 Sincroniza o cerebro compartilhado da Pique (pull + commit + push). Execute este fluxo EXATAMENTE.

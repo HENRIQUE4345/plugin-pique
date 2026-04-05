@@ -1,5 +1,6 @@
 ---
 description: Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
+model: sonnet
 ---
 
 Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
