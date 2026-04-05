@@ -4,6 +4,14 @@ description: Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pul
 
 Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
 
+**Filosofia do ritual (hibrido — sistema sugere, humano confirma):**
+
+Esta skill faz **SELECAO AUTOMATICA** das tasks do dia baseada em regras (atrasadas + due hoje + dependencias + capacidade). A pessoa so **CONFIRMA ou AJUSTA** em 30 segundos. Nao e decisao diaria pesada — e validacao rapida.
+
+Por que hibrido: 100% automatico ignora capacidade mental do dia (cansaco, reuniao surpresa). 100% manual cria fadiga cognitiva diaria. O ponto doce e: sistema filtra o obvio, humano decide o contexto.
+
+**Contexto obrigatorio:** antes de rodar, considere o documento de fundamentos `conhecimento/produtividade/clickup-fundamentos-pique.md` — contem os 3 tipos de trabalho, pipelines, policies e limites (max 5 tasks/dia por pessoa).
+
 ## Ferramentas
 
 - **ClickUp**: usar `mcp__claude_ai_clickup__*` diretamente (connector OAuth do usuario)
@@ -148,7 +156,7 @@ Antes de propor, listar TUDO que o usuario falou na conversa:
 
 Incluir TODOS na proposta — separando o que e pra hoje vs o que e pra criar como task futura. NAO omitir nada que o usuario falou.
 
-### 3.2 Selecionar tasks — ordem de prioridade
+### 3.2 Selecionar tasks — ordem de prioridade (selecao automatica)
 
 Montar a lista candidata nesta ordem (de cima pra baixo):
 
@@ -159,6 +167,16 @@ Montar a lista candidata nesta ordem (de cima pra baixo):
 5. **Pool "Essa semana"** — puxar por prioridade (urgent > high > normal > low)
 
 Para cada task, mostrar a **estimativa de tempo** ao lado.
+
+**Limite: MAX 5 tasks por pessoa.** WIP limit pessoal (alinhado com fundamentos `conhecimento/produtividade/clickup-fundamentos-pique.md`). Se a lista candidata tem mais de 5, selecionar as 5 mais prioritarias e deixar as demais pra Fase 3.4 (nao coube).
+
+### 3.2.1 Verificar dependencias (novo)
+
+Antes de incluir uma task na lista candidata, verificar:
+- Ela tem `waiting_on` ativo? Se sim E a dependencia ainda nao foi finalizada, NAO sugerir — esta bloqueada. Sinalizar como "Aguardando X" no briefing.
+- Ela e subtask e a task-mae esta em status "Aguardando Terceiro" ou "Bloqueada"? NAO sugerir.
+
+Isso evita a frustracao de sugerir algo que a pessoa nao consegue comecar.
 
 ### 3.3 Montar o dia
 
@@ -268,7 +286,7 @@ Diga: "Stand-up feito. Mensagem pronta. Bora pro bloco produtivo."
 
 - NAO faca perguntas desnecessarias. O reconhecimento automatico deve cobrir 80% do contexto.
 - Se o board ta vazio (sem tasks em Essa semana), avise e pergunte o que quer focar.
-- Respeite o limite de 2-3 tasks/dia. Menos e melhor que mais (regra anti-TDAH).
+- Respeite o limite de **max 5 tasks/dia por pessoa** (WIP limit pessoal dos fundamentos). Idealmente 3. Menos e melhor que mais.
 - A Fase 4 (detalhamento) pode levar mais tempo — isso e esperado e valioso.
 - Bloqueio externo (fora do controle) = registra no "Travado em" do standup. So comenta no ClickUp se precisa de acao de outra pessoa.
 - **NUNCA proponha tasks que somem mais horas que o tempo livre calculado.** Se nao cabe, mostra o estouro e pergunta o que cortar.
@@ -283,7 +301,8 @@ Avalie a execucao com base nestas perguntas:
 2. Bloqueios cronicos (2+ empurradas) foram sinalizados?
 3. O reconhecimento automatico cobriu o contexto sem perguntas desnecessarias?
 4. As reunioes do calendario foram integradas corretamente no planejamento?
-5. A proposta final respeitou o limite de 2-3 tasks/dia?
+5. A proposta final respeitou o limite de max 5 tasks/dia?
+6. Dependencias bloqueadas foram filtradas antes de sugerir?
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
