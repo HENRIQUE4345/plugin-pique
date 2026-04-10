@@ -126,6 +126,15 @@ Apresente um resumo CURTO e visual:
 **Inbox:** [nada relevante / resumo de 1 linha]
 ```
 
+**Bloco condicional — quarta-feira:** se hoje for quarta, INCLUA no template do briefing acima (logo apos a linha de Inbox) o bloco abaixo. Em qualquer outro dia da semana, OMITA esse bloco.
+
+```
+**Alimentar cerebro (quarta):**
+- Lembrete: reservar 30min hoje pra download mental + processar inbox (`/inbox`)
+- Por que: quarta e o dia do ritual semanal de alimentar o cerebro — sem isso, /social-maturar e /social-sugerir ficam sem materia-prima fresca pra rodar na proxima terca
+- Os 30min entram como bloco proprio na Fase 3 (nao como task ClickUp) — desconte do tempo livre antes de propor tasks
+```
+
 Depois pergunte (MAXIMO 3 perguntas, diretas):
 
 1. Mudou alguma prioridade ou surgiu algo novo?
