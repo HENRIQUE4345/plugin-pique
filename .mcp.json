@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "pique-clickup": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcps/pique-clickup-mcp/dist/server.js"],
+      "env": {
+        "CLICKUP_TOKEN": "${PIQUE_CLICKUP_API_KEY}",
+        "PIQUE_CLICKUP_ROLE": "owner"
+      }
+    }
+  }
+}
