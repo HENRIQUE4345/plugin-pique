@@ -22,7 +22,7 @@ Por que isso existe: sem esse command, todo chat comeca do zero — o Henrique t
 - **Auditar antes de mexer:** todo `_tasks.md` referenciado, todo arquivo critico — Read antes de planejar (regra global "Auditar Estado Real Antes de Reorganizar" do CLAUDE.md)
 - **Plan mode obrigatorio:** nenhuma edicao de arquivo de codigo/projeto antes do `ExitPlanMode` aprovado pelo usuario na Fase 3
 - **Modo consultivo se ambiguo:** se a task do `_tasks.md` esta vaga, ou um arquivo critico nao existe mais, ou o estado real diverge do que a task assume — parar e perguntar, nao adivinhar
-- **ClickUp via agent:** se a task envolve ClickUp, delegar pro agent `gestor-clickup` no plan, NAO chamar `mcp__claude_ai_clickup__*` direto (memoria `feedback_clickup_gotchas`)
+- **ClickUp via agent:** se a task envolve ClickUp, delegar pro agent `gestor-clickup` no plan, NAO chamar `mcp__pique-clickup__*` direto (memoria `feedback_clickup_gotchas`)
 - **Edicao do ledger so com aprovacao:** Fase 7 mostra o diff antes de qualquer Edit no `_tasks.md`
 - **NAO chamar `/pique:encerrar` automaticamente:** sugerir no output final, mas o usuario decide
 

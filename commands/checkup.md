@@ -42,7 +42,7 @@ Execute em paralelo:
 
 1. **Tasks finalizadas** do Space (include_closed=true, status Finalizado/Entregue)
 2. **Tasks abertas** do Space (todos os status exceto Finalizado)
-3. **Membros do workspace** (clickup_get_workspace_members)
+3. **Membros do workspace** (delegar ao `gestor-clickup` — use `resolve_member` por handle, ou extraia a lista dos assignees que aparecem nas tasks retornadas)
 
 Calcule:
 - Total de tasks (abertas vs finalizadas)

@@ -109,7 +109,7 @@ ESPERE a resposta.
 
 Apos a resposta, organize o que o usuario disse e distribua pra cada task. Se ele nao tiver nada pra adicionar, siga direto.
 
-Para tasks que tiveram contexto, atualize a descricao no ClickUp (use clickup_update_task com markdown_description):
+Para tasks que tiveram contexto, delegue ao `gestor-clickup` pra atualizar a descricao no ClickUp (ele usa `update_task` com `markdown_description`):
 
 - Se **terminou**: registre o que foi feito e o resultado (pra historico).
 - Se **nao terminou**: atualize com o estado atual, onde parou, e o proximo passo concreto.

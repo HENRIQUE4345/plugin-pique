@@ -15,10 +15,10 @@ Por que hibrido: 100% automatico ignora capacidade mental do dia (cansaco, reuni
 
 ## Ferramentas
 
-- **ClickUp**: usar `mcp__claude_ai_clickup__*` diretamente (connector OAuth do usuario)
+- **ClickUp**: delegar ao agent `gestor-clickup` (operacoes via `pique-clickup-mcp`). NUNCA chamar `mcp__pique-clickup__*` direto — o hook bloqueia e pede delegacao.
 - **Google Calendar**: usar `mcp__claude_ai_Google_Calendar__*` diretamente
 
-> **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis, avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
+> **IMPORTANTE**: Se o agent `gestor-clickup` nao conseguir operar (ex: `pique-clickup-mcp` desativado), avise o usuario: "pique-clickup-mcp esta desativado. Ative em: VS Code → MCP Servers → pique-clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
 
 ## Configuracao
 
@@ -69,7 +69,7 @@ IDs dos calendarios: consultar `plugin-pique.local.md` (usuario atual) + CLAUDE.
 
 Consulte `pique/infra/clickup-setup.md` para IDs dos Spaces.
 
-Busque tasks nos seguintes estados (use clickup_search):
+Delegue ao agent `gestor-clickup` pra buscar tasks nos seguintes estados (ele usa `list_tasks` com filtros):
 
 | O que buscar | Por que |
 |---|---|
@@ -236,7 +236,7 @@ Apos confirmacao das tasks, para CADA task confirmada:
 
 1. Pergunte: "O que precisa ser feito nessa? Onde parou? Qual o proximo passo concreto?"
 2. Escute a resposta.
-3. Atualize a descricao da task no ClickUp (use clickup_update_task com markdown_description) incluindo:
+3. Delegue ao `gestor-clickup` pra atualizar a descricao da task (ele usa `update_task` com `markdown_description`) incluindo:
    - Contexto / onde parou
    - Passos concretos (checklist)
    - Proximo passo imediato
@@ -253,7 +253,7 @@ ESPERE resposta de cada uma antes de passar pra proxima.
 ## Fase 5: Execucao
 
 ### 5.1 Atualizar ClickUp
-- Mova as tasks confirmadas para status **"Hoje"** (use clickup_update_task com status "Hoje").
+- Delegue ao `gestor-clickup` pra mover as tasks confirmadas para status **"Hoje"** (ele usa `update_task` com `status: "Hoje"`).
 - Se alguma task de ontem que ficou em "Hoje" NAO foi escolhida, pergunte: volta pra "Essa semana" ou fica?
 
 ### 5.2 Gerar mensagem do WhatsApp

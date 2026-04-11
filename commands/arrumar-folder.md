@@ -36,7 +36,7 @@ Reorganiza um Folder do ClickUp em 5 fases (audit → diagnose → plan → exec
 ### Por task criada/editada
 - [ ] Verbo no infinitivo no nome ("Criar...", "Configurar...", "Desenhar...")
 - [ ] Estimativa entre 30min e 4h (teste das 4h do fundamentos)
-- [ ] time_estimate em MILISSEGUNDOS (validar apos retorno do agent que nao virou 180ms)
+- [ ] time_estimate_minutes em minutos (int 1-240 — o MCP ja valida faixa e rejeita > 240)
 - [ ] Assignee valido, com acesso ao Space (sem quebrar na API)
 - [ ] Criterio de pronto com checkbox claro
 - [ ] Contexto = proposito NO TRABALHO, nao historia operacional do ClickUp
@@ -52,7 +52,7 @@ Reorganiza um Folder do ClickUp em 5 fases (audit → diagnose → plan → exec
 - [ ] Datas coerentes com dependencias
 - [ ] Zero tasks sem assignee ou sem prazo
 - [ ] Zero dependencias fantasma
-- [ ] Zero estimativas em ms invalidas (< 60000ms = menos de 1min)
+- [ ] Zero estimativas invalidas (< 15min dispara aviso do MCP; confirmar se faz sentido solta)
 
 ---
 
@@ -76,9 +76,9 @@ Delegar ao agent `gestor-clickup` o seguinte briefing:
 > Liste o estado completo e real do Folder `[nome]` (ID `[id]`). Para CADA List dentro, retorne TODAS as tasks (inclusive subtasks, inclusive finalizadas, inclusive tasks fora do plano). Para cada task:
 > 1. ID, nome, status
 > 2. Assignees (nomes resolvidos)
-> 3. Due date convertida via Bash (DD/MM/YYYY + dia da semana)
+> 3. Due date (o `pique-clickup-mcp` ja retorna formatada em PT-BR com relativo)
 > 4. Start date (se houver)
-> 5. time_estimate (Xh Ym — alertar se < 60000ms que e bug)
+> 5. time_estimate (Xh Ym — alertar se < 15min que o MCP ja sinaliza como aviso)
 > 6. Priority
 > 7. Parent task (se for subtask)
 > 8. Subtasks (lista de IDs + nomes)
@@ -114,12 +114,12 @@ Marcar cada task com os problemas aplicaveis:
 - `SEM DONO` — sem assignee
 - `SEM DATA` — sem due
 - `SEM ESTIMATIVA` — sem time_estimate
-- `ESTIMATIVA BUG` — time_estimate < 60000ms (valor salvo errado)
+- `ESTIMATIVA MUITO PEQUENA` — time_estimate_minutes < 15 (o MCP ja sinaliza como aviso)
 - `VERBO FRACO` — nome nao comeca com verbo acionavel
 - `VENCIDA` — due no passado e status ativo
 - `DEPENDENCIA FANTASMA` — depends_on ou blocks aponta pra task inexistente
 - `CONTEXTO OPERACIONAL` — descricao do Contexto menciona mesclagem/substituicao/renomeacao de tasks, IDs de outras tasks no texto
-- `ASSIGNEE SEM ACESSO` — validar com clickup_get_workspace_members
+- `ASSIGNEE SEM ACESSO` — validar comparando com os membros resolvidos via `resolve_member` do agent
 - `SUBTASK ORFA` — subtask cuja task-mae esta finalizada mas ela nao
 - `DATA DESCOLADA` — due incoerente com dependencia (A espera B, mas due de A < due de B)
 
@@ -207,7 +207,7 @@ Com base no diagnostico + respostas do usuario, montar o plano em 4 blocos numer
 ### Bloco 2 — EDIT
 
 Delegar ao `gestor-clickup` todas as edicoes em sequencia. Briefing explicito por task. Validar retornos:
-- time_estimate salvou em ms correto (>= 900000 ms = 15min)
+- time_estimate_minutes salvou em faixa valida (>= 15min; o MCP rejeita > 240min)
 - Assignees aplicados
 - Dependencias antigas limpas se nome/escopo mudou
 
@@ -285,7 +285,7 @@ Avalie a execucao com base nestas perguntas:
 2. **Rejeicao:** o usuario rejeitou alguma proposta do plano? (sinal de diagnostico raso)
 3. **Gaps da audit:** apareceu algum problema na Fase 4 que nao foi detectado na Fase 1? (sinal de checklist incompleto)
 4. **Gantt pos-execucao:** o visual ficou coerente ou precisou de ajuste extra? (sinal de Fase 3 incompleta)
-5. **Bugs do agent:** alguma operacao retornou dado corrompido (time_estimate em ms errado, date com offset, etc)?
+5. **Bugs do agent/MCP:** alguma operacao retornou dado corrompido (time_estimate fora da faixa, date com offset, etc)?
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
