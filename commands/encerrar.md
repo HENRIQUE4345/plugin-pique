@@ -21,7 +21,20 @@ Encerramento de conversa. Processa tudo que foi discutido e distribui para os lu
 
 ## Fase 1: Varredura da conversa (automatico, NAO pergunte nada)
 
-Releia TODA a conversa e extraia:
+### 1.0 Detectar interferencia do /inbox (CRITICO — fazer PRIMEIRO)
+
+Se `/inbox` rodou em paralelo ou antes na mesma sessao, arquivos que voce estava editando podem ter sido MOVIDOS/RENOMEADOS. Detecte antes de qualquer varredura:
+
+1. Rode `git status` no cerebro
+2. Se ver arquivos DELETADOS em `inbox/contextos/*.md` E arquivos UNTRACKED em `sessoes/` ou `diarios/` com data de hoje → `/inbox` rodou
+3. Para cada arquivo deletado de `inbox/contextos/`, busque a contraparte em `sessoes/` (novo nome segue padrao `YYYY-MM-DD-HHMM-tipo-descricao.md`)
+4. **Ajuste referencias:** se voce ja editou um arquivo na conversa que foi movido, garanta que:
+   - Suas edicoes foram preservadas (elas seguem o arquivo pro novo lugar)
+   - Qualquer LINK pra ele em outros arquivos (CLAUDE.md, clickup-setup.md, outros docs) aponte pro NOVO caminho
+   - O plano da Fase 2 use o NOVO caminho, nao o antigo
+5. Sinalize no plano: "⚠ /inbox rodou em paralelo — arquivo X foi movido de inbox/contextos/ pra sessoes/"
+
+Nao comite mudancas do `/inbox` junto com as suas — elas sao de outra operacao. Comite APENAS o que esta conversa produziu.
 
 ### 1.1 Decisoes tomadas
 Qualquer "vamos fazer X", "nao vamos fazer Y", "decidimos que Z".
