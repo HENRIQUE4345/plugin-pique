@@ -16,15 +16,18 @@ import type { Role } from "./types.js";
 export const ALL_TOOLS = [
   "add_comment",
   "add_dependency",
+  "add_tag",
   "attach_file",
   "create_task_full",
   "delete_task",
   "get_hierarchy",
   "get_task",
+  "list_tags",
   "list_tasks",
   "move_task",
   "refresh_hierarchy",
   "remove_dependency",
+  "remove_tag",
   "resolve_member",
   "update_task",
 ] as const;
@@ -38,6 +41,7 @@ const ROLE_TOOLS: Record<Role, Set<ToolName>> = {
   viewer: new Set<ToolName>([
     "get_task",
     "list_tasks",
+    "list_tags",
     "get_hierarchy",
     "refresh_hierarchy",
     "resolve_member",

@@ -18,15 +18,18 @@ import type { ToolContext } from "./tool.js";
 
 import { registerAddComment } from "./tools/add-comment.js";
 import { registerAddDependency } from "./tools/add-dependency.js";
+import { registerAddTag } from "./tools/add-tag.js";
 import { registerAttachFile } from "./tools/attach-file.js";
 import { registerCreateTaskFull } from "./tools/create-task-full.js";
 import { registerDeleteTask } from "./tools/delete-task.js";
 import { registerGetHierarchy } from "./tools/get-hierarchy.js";
 import { registerGetTask } from "./tools/get-task.js";
+import { registerListTags } from "./tools/list-tags.js";
 import { registerListTasks } from "./tools/list-tasks.js";
 import { registerMoveTask } from "./tools/move-task.js";
 import { registerRefreshHierarchy } from "./tools/refresh-hierarchy.js";
 import { registerRemoveDependency } from "./tools/remove-dependency.js";
+import { registerRemoveTag } from "./tools/remove-tag.js";
 import { registerResolveMember } from "./tools/resolve-member.js";
 import { registerUpdateTask } from "./tools/update-task.js";
 
@@ -35,15 +38,18 @@ type Registrar = (server: McpServer, ctx: ToolContext) => void;
 const REGISTRARS: Record<ToolName, Registrar> = {
   add_comment: registerAddComment,
   add_dependency: registerAddDependency,
+  add_tag: registerAddTag,
   attach_file: registerAttachFile,
   create_task_full: registerCreateTaskFull,
   delete_task: registerDeleteTask,
   get_hierarchy: registerGetHierarchy,
   get_task: registerGetTask,
+  list_tags: registerListTags,
   list_tasks: registerListTasks,
   move_task: registerMoveTask,
   refresh_hierarchy: registerRefreshHierarchy,
   remove_dependency: registerRemoveDependency,
+  remove_tag: registerRemoveTag,
   resolve_member: registerResolveMember,
   update_task: registerUpdateTask,
 };
