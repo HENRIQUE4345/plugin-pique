@@ -11,7 +11,7 @@ export function registerUpdateTask(server: McpServer, ctx: ToolContext): void {
     {
       title: "Update Task",
       description:
-        "Atualiza campos de uma task existente. Aceita os mesmos campos do create_task_full (todos opcionais, so envia o que for fornecido). Normaliza markdown e datas automaticamente. NAO faz validacoes da Pique no update — assume que voce sabe o que ta fazendo (use create_task_full pra criar com regras).",
+        "Atualiza campos de uma task existente. Aceita os mesmos campos do create_task_full (todos opcionais, so envia o que for fornecido). Normaliza markdown e datas automaticamente. Custom fields sao atualizados via endpoint separado do ClickUp (um POST por field). NAO faz validacoes da Pique no update — assume que voce sabe o que ta fazendo (use create_task_full pra criar com regras).",
       inputSchema: {
         task_id: z.string().describe("ID da task a atualizar"),
         name: z.string().optional(),
@@ -31,6 +31,12 @@ export function registerUpdateTask(server: McpServer, ctx: ToolContext): void {
         time_estimate_minutes: z.number().int().min(1).optional(),
         parent: z.string().optional().describe("Mover pra ser subtask de outra task"),
         archived: z.boolean().optional(),
+        custom_fields: z
+          .array(z.object({ id: z.string(), value: z.unknown() }))
+          .optional()
+          .describe(
+            "Custom fields pra atualizar, formato [{id, value}]. Cada campo vira POST separado em /task/{id}/field/{field_id}. Em caso de erro em algum, os demais ja aplicados ficam — retorna lista de sucesso e lista de falha.",
+          ),
       },
     },
     async (args) =>
@@ -63,16 +69,64 @@ export function registerUpdateTask(server: McpServer, ctx: ToolContext): void {
           };
         }
 
-        if (Object.keys(body).length === 0) {
+        const hasMainBody = Object.keys(body).length > 0;
+        const hasCustomFields = args.custom_fields && args.custom_fields.length > 0;
+
+        if (!hasMainBody && !hasCustomFields) {
           return fail("Nenhum campo fornecido pra atualizar.");
         }
 
-        const updated = await ctx.client.putV2<Record<string, unknown>>(
-          `/task/${encodeURIComponent(args.task_id)}`,
-          body,
-        );
+        // 1. Update principal (se houver campos nativos)
+        let updated: Record<string, unknown> | undefined;
+        if (hasMainBody) {
+          updated = await ctx.client.putV2<Record<string, unknown>>(
+            `/task/${encodeURIComponent(args.task_id)}`,
+            body,
+          );
+        }
+
+        // 2. Custom fields — um POST por field
+        const cf_applied: string[] = [];
+        const cf_failed: Array<{ id: string; error: string }> = [];
+        if (hasCustomFields) {
+          for (const field of args.custom_fields!) {
+            try {
+              await ctx.client.postV2(
+                `/task/${encodeURIComponent(args.task_id)}/field/${encodeURIComponent(field.id)}`,
+                { value: field.value },
+              );
+              cf_applied.push(field.id);
+            } catch (e) {
+              const detail = e instanceof Error ? e.message : String(e);
+              cf_failed.push({ id: field.id, error: detail });
+            }
+          }
+        }
+
+        // 3. Fetch task atualizada se update principal nao rodou (so custom fields)
+        if (!updated) {
+          updated = await ctx.client.getV2<Record<string, unknown>>(
+            `/task/${encodeURIComponent(args.task_id)}`,
+          );
+        }
+
         const formatted = formatTask(updated as unknown as Parameters<typeof formatTask>[0]);
-        return ok(`Task atualizada.\n\n${taskToText(formatted)}`, { task: formatted });
+        const lines = [`Task atualizada.`, ``, taskToText(formatted)];
+        if (cf_applied.length > 0) {
+          lines.push(``, `CUSTOM FIELDS APLICADOS: ${cf_applied.join(", ")}`);
+        }
+        if (cf_failed.length > 0) {
+          lines.push(``, `CUSTOM FIELDS FALHARAM:`);
+          for (const f of cf_failed) {
+            lines.push(`  - ${f.id}: ${f.error}`);
+          }
+        }
+
+        return ok(lines.join("\n"), {
+          task: formatted,
+          custom_fields_applied: cf_applied,
+          custom_fields_failed: cf_failed,
+        });
       }),
   );
 }
