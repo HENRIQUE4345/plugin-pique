@@ -22,7 +22,7 @@ Exemplos de pergunta:
 | Fonte | Conteudo | Uso |
 |-------|----------|-----|
 | `~/.claude/telemetria/chats.jsonl` | Eventos `start`/`end` crus (hooks) | Wall time de cada sessao, contagem de chats |
-| `~/.claude/telemetria/chats-enriquecidos.jsonl` | Tema, resumo, categoria A/B/C (gerado por `/pique:encerrar`) | Tipos de conversa, temas frequentes |
+| `~/.claude/telemetria/chats-enriquecidos.jsonl` | Tema, resumo, categoria A/B/C, `arquivos_tocados`, `diretorios`, `commits`, `tags` (gerado por `/pique:encerrar`; campos operacionais a partir do plugin-pique 1.6.0) | Tipos de conversa, temas frequentes, retomada de contexto via `/pique:continuar` |
 | `~/.claude/projects/<slug-cwd>/<sessionId>.jsonl` | JSONL nativo (modelo por turno, tokens, timestamps, primeiro prompt) | Tokens, custo, modelos usados, tempo fino |
 
 ## Como ler — linguagem de parsing (referencia usada por outros commands)

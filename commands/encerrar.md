@@ -162,6 +162,15 @@ Registra 1 linha JSONL com metadata desta conversa em `~/.claude/telemetria/chat
 - `primeiro_prompt`: primeira ocorrencia de `message.content[*].text` no primeiro `"type":"user"` (pular `<ide_opened_file>` e `<command-name>` se houver, pegar o texto real)
 - `wall_seconds`: `last_ts - first_ts` em segundos. Aceitar que subestima 2-5s (o proprio encerrar ainda nao escreveu a linha final).
 
+**Passo 2.5 — extrair contexto operacional da sessao** (alimenta `/pique:continuar`):
+
+- `arquivos_tocados`: `Grep` no `<sessionId>.jsonl` por `"name":"Edit"`, `"name":"Write"`, `"name":"NotebookEdit"`. Extrair `input.file_path` de cada match. Normalizar pra path relativo ao `cwd` (strip prefixo). Dedup. Maximo 20 (truncar silencioso).
+- `diretorios`: dirname distinto dos `arquivos_tocados`. Dedup. Maximo 10.
+- `commits`: se `cwd` e repo git, rode `git -C "<cwd>" log --since="<first_ts>" --pretty=%h`. Pegue ate 10 SHAs curtos. Se `git` falhar ou nao for repo, `[]`.
+- `tags`: 2-4 palavras-chave curtas sobre o tema (reusa a classificacao da Fase 3). Ex: `["telemetria","comando","continuar"]`.
+
+Falha silenciosa em qualquer um: o campo vai como `[]`. Nao bloqueia o encerrar.
+
 **Passo 3 — Claude classifica (sem perguntar ao usuario):**
 Claude tem TODO o contexto da conversa que acabou de encerrar. Classifique direto:
 - `tema`: 3-5 palavras descrevendo do que a conversa tratou
@@ -176,8 +185,10 @@ Claude tem TODO o contexto da conversa que acabou de encerrar. Classifique diret
 
 Schema:
 ```json
-{"ts":"<ISO UTC fim>","session_id":"<uuid>","cwd":"<cwd>","projeto":"<nome>","tema":"...","resumo":"...","categoria":"B","wall_seconds":1234,"modelos":["claude-opus-4-6"],"primeiro_prompt":"..."}
+{"ts":"<ISO UTC fim>","session_id":"<uuid>","cwd":"<cwd>","projeto":"<nome>","tema":"...","resumo":"...","categoria":"B","wall_seconds":1234,"modelos":["claude-opus-4-6"],"primeiro_prompt":"...","arquivos_tocados":["projetos/x.md","pique/infra/y.md"],"diretorios":["projetos/","pique/infra/"],"commits":["a1b2c3d"],"tags":["telemetria","comando"]}
 ```
+
+Campos `arquivos_tocados`, `diretorios`, `commits`, `tags` foram introduzidos no plugin-pique 1.6.0. Entradas anteriores nao tem esses campos — leitores devem tratar como `[]` quando ausente.
 
 Use `Bash: echo '<linha-json>' >> ~/.claude/telemetria/chats-enriquecidos.jsonl` (com aspas simples pra preservar JSON interno, escape de aspas duplas no tema/resumo).
 
