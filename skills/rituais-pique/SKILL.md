@@ -64,6 +64,7 @@ Cada diario em `{diarios_path}/YYYY-MM-DD.md` segue:
 - `/plugin-pique:boa-noite` — executa fechamento do dia
 - `/plugin-pique:planejamento-semanal` — ritual de segunda
 - `/plugin-pique:review-semanal` — ritual de sexta
+- `/plugin-pique:extensao-estrategica` — dashboard estrategico quinzenal (sexta alternada)
 - `/plugin-pique:pos-reuniao` — processa transcricao de reuniao
 - `/plugin-pique:encerrar` — fecha conversa e distribui
 
