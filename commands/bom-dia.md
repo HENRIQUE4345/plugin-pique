@@ -56,6 +56,7 @@ Execute TUDO em paralelo:
 Liste eventos de HOJE e dos PROXIMOS 3 DIAS:
 - Use gcal_list_events com timeMin=hoje 00:00 e timeMax=hoje+3 dias 23:59.
 - Cheque TODOS os calendarios do usuario (ler IDs de `plugin-pique.local.md` e CLAUDE.md do plugin).
+- **Filtro no calendario Pique Agenda (compartilhado):** incluir evento apenas se (a) o email do usuario atual (campo `calendarios.primary` em `plugin-pique.local.md`) esta em `attendees`, OU (b) o evento nao tem `attendees` (evento publico da empresa). NAO listar reuniao do outro socio como compromisso seu — ja aconteceu de contaminar briefing e estimativa de tempo livre.
 - Classifique:
   - **HOJE:** reunioes que ocupam bloco de tempo
   - **AMANHA/PROXIMOS:** reunioes que precisam de PREP hoje
@@ -253,7 +254,9 @@ ESPERE resposta de cada uma antes de passar pra proxima.
 ## Fase 5: Execucao
 
 ### 5.1 Atualizar ClickUp
-- Delegue ao `gestor-clickup` pra mover as tasks confirmadas para status **"Hoje"** (ele usa `update_task` com `status: "Hoje"`).
+- **ANTES de mover, checar statuses disponiveis na list de cada task.** Algumas lists operacionais seguem workflow por fase (tipo `a fazer/fazendo/aguardando/finalizado`) e NAO tem status "Hoje".
+- Se a list TEM status "Hoje": delegue ao `gestor-clickup` pra mover (ele usa `update_task` com `status: "Hoje"`).
+- Se a list NAO tem status "Hoje": NAO force. Fallback = manter status atual + confirmar `due_date = hoje` (ja sinaliza foco pra aquele dia).
 - Se alguma task de ontem que ficou em "Hoje" NAO foi escolhida, pergunte: volta pra "Essa semana" ou fica?
 
 ### 5.2 Gerar mensagem do WhatsApp

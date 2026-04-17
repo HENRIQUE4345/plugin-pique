@@ -19,6 +19,12 @@ Encerramento de conversa. Processa tudo que foi discutido e distribui para os lu
 
 ---
 
+## Regra dura: consultar `_mapa.md` ANTES de grep/glob
+
+Antes de qualquer grep/glob procurando arquivo existente no cerebro, leia `_mapa.md` primeiro. O mapa indexa todos os arquivos por tema/pasta e resolve 90% das buscas em 1 leitura. Regra ja vive no CLAUDE.md do cerebro — esta skill DEVE segui-la na Fase 1 (secoes 1.2 e 1.5 que cruzam com o mapa, e qualquer outra varredura).
+
+---
+
 ## Fase 1: Varredura da conversa (automatico, NAO pergunte nada)
 
 ### 1.0 Detectar interferencia do /inbox (CRITICO — fazer PRIMEIRO)
@@ -105,6 +111,8 @@ Posso executar?
 - NAO crie arquivo novo se ja existe um sobre o tema — atualize o existente
 - NAO salve sessao se a conversa foi curta/operacional (ex: "cria task X", "muda status Y")
 - Sessao so faz sentido pra brainstorms, reunioes, downloads mentais, analises longas
+- **Brainstorm estrategico vs execucao de sprint:** se a conversa DESENHOU arquitetura nova (definindo projeto/plugin/area, nao fechando sprint), tasks sao HIPOTESES FUTURAS, nao commits imediatos. Comece propondo 1-2 tasks essenciais e PERGUNTE antes de expandir. Evita poluir o ClickUp com 5+ tasks que viram backlog morto.
+- **Confirmar corte de escopo:** se o usuario cortar tasks explicitamente no plano ("so essa task", "corta essas X"), CONFIRME se Calendar e outros outputs tambem saem do escopo — nao presuma. Pergunta direta: "Corto Calendar/sessao/cerebro junto, ou mantenho?".
 
 ESPERE o usuario revisar e aprovar antes de continuar.
 

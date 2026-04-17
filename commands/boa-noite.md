@@ -40,10 +40,11 @@ Faca DUAS buscas em paralelo:
 - Tasks com status "Hoje" ou "Fazendo" (o que ficou pendente/em andamento)
 - Filtrar por assignee do usuario, em TODOS os Spaces ativos
 
-**Busca 2 — Tasks atualizadas hoje:**
-- Buscar tasks do usuario ordenadas por `updated_at desc` (mais recentes primeiro)
-- NAO filtrar por status — pegar TUDO que foi movido/atualizado hoje
-- Isso garante que nenhuma task finalizada passe despercebida
+**Busca 2 — Tasks concluidas HOJE:**
+- Use `clickup_filter_tasks` com `date_done_from = hoje 00:00` e `date_done_to = hoje 23:59` + `include_closed: true`.
+- Filtrar por assignee do usuario, em TODOS os Spaces ativos.
+- Esse filtro e EXATO por data de conclusao — evita puxar tasks fechadas em outros dias que aparecem em `updated_at desc`.
+- Cruze com a Busca 1 pra identificar tasks que finalizaram hoje, as que continuam em andamento e as paradas.
 
 Busque em TODOS os Spaces ativos:
 - Pique Digital (901313561086)
