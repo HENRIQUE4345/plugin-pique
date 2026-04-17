@@ -39,6 +39,13 @@ Orquestra analise profunda de uma area de cliente + desenho de solucoes no padra
 - [ ] Auditar estado REAL do cerebro + ClickUp antes de propor (CLAUDE.md global)
 - [ ] Nunca refazer diagnostico se material ja existe — detectar maturidade e pular etapas
 - [ ] Buscar cards existentes no Catalogo (filtrar por Area) ANTES de propor criar qualquer coisa
+- [ ] Buscar tasks existentes na list Solucoes (filtro por nome "Estudar <area>") ANTES de criar follow-up pessoal
+
+### Dados factuais nunca inventados (regra dura)
+- [ ] **Numeros financeiros** (Economia R$, Preco venda, Valor recorrencia, Horas impl): preencher SO com fonte firme citavel. Senao, deixar VAZIO. NUNCA estimar "baseado em plano X de mercado" ou "assumindo Y funcionarios × R$Z/h" — isso vira dado fake no ClickUp e corrompe decisao comercial. Memory: `feedback_nao_inventar_numeros`
+- [ ] **Valor de ferramenta externa que o cliente paga** (ex: mLabs, Canva Pro, qualquer SaaS): buscar fonte nos docs do cliente ou perguntar. NAO chutar baseado em tabela publica de mercado
+- [ ] **Tempo/carga de pessoa** (ex: "Nayara 600h/ano"): so com fonte no dossie. Estimativas grosseiras devem ser marcadas explicitamente "estimativa — validar com <fonte>"
+- [ ] Em **Economia nao monetaria** (texto), evitar numeros soltos sem citacao. Preferir descrever dor qualitativa + remeter a paths do cerebro
 
 ### Por card-mae a criar (sem subtasks na ideacao)
 - [ ] Nome comeca com verbo **`Desenvolver`** seguido de titulo legivel (ex: `Desenvolver Cadastro Unificado de Produto`). NAO usar prefixo codificado tipo `F1` ou `Plugin X`. Qualquer socio deve ler e entender do que se trata. Origem: memory `feedback_verbo_catalogo_desenvolver` — cards da list Catalogo de Solucoes em folder de consultoria cliente sempre "Desenvolver".
@@ -100,7 +107,17 @@ Buscar em `pique/clientes/<cliente>/` por:
 - Diagnostico consolidado da area se existir (`diagnostico/area-<nome>.md`)
 - Processos/mapeamento pessoa-por-pessoa se existir
 
-**OBRIGATORIO — Auditar orfaos no Drive:** ler `pique/clientes/<cliente>/_mapa.md` e procurar por "[pendente migracao]", "[no Drive]", "nao migrado" ou similar. Se houver mencao, checar tambem `G:/Drives compartilhados/Pique Digital/Pique Digital/Clientes/<cliente>/diagnostico/` e subpastas relacionadas a area. Material que o cerebro diz faltar pode estar la e muda maturidade de Media→Alta. Listar arquivos encontrados no output do agent. Origem da regra: sessao 13/04/2026 gestao-lojas/beco — entrevistas Ellen/Marcilene/gerentes estavam no Drive mas nao migradas, quase causaram diagnostico falso de "Inexistente".
+**OBRIGATORIO — Auditar orfaos fora do cerebro:** ler `pique/clientes/<cliente>/_mapa.md` e procurar por "[pendente migracao]", "[no Drive]", "nao migrado", "repo antigo" ou similar. Se houver mencao OU se o diagnostico esperado da area nao existe, buscar em TRES lugares:
+
+1. **Drive:** `G:/Drives compartilhados/Pique Digital/Pique Digital/Clientes/<cliente>/diagnostico/` e subpastas relacionadas a area
+2. **Repos paralelos em `C:/Users/Henrique Carvalho/Documents/PROGRAMAS/`** (ex: `BRAINSTORM-TEMPLATE/docs/sessoes/`, repos de projetos antigos do cliente, FLUXOS, qualquer pasta que contenha docs .md do cliente). Usar Glob + Grep com keyword da area + nome do cliente
+3. Pastas `inbox/contextos/` ou `arquivo/` no cerebro pessoal (MEU-CEREBRO)
+
+Material que o cerebro diz faltar pode estar la e muda maturidade de Media→Alta. Listar TODOS os arquivos encontrados no output do agent com paths absolutos.
+
+Origens da regra:
+- Sessao 13/04/2026 gestao-lojas/beco — entrevistas Ellen/Marcilene/gerentes estavam no Drive, nao migradas
+- Sessao 17/04/2026 marketing/beco — 4 brainstorms com SWOT completa e mapeamento de 13 atividades de marketing estavam em `BRAINSTORM-TEMPLATE/docs/sessoes/`, nao migrados. Diagnostico "Alta maturidade" so emergiu apos o usuario apontar o repo paralelo — skill tinha avaliado "Media" sem essa busca
 
 ### Agent 2 — Cards existentes no Catalogo
 Listar tasks da list `901326825973` filtrando pelo custom field `Area = <area>`. Para cada card: nome, status, ID, URL. Tambem checar se ha cards-mae ja no formato `Desenhar Plugin <area> — F<N>...` (sinal de que area ja foi empacotada antes).
@@ -219,11 +236,37 @@ Se o usuario fica em discussao >30min sem convergir, oferecer: "quer que eu arri
 
 ## Fase 5: Empacotamento em plugin YabaBuss (PARA E ESPERA)
 
-Consulta `narrativa-yababuss.md` e o que emergiu do Loop. Decomposicao:
+Consulta `narrativa-yababuss.md` e o que emergiu do Loop.
 
-1. **N fases vendaveis** (tipicamente 2-4). Cada fase = 1 card-mae. Criterio de corte: usuario diferente OU mecanica diferente OU dependencia forte.
-2. **M componentes tecnicos por fase** (tipicamente 3-6). Cada componente = 1 subtask. Tipo tecnico especifico (Planilha Inteligente, Agente IA, Dashboard, Processo/Workflow, Integracao/API).
-3. **Ideias de onda 5** (futuro, nao vender agora) → lista separada pra `roadmap-futuro.md`.
+### Passo 1 — Identificar tipologia (OBRIGATORIO antes de decompor)
+
+Antes de decompor em cards, decidir QUAL DOS DOIS PADROES se aplica:
+
+| Tipologia | Criterio | Padrao de card |
+|---|---|---|
+| **Area multi-solucao** | Entregas independentes, adotaveis em isolamento (ex: Planilha Rateio vs Dashboard DRE — nao dependem uma da outra pra gerar valor) | 1 card por entrega. N cards-mae na area |
+| **Plugin integrado** | Tudo acoplado tecnicamente; nao faz sentido vender parte sem o resto (ex: Plugin Marketing = setup + motor de slots + producao + agendamento. Sem o motor, producao nao tem o que consumir) | 1 card-mae so pra todo o plugin. Componentes tecnicos viram lista narrativa inline |
+
+Precedentes do Catalogo Beco:
+- **Area multi-solucao:** Financeiro (Planilha 1 Lancamentos + Planilha 2 Rateio + Planilha 3 Agenda + Planilha 4 Conferencia + Dashboard DRE + Conciliacao Bancaria = 6 cards independentes)
+- **Plugin integrado:** Plugin Base Operacional Lojas (80h, 1 card com 4 componentes inline); Plugin Marketing Beco (5 componentes inline, 1 card)
+
+Se duvida: perguntar ao usuario explicitamente "e area multi-solucao ou plugin integrado?" — o framing muda o empacotamento inteiro. Origem: sessao 17/04/2026 marketing/beco — proposta inicial foi 5 cards-mae; usuario corrigiu pra 1 card (plugin integrado). Teria sido evitado com esse check.
+
+### Passo 2a — Se multi-solucao: N fases vendaveis
+
+1. **N fases vendaveis** (tipicamente 2-4). Cada fase = 1 card-mae. Criterio de corte: usuario diferente OU mecanica diferente OU dependencia forte
+2. **M componentes tecnicos por fase** viram **lista narrativa dentro de "O que entrega"**, NUNCA subtasks na ideacao. Tipo tecnico especifico (Planilha Inteligente, Agente IA, Dashboard, Processo/Workflow, Integracao/API)
+
+### Passo 2b — Se plugin integrado: 1 card so
+
+1. **1 card-mae** com nome que comunica o todo (ex: `Desenvolver Plugin Marketing Beco`)
+2. **Componentes** (setup, motor, producao, etc) viram lista narrativa dentro de "O que entrega" — NAO viram cards separados nem subtasks
+3. Auto-check de densidade tecnica ainda se aplica pra garantir que pelo menos 1 componente e Base/Integracao/Agente/Dashboard
+
+### Passo 3 — Onda 5
+
+**Ideias de onda 5** (futuro, nao vender agora) → lista separada pra `roadmap-futuro.md`.
 
 ### Auto-check de densidade tecnica (OBRIGATORIO antes de apresentar)
 
@@ -338,6 +381,12 @@ Briefing por card-mae (repetir pra cada):
 
 ### 7.2 Task pessoal de follow-up (list Solucoes)
 
+**ANTES de criar, verificar duplicata** via `gestor-clickup`:
+- Listar tasks da list Solucoes (`901326725724`) filtrando por nome contendo "Estudar <area>" + "<cliente>"
+- **Se existir:** NAO criar nova. Enriquecer a existente via `update_task`: substituir descricao pelo conteudo novo, ajustar due/estimate se escopo mudou, adicionar dependencia `blocking` → cards-mae criados na 7.1
+- **Se nao existir:** criar nova com os parametros abaixo
+
+Parametros da task (criar ou atualizar):
 - List: `901326725724`
 - Name: `Estudar <area> <cliente> e popular cards no catalogo`
 - Assignee: Rique
@@ -345,7 +394,10 @@ Briefing por card-mae (repetir pra cada):
 - Estimate: 240min (4h)
 - Priority: Normal
 - Work type: projeto
-- Description: referencia aos cards-mae criados + link pro plano
+- Description: 3 secoes padrao Pique (Contexto / O que fazer / Criterio de pronto), referenciando cards-mae criados
+- **Dependencia:** blocking → cada card-mae criado na 7.1
+
+Origem da regra: sessao 17/04/2026 marketing/beco — skill tentou criar duplicata da task `86agxeuje` "Estudar Marketing Beco" que ja existia desde 14/04. `gestor-clickup` detectou e parou; checagem deveria ter sido preventiva na skill, nao reativa no agent.
 
 ### 7.3 Calibracao iterativa de custom fields (pos-criacao)
 
