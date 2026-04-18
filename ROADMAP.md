@@ -1,7 +1,7 @@
 # Roadmap — Plugin Pique
 
 **Criado:** 2026-04-01
-**Atualizado:** 2026-04-01
+**Atualizado:** 2026-04-18
 **Status:** ativo
 
 Plugin de gestao interna da Pique Digital. Cada melhoria aqui e tambem uma feature futura do Yabadoo Business.
@@ -24,11 +24,12 @@ Cada uso do plugin = teste real do produto. Cada case da Pique = case vendavel.
 
 ## Estado atual (v1.4.0)
 
-- 10 commands | 1 agent | 2 skills | 3 hooks
+- 11 commands | 1 agent | 2 skills | 3 hooks
 - Bom-dia e boa-noite rodam todo dia (Henrique, Marco, Gabriel)
 - ClickUp como fonte de verdade
 - Multi-usuario via plugin-pique.local.md
 - Auto-avaliacao estruturada em todos os commands (mas sem self-edit real)
+- 18/04: adicionado `desenhar-individual` (Onda 2.5) — mapeamento individual de pessoa de cliente em 4 rodadas com proveniencia rastreavel
 
 ---
 
@@ -125,6 +126,29 @@ Gera 1 insight curto e acionavel. Nao e conselho generico — e dado cruzado.
 **Conexao Yabadoo:** Proatividade (scheduler)
 **Esforco:** 1-2h
 **Status:** a fazer
+
+---
+
+## Onda 2.5 — Mapeamento individual (abril semana 3)
+
+### 2.5.1 `/pique:desenhar-individual` — Mapear pessoa de cliente
+**O que:** Skill que mapeia uma pessoa individual de cliente (ex: Edith do Beco) em 4 rodadas:
+1. Triangulacao factual de 4-6 fontes (cerebro Pique + CEREBRO-BETO + repos paralelos), SEM interpretar
+2. Sintese com proveniencia explicita (campos Classe C cruzando 2+ fontes, com taxonomia fixa de 10 tipos: triangulado, espelho-invertido, comparativo, diagnostico, spof, evolucao-temporal, gap-governanca, tendencia-recente, testemunho-bruto, alinhamento)
+3. Classificacao campo a campo (A ancorado / B extraido / C sintese) + destino (hub-publico / interno / tbd-q1)
+4. Geracao do MD canonico em `pique-consultoria-hub/clientes/<cliente>/individuais/<pessoa>-consolidado-v2.md` em formato **template-friendly** (listas de items, NAO campos top-level personalizados)
+
+Inclui checkpoint critico de leitura conjunta com cliente entre Rodada 1 e Rodada 2 (que originou a F5 da Edith em 18/04).
+
+**Por que:** Beco tem 12+ pessoas-chave a mapear (Felipe, Karine, Jezi, Rosa, Ze...). Repetir manualmente o processo Edith pra cada uma = horas. Skill empacota o roteiro com proveniencia rastreavel — cada afirmacao etiquetada (camada brutal sai etiquetada, nao censurada).
+
+**Conexao Yabadoo:** Modulo "Gestao de Pessoas" YabaBuss (hipotese futura — primeiro cliente confirma)
+
+**Pre-requisito:** caso piloto Edith ja rodado e gabarito v2 em `pique-consultoria-hub/clientes/beco/individuais/edith-consolidado-v2.md` (ref de formato)
+
+**Esforco:** ja implementado (3h sessao 18/04 — destilacao manual do metodo + criacao da skill)
+
+**Status:** feito 2026-04-18
 
 ---
 
