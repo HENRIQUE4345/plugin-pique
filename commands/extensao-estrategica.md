@@ -51,12 +51,10 @@ Extraia: metas do mes atual, KRs esperados, fase atual de cada frente, deadlines
 
 ### 1.2 ClickUp — Foto completa (TODO o time, TODOS os Spaces)
 
-Delegar ao `gestor-clickup`. Buscar em TODOS os Spaces ativos:
+Delegar ao `gestor-clickup`. Buscar nos Spaces da empresa Pique (NAO incluir Beto Carvalho — e projeto/cliente separado, tratado fora desta reuniao; Pessoal tambem fica de fora):
 - Pique Digital (901313561086)
 - Studio (901313561098)
 - Yabadoo (901313567191)
-- Beto Carvalho (901313567164)
-- Pessoal (901313561154)
 
 | O que buscar | Filtro | Por que |
 |---|---|---|
