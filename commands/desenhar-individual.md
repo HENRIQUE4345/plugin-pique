@@ -18,7 +18,6 @@ Orquestra mapeamento profundo de uma pessoa individual de cliente Pique. Gera do
 
 - **Path final do gabarito**: `pique-consultoria-hub/clientes/<cliente>/individuais/<pessoa>-consolidado-v2.md`
 - **Path de backup (se sobrescrevendo)**: `pique-consultoria-hub/clientes/<cliente>/individuais/.backups/<pessoa>-consolidado-v2-YYYY-MM-DD.md`
-- **Path de leitura conjunta cliente (Fase 2.5)**: `pique/clientes/<cliente>/sessoes/YYYY-MM-DD-HHMM-reuniao-<pessoa>-leitura-rodada1.md`
 - **Path de pendencias-acao**: `pique/clientes/<cliente>/_pendencias-individuais.md` (criar se nao existir)
 - **Gabarito-referencia (caso real)**: `pique-consultoria-hub/clientes/beco/individuais/edith-consolidado-v2.md` — leia antes da Fase 5 pra confirmar formato
 - **Plano metodologico que originou a skill**: `c:\Users\Henrique Carvalho\.claude\plans\vamos-fazer-o-doc-glimmering-wozniak.md` (rascunho — nao referenciar como fonte canonica)
@@ -58,11 +57,10 @@ Orquestra mapeamento profundo de uma pessoa individual de cliente Pique. Gera do
 - [ ] Esqueleto das 14 familias e fixo. Items dentro variam por pessoa
 
 ### Checkpoints obrigatorios (NUNCA pular)
-- [ ] Pausar apos Fase 1 (Descoberta) — usuario confirma fontes + adiciona/remove
-- [ ] Pausar apos Fase 2 (Rodada 1 triangulacao) — pergunta CRITICA sobre leitura conjunta com cliente
-- [ ] Pausar apos Fase 3 (Rodada 2 sintese Classe C) — usuario valida campos C em massa ou individual
-- [ ] Pausar apos Fase 4 (Rodada 3 classificacao) — usuario corrige classes/destinos errados
-- [ ] Pausar apos Fase 5 (gabarito gerado) — usuario le e ajusta antes de persistir
+- [ ] Pausar apos Fase 1 (Descoberta) — usuario confirma fontes + adiciona/remove (conhecimento fora dos paths padrao)
+- [ ] Pausar apos Fase 5 (gabarito gerado) — usuario le o MD pronto e aponta correcoes (schema v2 com proveniencia por campo facilita editar pontual)
+
+**Regra:** Fases 2, 3 e 4 correm direto — a validacao acontece no gabarito final. Se erros grandes aparecerem na Fase 5, usuario aponta campo + direcao e IA reescreve pontual no MD.
 
 ### Camada brutal etiquetada (etica)
 - [ ] Falas literais de terceiros sobre a pessoa (especialmente CEO sobre subordinada) entram com fonte clara + data + autor
@@ -94,7 +92,6 @@ Antes de comecar:
 1. **Qual cliente?** (slug, ex: `beco`). Validar que existe `pique/clientes/<cliente>/`
 2. **Qual pessoa?** (slug, ex: `edith`). Sera usado no nome do arquivo final
 3. **Paths das fontes (opcional)** — se o usuario ja sabe, aceita lista. Senao, descobrir na Fase 1
-4. **Tem leitura conjunta com cliente prevista?** Pre-pergunta — se sim, planeja janela apos Fase 2
 
 Se faltar `cliente` ou `pessoa`, perguntar via `AskUserQuestion` (max 2 tentativas).
 
@@ -175,7 +172,7 @@ Formato:
 
 ---
 
-## Fase 2: Rodada 1 — Triangulacao factual (PARA E ESPERA)
+## Fase 2: Rodada 1 — Triangulacao factual (SEGUE DIRETO)
 
 **Regra de ouro:** colar o que cada fonte diz, **SEM interpretar**. Triangular por campo lado-a-lado.
 
@@ -190,34 +187,11 @@ Formato:
 5. **Onde se complementam** — bullets ("F4 e a UNICA fonte com autorrelato; F1 e a UNICA com citacoes literais de entrevista")
 6. **4-6 pontos que chamaram atencao** — flagrar SEM interpretar (ex: "Felipe cita ela como exemplo na sessao Beto; unica corroboracao independente do pattern X")
 
-### Checkpoint critico — leitura conjunta com cliente
-
-Antes de seguir pra Rodada 2, perguntar:
-```
-A Rodada 1 esta pronta. Antes da Rodada 2 (sintese com proveniencia), pergunto:
-
-**Voce vai conseguir mostrar essa triangulacao pra <pessoa-cliente> agora**
-(o cliente, nao a pessoa mapeada — ex: Marcella enquanto mapeamos Edith)?
-
-- Sim → eu paro e espero. Cole aqui o que ele/ela falar reagindo. Vou criar fonte F<N+1> = "leitura conjunta cliente DD/MM" e incorporar na Rodada 2
-- Nao → registro `pendencia: leitura-conjunta-cliente` no gabarito final e sigo. Voce pode rodar essa parte depois e me chamar pra atualizar
-```
-
-**Se sim — escutar reacao:**
-- Capturar falas literais (especialmente as carregadas — termos repetidos do cliente, frases-chave)
-- Identificar correcoes pontuais (cliente refuta uma das fontes anteriores)
-- Identificar novos padroes que so emergem ao vivo (ex: "tudo que ela quer ser, e o trem que ela morre" — emergiu na sessao Edith 18/04)
-- Criar nova fonte F<N+1> com tipo `leitura-conjunta-cliente`, data hoje, autor = cliente
-- Anotar `status: pendente-arquivar` se a transcricao ainda nao foi salva
-- Pre-anotar bloco "Reacoes leitura conjunta — DD/MM/YYYY" pra incluir na Rodada 2
-
-**Se nao — registrar e seguir** (com pendencia clara no gabarito final).
-
-**PARE e espere resposta antes de seguir pra Rodada 2.**
+**Triangulacao registrada em memoria.** Sem checkpoint — seguir direto pra Fase 3. A validacao acontece na Fase 5 (gabarito final).
 
 ---
 
-## Fase 3: Rodada 2 — Sintese com proveniencia (PARA E ESPERA)
+## Fase 3: Rodada 2 — Sintese com proveniencia (SEGUE DIRETO)
 
 **Objetivo:** propor campos **Classe C** (sintese cruzando 2+ fontes) com tipologia formal.
 
@@ -251,21 +225,11 @@ Antes dos blocos detalhados, fazer tabela-resumo:
 | # | Campo | tipo_sintese | Fontes | Confianca | Carga etica |
 |---|---|---|---|---|---|
 
-### Checkpoint
-
-```
-Os N campos Classe C estao propostos. Voce valida em massa ou prefere percorrer um por um?
-
-Pode ser "tudo OK menos X e Y". Sinaliza so o que precisa edit/descartar.
-```
-
-**PARE e espere resposta.**
-
-Apos resposta, incorporar edicoes/descartes e seguir.
+**Campos Classe C consolidados em memoria.** Sem checkpoint — seguir direto pra Fase 4. Edicoes/descartes acontecem na revisao do gabarito final.
 
 ---
 
-## Fase 4: Rodada 3 — Classificacao campo a campo (PARA E ESPERA)
+## Fase 4: Rodada 3 — Classificacao campo a campo (SEGUE DIRETO)
 
 **Objetivo:** percorrer as 14 familias e classificar TODOS os items (Classe A ancorado humano + Classe B extraido de 1 fonte + Classe C ja produzida na Rodada 2).
 
@@ -296,21 +260,7 @@ Apos resposta, incorporar edicoes/descartes e seguir.
 - Carga alta (`padrao_projecao`, `risco_relacional`, etc) → `tbd-q1`
 - Carga baixa → `hub-publico` (a menos que seja sintese diagnostica Pique = `interno`)
 
-### Apresentar fechamento da Rodada
-
-```
-## Distribuicao final
-
-- Total: N campos
-- Por classe: A=X (Y%) | B=X (Y%) | C=X (Y%)
-- Por destino: hub-publico=X | interno=X | tbd-q1=X
-
-## Algum campo classificou errado?
-
-Pode sinalizar B-deveria-ser-C, destino X, etc. Aceito lista curta.
-```
-
-**PARE e espere resposta.**
+**Classificacao consolidada em memoria.** Sem checkpoint — seguir direto pra Fase 5 (escrever gabarito). A distribuicao final (A/B/C + destinos) sera apresentada junto do gabarito pra revisao.
 
 ---
 
@@ -492,12 +442,7 @@ Apos aprovacao final do gabarito:
 
 1. Confirmar que o arquivo esta salvo em `pique-consultoria-hub/clientes/<cliente>/individuais/<pessoa>-consolidado-v2.md`
 2. Se tinha v1 (`<pessoa>-contexto-consolidado.md` ou similar), atualizar status pra `superseded por <v2>` no header e mover pra `.archive/` (NAO deletar — convencao Pique)
-3. Atualizar `pique/clientes/<cliente>/_pendencias-individuais.md` com as acoes-pendencia geradas (criar arquivo se nao existe; usar template do Apendice C)
-4. Se houve leitura conjunta (Fase 2 → F<N+1>) e a transcricao esta marcada `pendente-arquivar`, lembrar usuario:
-   ```
-   Lembrete: a fonte F<N+1> (leitura conjunta cliente DD/MM) tem `status: pendente-arquivar`. 
-   Salve a transcricao em `pique/clientes/<cliente>/sessoes/YYYY-MM-DD-HHMM-reuniao-<cliente>-leitura-rodada1-<pessoa>.md` quando puder, e atualize `url_local` no `fontes_registro` do gabarito.
-   ```
+3. Atualizar `pique/clientes/<cliente>/_pendencias-individuais.md` com as acoes-pendencia geradas (criar arquivo se nao existe; usar template do Apendice D)
 
 ---
 
@@ -529,12 +474,11 @@ Apos aprovacao final do gabarito:
 Avalie a execucao desta rodada:
 
 1. **Descoberta de fontes pegou tudo?** Usuario teve que adicionar fontes nao encontradas? (sinal de zona de busca incompleta — atualizar lista de zonas no Fase 1)
-2. **Leitura conjunta com cliente aconteceu?** Gerou correcoes substanciais? (se gerou padrao novo nao previsto, considerar promover pra `tipo_sintese` novo na taxonomia)
-3. **Taxonomia das 10 sinteses cobriu?** Algum padrao precisou de tipo improvisado? Anotar pra revisar
-4. **14 familias cobriram?** Algum dado importante ficou sem familia? Sugerir 15a ou re-particionar
-5. **Classificacao precisou muita revisao manual?** (>30% dos campos editados pelo usuario = sinal de criterio fraco — investigar quais classes ou destinos)
-6. **Estrutura template-friendly aderiu?** Gabarito saiu como listas (correto) ou top-level escapou?
-7. **Plano de leitura conjunta resolveu carga etica?** Campos `tbd-q1` ficaram em proporcao razoavel ou excessiva?
+2. **Taxonomia das 10 sinteses cobriu?** Algum padrao precisou de tipo improvisado? Anotar pra revisar
+3. **14 familias cobriram?** Algum dado importante ficou sem familia? Sugerir 15a ou re-particionar
+4. **Classificacao precisou muita revisao manual?** (>30% dos campos editados pelo usuario = sinal de criterio fraco — investigar quais classes ou destinos)
+5. **Estrutura template-friendly aderiu?** Gabarito saiu como listas (correto) ou top-level escapou?
+6. **Proporcao `tbd-q1` razoavel?** Excesso de campos pendentes = sinal de criterio de destino fraco — revisar regras de carga etica
 
 Se identificar melhorias **CONCRETAS e EVIDENCIADAS**:
 
@@ -651,7 +595,7 @@ Cada item liga uma pessoa mapeada a uma acao pendente que desbloqueia o gabarito
 
 | # | Pessoa | Acao | Origem | Quem | Quando |
 |---|---|---|---|---|---|
-| 1 | <pessoa> | <acao> | <gabarito v2 / leitura conjunta> | <responsavel> | <prazo> |
+| 1 | <pessoa> | <acao> | <gabarito v2 / pendencia rodada> | <responsavel> | <prazo> |
 
 ---
 
