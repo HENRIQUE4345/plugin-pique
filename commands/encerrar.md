@@ -111,6 +111,7 @@ Posso executar?
 - NAO crie arquivo novo se ja existe um sobre o tema — atualize o existente
 - NAO salve sessao se a conversa foi curta/operacional (ex: "cria task X", "muda status Y")
 - Sessao so faz sentido pra brainstorms, reunioes, downloads mentais, analises longas
+- **Split em 2+ notas quando conversa cobre temas distintos:** se a conversa cobriu 2+ temas claramente separados (ex: fluxo de trabalho + permissoes ClickUp) E a nota unica estimada passaria de ~100 linhas, proponha 2 (ou N) notas menores no plano em vez de 1 doc denso. Cada nota deve ter tema coerente, nome de arquivo distinto. Alinha com regra dos 150 linhas do CLAUDE.md do cerebro e facilita referencia futura. O usuario decide — se preferir manter 1 nota, respeite.
 - **Brainstorm estrategico vs execucao de sprint:** se a conversa DESENHOU arquitetura nova (definindo projeto/plugin/area, nao fechando sprint), tasks sao HIPOTESES FUTURAS, nao commits imediatos. Comece propondo 1-2 tasks essenciais e PERGUNTE antes de expandir. Evita poluir o ClickUp com 5+ tasks que viram backlog morto.
 - **Confirmar corte de escopo:** se o usuario cortar tasks explicitamente no plano ("so essa task", "corta essas X"), CONFIRME se Calendar e outros outputs tambem saem do escopo — nao presuma. Pergunta direta: "Corto Calendar/sessao/cerebro junto, ou mantenho?".
 
@@ -198,9 +199,13 @@ Schema:
 
 Campos `arquivos_tocados`, `diretorios`, `commits`, `tags` foram introduzidos no plugin-pique 1.6.0. Entradas anteriores nao tem esses campos — leitores devem tratar como `[]` quando ausente.
 
-Use `Bash: echo '<linha-json>' >> ~/.claude/telemetria/chats-enriquecidos.jsonl` (com aspas simples pra preservar JSON interno, escape de aspas duplas no tema/resumo).
+**Como escrever a linha (obrigatorio via Python, NAO via `echo`):**
 
-Se o append falhar (permissao, disco), silenciar — nao bloqueia o encerrar.
+Montar a linha JSON com `python -c "import json, io; io.open(path, 'a', encoding='utf-8').write(json.dumps(obj, ensure_ascii=False) + chr(10))"` usando um dict Python com os campos. `json.dumps` escapa backslashes do `cwd` Windows corretamente (`c:\Users\...` vira `"c:\\Users\\..."`). Echo manual quebra porque aspas simples do Bash preservam o texto cru, e `cwd` com 1 barra invertida vira JSON invalido pelo parser estrito (precedente: 86% das linhas legadas falham `json.loads` — parser tolerante em `/pique:dashboard` cobre as antigas, mas entradas novas DEVEM ser validas).
+
+**Gotcha:** nao usar heredoc `python << 'PYEOF'` com regex contendo `\\` — Git Bash Windows engole uma das barras. Usar `python -c "..."` com aspas duplas externas e aspas simples internas (ou vice-versa), OU escrever script temp em `/tmp/` e chamar `python /tmp/script.py`.
+
+Se o append falhar (permissao, disco), silenciar — nao bloqueia o encerrar. Apos escrever, validar `python -c "import json; json.loads(open(path).readlines()[-1])"` — se falhar, logar warning e seguir.
 
 **Regra critica:** categoria e classificacao subjetiva do proprio Claude. Nao pergunte ao usuario, nao mostre no resumo final da Fase 4. E metadado silencioso pra analise posterior.
 

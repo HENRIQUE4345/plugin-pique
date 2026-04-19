@@ -48,6 +48,8 @@ Pra cada arquivo encontrado, leia as primeiras ~30 linhas e extraia:
 - `**Proximo passo:**` — texto (geralmente ID + titulo curto, ex: `T1.1 — Refatorar /social-triagem`)
 - `**Iniciado:**` — opcional, pra ordenar por antiguidade quando ha varios
 
+**Fallback pra ledgers pre-padrao `feedback_tasks_md_padrao`:** se `**Proximo passo:**` estiver AUSENTE ou vazio no cabecalho, NAO trate como malformado. Rode Grep por `^- \[[ ~]\]` (ou `^#### \[[ ~]\]`) no ledger inteiro e use a PRIMEIRA ocorrencia como proximo passo sugerido. Marque internamente como `proximo_passo_inferido: true` pra sinalizar na Fase 1 que o valor veio do corpo, nao do cabecalho.
+
 ### 0.3 Filtrar e classificar
 
 - **Ativos:** `Status: em-execucao` — entram no menu da Fase 1
@@ -148,6 +150,10 @@ Combine:
 ### 2.4 Auditar estado real
 
 Aplica regra global do CLAUDE.md ("Auditar Estado Real Antes de Reorganizar"):
+
+**Passo 1 — Cross-check de duplicata ANTES de abrir conteudo (tasks de auditoria/descarte de pasta externa):** se a task envolve arquivos de pasta EXTERNA ao cerebro (ex: Drive, `C:/` fora de `MEU-CEREBRO/`, pastas de cliente), pra CADA filename candidato, rode Grep no cerebro pelo nome-base (ou hash do titulo) ANTES de Read/markitdown. Se ja existe versao canonica no cerebro, marque o arquivo externo como DUPLICATA e pule leitura. Evita processar MB de markitdown redundante (precedente 18/04: 132MB poupados ao detectar `SISTEMA DE GESTÃO/` como duplicata 95% dos Lotes C+D+G antes de abrir).
+
+**Passo 2 — Read nos criticos restantes:**
 
 - Read em CADA arquivo critico que sera tocado (se for grande, ler so a parte relevante)
 - Se a task envolve ClickUp: NAO chamar MCP direto agora — anotar mentalmente quais operacoes ClickUp vao acontecer pra colocar no plan da Fase 3

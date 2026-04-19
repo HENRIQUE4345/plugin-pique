@@ -64,12 +64,24 @@ Consulte `pique/infra/clickup-setup.md` para IDs.
 
 ## Fase 3: Estruturar a narrativa
 
+### 3.0 Escolher modo de navegacao
+
+Antes de desenhar capitulos, decida o modo (documentado em `design-system-pique.md` secao "Modos de apresentacao"):
+
+- **Modo narrativo vertical (default):** scroll vertical linear. Use pra `reuniao-recorrente`, `entrega`, `alinhamento`, `pitch`, `retrospectiva`.
+- **Modo playbook/tabs:** navegacao horizontal nao-linear com tab-nav sticky. Use pra `onboarding`, playbooks, tutoriais, catalogos — conteudo consumido por secao especifica, nao linearmente.
+
+Se o tipo for `onboarding` OU o contexto mencionar "playbook", "tutorial", "passo a passo navegavel", pergunte explicitamente: "Modo narrativo (scroll) ou playbook (tabs)?". Nos outros tipos, assume narrativo sem perguntar. Registre a escolha no plano.
+
+### 3.1 Apresentar estrutura
+
 Apresente a estrutura proposta em formato visual:
 
 ```
 ## Estrutura da Apresentacao: [Titulo]
 
 **Tipo:** [tipo identificado]
+**Modo:** [narrativo | playbook/tabs]
 **Para:** [publico]
 **Data:** [data]
 
@@ -84,7 +96,8 @@ N. **[Capitulo Final]** — [fechamento]
 ### Componentes visuais planejados:
 - Secao X: stats-grid (3 cards com numeros)
 - Secao Y: roadmap-v2 (fases com metas)
-- Secao Z: status-list (checklist visual)
+- Secao Z: flow-stepper (passos sequenciais)
+- Secao W: status-list (checklist visual)
 ...
 
 ### Dados que vou usar:

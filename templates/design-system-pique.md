@@ -74,6 +74,91 @@
 </html>
 ```
 
+## Modos de apresentacao
+
+Antes de montar a apresentacao, escolha o modo de navegacao:
+
+### Modo narrativo vertical (default)
+
+Scroll vertical full-height, 1 section = 1 capitulo, consumo linear. E o default pra apresentacoes estrategicas, decks de reuniao, relatorios, retrospectivas. Usa os componentes 1-20 normalmente.
+
+### Modo playbook/tabs (navegacao horizontal nao-linear)
+
+Ideal pra playbooks, onboarding, tutoriais, catalogos — conteudo que o leitor acessa por secao especifica, nao linearmente. Cada "capitulo" vira uma tab.
+
+Estrutura minima (substitui `<section>` sequenciais):
+
+```html
+<nav class="tab-nav" role="tablist" aria-label="Playbook">
+  <button class="tab-btn" role="tab" aria-selected="true" data-tab="tab-1">Introducao</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-2">Processo</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-3">Exemplos</button>
+</nav>
+
+<section class="tab-panel" id="tab-1" role="tabpanel" aria-hidden="false">
+  <div class="section-inner">[conteudo com componentes]</div>
+</section>
+<section class="tab-panel" id="tab-2" role="tabpanel" aria-hidden="true">
+  <div class="section-inner">[conteudo]</div>
+</section>
+```
+
+CSS minimo:
+
+```css
+.tab-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-card);
+  overflow-x: auto;
+}
+.tab-btn {
+  background: transparent;
+  border: 1px solid var(--border-card);
+  color: var(--text-secondary);
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab-btn[aria-selected="true"] {
+  background: var(--gradient-1);
+  color: #0a0a0a;
+  border-color: transparent;
+  font-weight: 600;
+}
+.tab-panel[aria-hidden="true"] { display: none; }
+.tab-panel[aria-hidden="false"] { display: block; animation: fadeUp 0.4s ease both; }
+```
+
+JS minimo (juntar com o obrigatorio no final):
+
+```javascript
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-selected', b === btn));
+    document.querySelectorAll('.tab-panel').forEach(p => p.setAttribute('aria-hidden', p.id !== target));
+    history.replaceState(null, '', '#' + target);
+  });
+});
+// Deep-link: se URL tem #tab-X, abre direto
+if (location.hash) {
+  const btn = document.querySelector(`.tab-btn[data-tab="${location.hash.slice(1)}"]`);
+  if (btn) btn.click();
+}
+```
+
+No modo tabs: capa continua obrigatoria (fora da nav) + ultimo panel pode ter o fechamento padrao. Scroll-indicator (bolinha animada da capa) vira desnecessario — remova.
+
 ## Componentes disponiveis
 
 Use APENAS os componentes abaixo. Nao invente novos — combine os existentes de formas criativas.
@@ -352,6 +437,117 @@ const chartColors = {
   </div>
 </div>
 ```
+
+### 21. FLOW STEPPER (passos sequenciais com reveal + keyboard nav)
+
+Util em playbooks, onboarding, tutoriais e qualquer fluxo linear de processo. Bolinhas progressivas no topo + 1 passo visivel por vez + botoes Anterior/Proximo + setas teclado.
+
+HTML:
+```html
+<div class="flow-stepper reveal" data-step="1">
+  <div class="stepper-dots" role="tablist">
+    <button class="stepper-dot active" data-step="1" aria-label="Passo 1"></button>
+    <button class="stepper-dot" data-step="2" aria-label="Passo 2"></button>
+    <button class="stepper-dot" data-step="3" aria-label="Passo 3"></button>
+  </div>
+
+  <div class="stepper-body">
+    <div class="stepper-panel active" data-panel="1">
+      <div class="stepper-num">01</div>
+      <h3>[Titulo do passo]</h3>
+      <p>[Descricao]</p>
+    </div>
+    <div class="stepper-panel" data-panel="2">
+      <div class="stepper-num">02</div>
+      <h3>[Titulo]</h3>
+      <p>[Descricao]</p>
+    </div>
+    <div class="stepper-panel" data-panel="3">
+      <div class="stepper-num">03</div>
+      <h3>[Titulo]</h3>
+      <p>[Descricao]</p>
+    </div>
+  </div>
+
+  <div class="stepper-controls">
+    <button class="stepper-prev" aria-label="Passo anterior">← Anterior</button>
+    <span class="stepper-count"><span class="current">1</span> / <span class="total">3</span></span>
+    <button class="stepper-next" aria-label="Proximo passo">Proximo →</button>
+  </div>
+</div>
+```
+
+CSS:
+```css
+.flow-stepper { max-width: 720px; margin: 0 auto; }
+.stepper-dots { display: flex; gap: 0.6rem; justify-content: center; margin-bottom: 2.5rem; }
+.stepper-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--border-card); border: none; padding: 0; cursor: pointer;
+  transition: all 0.3s;
+}
+.stepper-dot.active { background: var(--accent); transform: scale(1.4); }
+.stepper-dot.done { background: var(--accent-green); }
+.stepper-panel { display: none; text-align: center; }
+.stepper-panel.active { display: block; animation: fadeUp 0.4s ease both; }
+.stepper-num {
+  font-size: 4rem; font-weight: 900; color: var(--accent);
+  opacity: 0.3; margin-bottom: 0.5rem; letter-spacing: -0.05em;
+}
+.stepper-panel h3 { font-size: 1.8rem; margin-bottom: 1rem; }
+.stepper-panel p { color: var(--text-secondary); font-size: 1.1rem; line-height: 1.6; }
+.stepper-controls {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 2.5rem; gap: 1rem;
+}
+.stepper-prev, .stepper-next {
+  background: transparent; border: 1px solid var(--border-card);
+  color: var(--text-primary); padding: 0.6rem 1.2rem; border-radius: 999px;
+  cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+}
+.stepper-prev:hover, .stepper-next:hover { border-color: var(--accent); color: var(--accent); }
+.stepper-prev:disabled, .stepper-next:disabled { opacity: 0.3; cursor: not-allowed; }
+.stepper-count { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 0.1em; }
+```
+
+JS (juntar com o obrigatorio):
+```javascript
+document.querySelectorAll('.flow-stepper').forEach(stepper => {
+  const panels = stepper.querySelectorAll('.stepper-panel');
+  const dots = stepper.querySelectorAll('.stepper-dot');
+  const prev = stepper.querySelector('.stepper-prev');
+  const next = stepper.querySelector('.stepper-next');
+  const current = stepper.querySelector('.stepper-count .current');
+  const total = panels.length;
+  let idx = 0;
+
+  function go(i) {
+    idx = Math.max(0, Math.min(total - 1, i));
+    panels.forEach((p, n) => p.classList.toggle('active', n === idx));
+    dots.forEach((d, n) => {
+      d.classList.toggle('active', n === idx);
+      d.classList.toggle('done', n < idx);
+    });
+    current.textContent = idx + 1;
+    prev.disabled = idx === 0;
+    next.disabled = idx === total - 1;
+  }
+
+  prev.addEventListener('click', () => go(idx - 1));
+  next.addEventListener('click', () => go(idx + 1));
+  dots.forEach((d, n) => d.addEventListener('click', () => go(n)));
+
+  stepper.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(idx - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(idx + 1); }
+  });
+  stepper.setAttribute('tabindex', '0');
+
+  go(0);
+});
+```
+
+Quando usar: fluxos de 3-7 passos. Mais que isso, quebrar em multiplos steppers ou usar TIMELINE (#6). Menos que 3, usar GLASS CARD (#3) com numeracao simples.
 
 ## JavaScript obrigatorio (sempre incluir)
 
