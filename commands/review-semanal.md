@@ -117,6 +117,16 @@ Busque `sessoes/*-review-semanal-<user_name>.md` mais recente (semana passada). 
 - Decisoes que estavam no "Levar pro fechamento" anterior — foram executadas?
 - Pendencias pessoais — resolvidas?
 
+### 1.10 Insights de uso IA da semana
+
+Leia `conhecimento/produtividade/insights-uso-ia.md` (se existir). Filtre entradas dos ultimos 7 dias pelo header `### YYYY-MM-DD HH:MM`.
+
+Agrupe por Categoria (automacao/skill/agent/contexto/workflow). Destaque padroes RECORRENTES — mesma **Acao sugerida** (ou muito similar) aparece em 2+ chats na semana. Ignore insights unicos da semana (ficam acumulando pra virar recorrentes em semanas futuras).
+
+Regra de apresentacao: so liste o que e recorrente. Insight unico na semana NAO entra no placar — o valor esta no padrao, nao no evento.
+
+Se o arquivo nao existir ou estiver vazio: "Sem insights de uso registrados esta semana" e pule este bloco.
+
 ---
 
 ## Fase 2: Placar pessoal
@@ -148,6 +158,11 @@ Apresente neste formato (UMA tabela, SO do usuario atual):
 - Por projeto: MEU-CEREBRO [X%], plugin-pique [Y%], ...
 - Chat mais longo: [Xh]h — "[primeiro prompt resumido]"
 - Tipos (A/B/C): A [X%], B [Y%], C [Z%] — cobertura: [M de N] chats enriquecidos
+
+### Padroes de uso IA (semana)
+- [padrao recorrente 1] — aparece em [N] chats, acao sugerida: [X] ([categoria])
+- [padrao recorrente 2] — aparece em [N] chats, acao sugerida: [Y] ([categoria])
+(ou: "Nada recorrente esta semana")
 
 ### Conteudo publicado
 - [titulo 1] ([tipo])

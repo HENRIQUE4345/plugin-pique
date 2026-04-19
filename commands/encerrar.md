@@ -42,6 +42,34 @@ Se `/inbox` rodou em paralelo ou antes na mesma sessao, arquivos que voce estava
 
 Nao comite mudancas do `/inbox` junto com as suas — elas sao de outra operacao. Comite APENAS o que esta conversa produziu.
 
+### 1.0b Detectar sessoes Claude paralelas editando arquivos compartilhados (CRITICO — fazer logo apos 1.0)
+
+Outras sessoes Claude rodando simultaneas no mesmo dia podem ter editado **arquivos compartilhados** (indexes, ledgers, logs, docs de acompanhamento) que tambem foram tocados nesta conversa. Comitar cegamente arrasta edits de terceiros sem contexto.
+
+**Arquivos compartilhados tipicos (detectar):**
+- Indexes: `_mapa.md` (cerebro ou subpastas), `docs/_mapa.md` (hubs)
+- Ledgers de pendencias: `_pendencias-*.md`, `_tasks-*.md`
+- Logs de auto-avaliacao: `pique/infra/melhorias-plugin.md`
+- Tarefas locais: `TAREFAS.md`, `TASKS.md`
+- CLAUDE.md (global ou por pasta)
+
+**Deteccao:**
+1. Apos `git status`, separe arquivos em 2 grupos:
+   - **Exclusivos desta conversa** — arquivos que SO esta conversa tocou (gabaritos novos, docs novos, edits pontuais que voce fez)
+   - **Compartilhados com mudancas externas** — arquivos que voce editou MAS cujo conteudo atual tem linhas adicionadas por outra sessao (ex: `_pendencias-individuais.md` com tasks 14-21 Marcella + 28-33 Ellen + 22-27 Rosa, quando sua conversa so adicionou Rosa)
+2. Sinal pratico: se `git diff <arquivo>` mostra hunks que voce nao reconhece como suas, compartilhado.
+3. Confirmacao extra: sistem-reminders do tipo "File has been modified since read" durante a conversa sao sinal forte de edicao concorrente.
+
+**Decisao de commit:**
+- **Exclusivos** — commit normal, arquivo por arquivo ou agrupado por tema
+- **Compartilhados** — 2 opcoes, apresentar ao usuario no plano:
+  - (a) Comitar seletivamente via `git add -p` (interativo) isolando so as suas hunks
+  - (b) Deixar pra commit em lote quando as outras sessoes encerrarem (default mais seguro)
+
+Sinalize no plano: "⚠ N sessoes Claude paralelas detectadas — X arquivos compartilhados tem edits de terceiros. Proponho commit apenas dos exclusivos: [lista]. Compartilhados ficam pendentes: [lista]."
+
+**Evidencia do caso Rosa/19-04:** 3 sessoes simultaneas (`/plugin-pique:desenhar-individual marcella beco`, `/plugin-pique:desenhar-individual ellen beco`, `/plugin-pique:desenhar-individual rosa beco`) co-editaram `_pendencias-individuais.md` + `melhorias-plugin.md`. Detectei ad-hoc via `git status` em 4 repos + sistem-reminders de "File has been modified". Split seguro: commit dos exclusivos (gabarito rosa + edit plugin), compartilhados pendentes.
+
 ### 1.1 Decisoes tomadas
 Qualquer "vamos fazer X", "nao vamos fazer Y", "decidimos que Z".
 Inclua o MOTIVO se mencionado.
@@ -229,6 +257,54 @@ Apresente resumo do que foi feito:
 
 Tudo atualizado. Pode fechar esse chat.
 ```
+
+---
+
+## Fase 5: Insight de uso IA (executar sempre ao final)
+
+Objetivo: detectar UM padrao de uso desta conversa que o Henrique poderia melhorar no workflow com IA. Nao e sobre o CONTEUDO da conversa — e sobre COMO a conversa foi conduzida.
+
+Analise a conversa buscando evidencia concreta de:
+- Prompt ou pedido repetido 2+ vezes (candidato a skill/template/agent)
+- Tempo gasto em transformacao manual que MCP/agent/skill ja existente resolveria
+- Correcao de abordagem por falta de contexto que poderia ser pre-carregado (MCP, CLAUDE.md, memoria)
+- Handoff manual entre 2 ferramentas que poderia ser automatizado
+- Tarefa repetitiva que provavelmente reaparece em outros chats (dor recorrente)
+
+**Regra dura:** so gere insight se houver evidencia CONCRETA e EVIDENCIADA nesta conversa. Sem padrao claro = nao escreva nada, nao mostre nada, nao toque no doc. NAO invente pra preencher. Ruido mata o doc acumulativo.
+
+Sinais que NAO contam (evita generico):
+- "Voce poderia usar mais /comando X" — sem justificativa de volume ou dor real
+- "Vale criar um agent pra isso" — sem evidencia de repeticao
+- Reflexao filosofica sobre produtividade
+- Insight que ja foi registrado em chat recente (checar ultimas entradas do doc antes de escrever)
+
+Se identificar algo evidenciado:
+
+1. Mostre ao usuario:
+```
+[INSIGHT DE USO IA]
+**Padrao:** [1 frase — o que aconteceu nesta conversa]
+**Sugestao:** [1 frase concreta — skill X, agent Y, MCP Z, shortcut, mudanca de processo]
+**Categoria:** [automacao | skill | agent | contexto | workflow]
+```
+
+2. Anexe em `conhecimento/produtividade/insights-uso-ia.md` neste formato (no final do arquivo, apos `## Entradas`):
+```
+### YYYY-MM-DD HH:MM — [tema curto da conversa]
+**Padrao observado:** [1 frase]
+**Acao sugerida:** [1 frase concreta]
+**Categoria:** [uma das 5]
+```
+
+Se o arquivo nao existe ainda, crie com cabecalho padrao do cerebro (template em CLAUDE.md do cerebro) e adicione a entrada inicial.
+
+Categorias:
+- **automacao** — script, cron, RemoteTrigger
+- **skill** — novo command Claude Code (ou melhoria de skill existente)
+- **agent** — sub-Claude especializado
+- **contexto** — MCP, pre-load no CLAUDE.md, memoria persistente
+- **workflow** — mudanca de processo (sem codigo novo)
 
 ---
 
