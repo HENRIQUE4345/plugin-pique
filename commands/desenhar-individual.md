@@ -23,8 +23,9 @@ Orquestra mapeamento profundo de uma pessoa individual de cliente Pique. Gera do
 - **Plano metodologico que originou a skill**: `c:\Users\Henrique Carvalho\.claude\plans\vamos-fazer-o-doc-glimmering-wozniak.md` (rascunho — nao referenciar como fonte canonica)
 
 **Onde fontes da pessoa tipicamente vivem (zonas de busca da Fase 1):**
-- `MEU-CEREBRO/pique/clientes/<cliente>/` — diagnostico, sessoes, dossies, solucoes
+- `MEU-CEREBRO/pique/clientes/<cliente>/` — diagnostico, sessoes, dossies, solucoes (recursivo — inclui subpastas `diagnostico/`, `sessoes/`, `solucoes/`, `entregas/`, `cliente/`)
 - `MEU-CEREBRO/pique/sessoes/` — sessoes da Pique cruzando o cliente
+- `MEU-CEREBRO/pique/processos/` — mapeamentos operacionais transversais (entrevistas de processo tipo `produto-<cliente>-mapeamento.md`, `financeiro-<cliente>-carol.md`). Historicamente sao fontes-ouro com autorrelato operacional que NAO ficam dentro de `pique/clientes/<cliente>/` (caso Rosa/Beco 19/04: 2 fontes ouro perdidas na Fase 1 por estarem nessa pasta)
 - `CEREBRO-BETO/projetos/clientes-ativos/<cliente>/docs/` — material de consultor externo (Beto Carvalho)
 - `pique-consultoria-hub/clientes/<cliente>/individuais/` — consolidados v1 anteriores (se existirem)
 - `BRAINSTORM-TEMPLATE/docs/sessoes/` e outros repos paralelos em `PROGRAMAS/` — material orfao (memoria `feedback_clickup_space_por_space` referencia caso similar)
@@ -91,7 +92,8 @@ Antes de comecar:
 
 1. **Qual cliente?** (slug, ex: `beco`). Validar que existe `pique/clientes/<cliente>/`
 2. **Qual pessoa?** (slug, ex: `edith`). Sera usado no nome do arquivo final
-3. **Paths das fontes (opcional)** — se o usuario ja sabe, aceita lista. Senao, descobrir na Fase 1
+3. **Relacao direta com o operador?** — se a pessoa mapeada e parente/conjuge/socio do Henrique (ex: Marcella), perguntar JA os campos de Identidade Classe A (nome_completo, idade, tempo_casa) em vez de deixar vazios pra pendencia pos-Fase 5. Operador sabe esses dados de cabeca — nao faz sentido virar pendencia.
+4. **Paths das fontes (opcional)** — se o usuario ja sabe, aceita lista. Senao, descobrir na Fase 1
 
 Se faltar `cliente` ou `pessoa`, perguntar via `AskUserQuestion` (max 2 tentativas).
 
@@ -109,11 +111,12 @@ Se faltar `cliente` ou `pessoa`, perguntar via `AskUserQuestion` (max 2 tentativ
 ### Lancar 2-3 Explore agents em paralelo (Sonnet)
 
 **Agent 1 — Cerebro Pique e cerebro pessoal**
-> Busca nome `<pessoa>` em todos os `.md` de:
-> - `MEU-CEREBRO/pique/clientes/<cliente>/`
+> Busca nome `<pessoa>` em todos os `.md` de (TODAS recursivas):
+> - `MEU-CEREBRO/pique/clientes/<cliente>/` (recursivo — DEVE incluir subpastas `diagnostico/`, `sessoes/`, `solucoes/`, `entregas/`, `cliente/`)
 > - `MEU-CEREBRO/pique/sessoes/`
+> - `MEU-CEREBRO/pique/processos/` — mapeamentos operacionais transversais (ex: `produto-<cliente>-mapeamento.md`, `financeiro-<cliente>-carol.md`). IMPORTANTE: incluir mesmo que o nome nao mencione a pessoa — sao entrevistas de processo com autorrelato operacional
 > - `pique-consultoria-hub/clientes/<cliente>/individuais/`
-> Reporta paths absolutos + N mencoes por arquivo + estimativa de natureza (sessao, dossie, consolidado, processo etc).
+> Reporta paths absolutos + N mencoes por arquivo + estimativa de natureza (sessao, dossie, consolidado, processo, mapeamento-operacional etc).
 
 **Agent 2 — CEREBRO-BETO e repos paralelos**
 > Busca nome `<pessoa>` em todos os `.md` de:
@@ -144,7 +147,10 @@ Apos agents retornarem, atribuir IDs `F1`, `F2`, `F3` ... `Fn` aos arquivos rele
   natureza: "<descricao 1 linha>"
   grau_interpretacao: <baixo | medio | alto>
   aviso: "<se for duplicata, marcar 'duplicata-de-Fx'; senao omitir>"
+  aviso-errata: "<se fonte externa tem erro nominal detectado (ex: Soraia=Betania — erro Beto), registrar aqui pra rastreabilidade. Senao omitir>"
 ```
+
+**Sobre `aviso-errata`:** fontes de terceiros (consultores externos, material convertido de outros formatos, docs antigos) as vezes tem erros nominais (pessoa A trocada por pessoa B, apelido tratado como nome proprio etc). Quando detectar via triangulacao com outras fontes, confirmar com o usuario e registrar a errata no fontes_registro — nao corrigir silenciosamente no gabarito. Exemplo real (Marcella/Beco 18/04): F12+F13 do Beto usavam "Soraia" onde queriam dizer "Betania"; errata registrada e integrada em C7 `padrao_bethania_reverte`.
 
 ### Apresentar ao usuario e PARAR
 
