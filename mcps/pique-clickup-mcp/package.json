@@ -1,6 +1,6 @@
 {
   "name": "pique-clickup-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP custom enxuto para gestao do ClickUp da Pique Digital. Substitui o MCP oficial com defaults embutidos, operacoes compostas e cache de hierarquia.",
   "type": "module",
   "main": "dist/server.js",

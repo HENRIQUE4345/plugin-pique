@@ -25,6 +25,7 @@ export const ALL_TOOLS = [
   "list_tags",
   "list_tasks",
   "move_task",
+  "post_chat_message",
   "refresh_hierarchy",
   "remove_dependency",
   "remove_tag",

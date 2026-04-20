@@ -1,7 +1,7 @@
 {
   "name": "plugin-pique",
-  "version": "1.14.2",
-  "description": "Gestao interna da Pique Digital — rituais diarios, gestao ClickUp, processamento de reunioes, planejamento semanal.",
+  "version": "1.15.0",
+  "description": "Gestao interna da Pique Digital — rituais diarios, gestao ClickUp, processamento de reunioes, planejamento semanal, briefing diario de noticias.",
   "author": {
     "name": "Pique Digital",
     "url": "https://github.com/pique-digital"

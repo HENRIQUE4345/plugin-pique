@@ -27,6 +27,7 @@ import { registerGetTask } from "./tools/get-task.js";
 import { registerListTags } from "./tools/list-tags.js";
 import { registerListTasks } from "./tools/list-tasks.js";
 import { registerMoveTask } from "./tools/move-task.js";
+import { registerPostChatMessage } from "./tools/post-chat-message.js";
 import { registerRefreshHierarchy } from "./tools/refresh-hierarchy.js";
 import { registerRemoveDependency } from "./tools/remove-dependency.js";
 import { registerRemoveTag } from "./tools/remove-tag.js";
@@ -47,6 +48,7 @@ const REGISTRARS: Record<ToolName, Registrar> = {
   list_tags: registerListTags,
   list_tasks: registerListTasks,
   move_task: registerMoveTask,
+  post_chat_message: registerPostChatMessage,
   refresh_hierarchy: registerRefreshHierarchy,
   remove_dependency: registerRemoveDependency,
   remove_tag: registerRemoveTag,

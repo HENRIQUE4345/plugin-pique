@@ -54,6 +54,11 @@ export class ClickUpClient {
     return this.request<T>("PUT", BASE_V3 + path, { body });
   }
 
+  /** POST v3 — usado pra post_chat_message */
+  async postV3<T = unknown>(path: string, body?: unknown): Promise<T> {
+    return this.request<T>("POST", BASE_V3 + path, { body });
+  }
+
   /** Upload multipart pra anexos */
   async uploadAttachment(taskId: string, fileName: string, contentBase64: string): Promise<unknown> {
     const url = `${BASE_V2}/task/${encodeURIComponent(taskId)}/attachment`;

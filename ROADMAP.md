@@ -1,7 +1,7 @@
 # Roadmap — Plugin Pique
 
 **Criado:** 2026-04-01
-**Atualizado:** 2026-04-18
+**Atualizado:** 2026-04-20
 **Status:** ativo
 
 Plugin de gestao interna da Pique Digital. Cada melhoria aqui e tambem uma feature futura do Yabadoo Business.
@@ -22,14 +22,15 @@ Cada uso do plugin = teste real do produto. Cada case da Pique = case vendavel.
 
 ---
 
-## Estado atual (v1.4.0)
+## Estado atual (v1.15.0)
 
-- 11 commands | 1 agent | 2 skills | 3 hooks
+- 24 commands | 1 agent | 3 skills | 3 hooks | 1 MCP custom (pique-clickup-mcp)
 - Bom-dia e boa-noite rodam todo dia (Henrique, Marco, Gabriel)
 - ClickUp como fonte de verdade
 - Multi-usuario via plugin-pique.local.md
 - Auto-avaliacao estruturada em todos os commands (mas sem self-edit real)
 - 18/04: adicionado `desenhar-individual` (Onda 2.5) — mapeamento individual de pessoa de cliente em 4 rodadas com proveniencia rastreavel
+- 20/04: absorvido `plugin-pique-news` como `/pique:news` (Onda 2.6) — briefing diario posta no canal ClickUp via tool `post_chat_message` do MCP (v0.3.0)
 
 ---
 
@@ -149,6 +150,28 @@ Inclui checkpoint critico de leitura conjunta com cliente entre Rodada 1 e Rodad
 **Esforco:** ja implementado (3h sessao 18/04 — destilacao manual do metodo + criacao da skill)
 
 **Status:** feito 2026-04-18
+
+---
+
+## Onda 2.6 — Briefing de noticias absorvido (abril semana 3)
+
+### 2.6.1 `/pique:news` — Briefing diario no canal ClickUp
+**O que:** Absorcao do plugin-pique-news isolado (v1.0.0) como command nativo do plugin-pique. Scrape 5 camadas via Apify → cruzamento com cerebro (roadmap, pipeline, catalogo, yabadoo, topicos-conteudo) → HTML em docs.pique.digital → teaser no canal ClickUp `1301zr-3373` (workspace Pique, 36702200).
+
+**Mudancas vs v1.0.0:**
+- Destino: WhatsApp (Evolution API) → Canal ClickUp via tool `post_chat_message` (nova, API v3)
+- MCP: `pique-whatsapp` custom (descartado) → `pique-clickup` existente (+1 tool)
+- Formatacao teaser: WhatsApp (`*bold*`) → ClickUp markdown (`**bold**`, bullets `-`)
+- Backup local Drive removido — 100% docs.pique.digital
+- Namespace: `/pique-news:news` → `/pique:news`
+
+**Por que:** Plugin-news isolado era overhead pra 1 skill so. WhatsApp dava trabalho operacional e falhava. Consolidar no plugin-pique (onde vivem rituais bom-dia/boa-noite/encerrar) deixa mais natural integrar com /loop ou /bom-dia.
+
+**Conexao Yabadoo:** Tool `post_chat_message` do MCP vira bloco do Yabadoo — qualquer modulo pode postar em chat ClickUp.
+
+**Esforco:** ~2h (investigacao endpoint API v3 + tool MCP + migracao arquivos + adaptacao do news.md)
+
+**Status:** feito 2026-04-20
 
 ---
 
