@@ -67,12 +67,12 @@ Antes de comecar, definir com o usuario:
 
 1. **Qual cliente?** Default provavel: `beco`. Se outro, validar que existe `pique/clientes/<cliente>/`.
 2. **Qual area?** Opcoes canonicas do Catalogo: `Financeiro`, `Compras`, `Gestao Lojas`, `Supervisao`, `RH`, `Marketing`. Se usuario falar "produto" → mapear pra `Compras`.
-3. **Ja foi rodado `/pique:desenhar-area` antes pra essa area?** Se usuario nao sabe, Fase 1 detecta. Fase 1 deve classificar em 3 estados:
-   - **E1 — Sem desenho:** nao ha diagnostico consolidado nem solucoes desenhadas. **Abortar** com sugestao de rodar `/pique:desenhar-area` primeiro
-   - **E2 — Desenhada sem serie de dossies:** ha diagnostico + desenho (ex: `diagnostico/<area>/*-consolidado.md` + `solucoes/plugin-<area>-*.md`) mas NAO ha dossies anteriores na pasta `entregas/`. **Seguir** — este sera o `dossie-<area>-01` (serie comeca agora)
+3. **Ja foi rodado `/pique:desenhar-area` antes pra essa area?** Se usuario nao sabe, Fase 1 detecta. Fase 1 deve classificar em 3 estados, **olhando 3 fontes em paralelo** (NAO so arquivos locais):
+   - **E1 — Sem desenho:** nao ha **nenhum** de: (a) diagnostico/desenho no cerebro local (`diagnostico/<area>/*-consolidado.md`, `solucoes/plugin-<area>-*.md`), (b) consolidado no hub (`pique-consultoria-hub/clientes/<cliente>/consolidados/`), (c) cards-mae no Catalogo ClickUp com `Area=<area>`. **Abortar** com sugestao de rodar `/pique:desenhar-area` primeiro
+   - **E2 — Desenhada sem serie de dossies:** ha **qualquer um** dos 3 sinais acima (cerebro local OU hub OU cards no Catalogo) mas NAO ha dossies anteriores na pasta `entregas/`. **Seguir** — este sera o `dossie-<area>-01` (serie comeca agora)
    - **E3 — Com serie de dossies:** ja existem `entregas/dossie-<area>-NN-*.md`. **Seguir** — novo dossie continua a numeracao (NN+1)
 
-   Caso padrao encontrado em 20/04/2026: Financeiro = E3 (serie 01-06 existia); Compras = E2 (desenho 12-16/04 existia, dossie foi criado como 01). Nao assumir paridade entre areas.
+   Caso padrao encontrado em 20/04/2026: Financeiro = E3 (serie 01-06 existia); Compras = E2 (desenho 12-16/04 existia, dossie foi criado como 01); **gestao-lojas inicialmente classificada erroneamente como E1 olhando so cerebro local** — na verdade ja tinha 3 cards-mae no Catalogo desde 12-16/04 + consolidado no hub (E2 real). Nao assumir paridade entre areas. **Sempre listar cards no Catalogo via gestor-clickup antes de classificar E1.**
 
 Se faltar `cliente` ou `area`, perguntar via AskUserQuestion. Se usuario nao responder em 2 tentativas, abortar.
 

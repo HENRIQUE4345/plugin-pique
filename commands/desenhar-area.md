@@ -6,7 +6,8 @@ Orquestra analise profunda de uma area de cliente + desenho de solucoes no padra
 
 ## Ferramentas
 
-- **Exploracao do cerebro e ClickUp**: delegar aos Explore agents (Sonnet, paralelos)
+- **Exploracao do cerebro**: delegar aos Explore agents (Sonnet, paralelos)
+- **Exploracao do ClickUp**: delegar ao `gestor-clickup` (Sonnet) — Explore agents NAO tem acesso ao MCP custom `pique-clickup` (regra de seguranca, memory `feedback_mcp_clickup_scope`)
 - **TODAS as operacoes ClickUp de escrita**: delegar ao agent `gestor-clickup`
 - **Leitura direta de arquivos criticos**: Read (narrativa-yababuss.md, catalogo-kanban-modelo.md, dossies do cliente)
 - **Modelo desta skill**: Opus (orquestracao). Agents delegados usam Sonnet.
@@ -97,7 +98,7 @@ Se o usuario ja esta em **plan mode** quando acionar a skill:
 
 **Objetivo:** detectar maturidade da area pra decidir se as Fases 2-3 rodam ou se pula pra Fase 5.
 
-Lancar **ate 3 Explore agents em paralelo** (Sonnet):
+Lancar **ate 3 agents em paralelo** (Sonnet): 2 Explore (cerebro + Read direto canonicos) + 1 `gestor-clickup` (cards no Catalogo). Explore NAO chama MCP `pique-clickup` — toda leitura no ClickUp passa pelo `gestor-clickup`.
 
 ### Agent 1 — Material do cliente no cerebro
 Buscar em `pique/clientes/<cliente>/` por:
@@ -119,8 +120,11 @@ Origens da regra:
 - Sessao 13/04/2026 gestao-lojas/beco — entrevistas Ellen/Marcilene/gerentes estavam no Drive, nao migradas
 - Sessao 17/04/2026 marketing/beco — 4 brainstorms com SWOT completa e mapeamento de 13 atividades de marketing estavam em `BRAINSTORM-TEMPLATE/docs/sessoes/`, nao migrados. Diagnostico "Alta maturidade" so emergiu apos o usuario apontar o repo paralelo — skill tinha avaliado "Media" sem essa busca
 
-### Agent 2 — Cards existentes no Catalogo
-Listar tasks da list `901326825973` filtrando pelo custom field `Area = <area>`. Para cada card: nome, status, ID, URL. Tambem checar se ha cards-mae ja no formato `Desenhar Plugin <area> — F<N>...` (sinal de que area ja foi empacotada antes).
+### Agent 2 — Cards existentes no Catalogo (delegar a `gestor-clickup`, NAO Explore)
+
+**Obrigatorio:** subagent_type = `plugin-pique:gestor-clickup`. Explore agent NAO tem permissao pra chamar tools `mcp__pique-clickup__*`. Origem: 20/04/2026 — primeiro Agent 2 desta skill (gestao-lojas/beco) usando Explore falhou com "Bloqueado por Autenticacao"; re-execucao via `gestor-clickup` funcionou direto. Memory `feedback_mcp_clickup_scope`.
+
+Briefing pro `gestor-clickup`: listar tasks da list `901326825973` filtrando pelo custom field `Area = <area>`. Para cada card: nome, status, ID, URL, custom fields preenchidos (Area, Tipo, Onda, Impacto, Esforco, Modelo, Usuario-chave, Horas, Economia, Preco, Recorrencia, Revisao H/M), tem-subtasks (sinal de formato antigo), Modelo vazio (sinal de criado antes da regra atual). Tambem checar se ha cards-mae ja no formato `Desenhar Plugin <area> — F<N>...` (sinal de empacotamento antigo). Se ha cards com nome relacionado mas Area diferente (potencial mismatch), reportar.
 
 ### Agent 3 — Referencia canonica YabaBuss (Read direto, nao agent)
 Ler `pique/produto-yabadoo/narrativa-yababuss.md` e `pique/clientes/<cliente>/solucoes/catalogo-kanban-modelo.md`. Esses sao fonte de verdade.
