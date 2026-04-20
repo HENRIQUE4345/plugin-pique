@@ -67,7 +67,12 @@ Antes de comecar, definir com o usuario:
 
 1. **Qual cliente?** Default provavel: `beco`. Se outro, validar que existe `pique/clientes/<cliente>/`.
 2. **Qual area?** Opcoes canonicas do Catalogo: `Financeiro`, `Compras`, `Gestao Lojas`, `Supervisao`, `RH`, `Marketing`. Se usuario falar "produto" → mapear pra `Compras`.
-3. **Ja foi rodado `/pique:desenhar-area` antes pra essa area?** Se usuario nao sabe, Fase 1 detecta. Se a resposta for "nao, nunca foi desenhada" → abortar com sugestao de rodar `/pique:desenhar-area` primeiro.
+3. **Ja foi rodado `/pique:desenhar-area` antes pra essa area?** Se usuario nao sabe, Fase 1 detecta. Fase 1 deve classificar em 3 estados:
+   - **E1 — Sem desenho:** nao ha diagnostico consolidado nem solucoes desenhadas. **Abortar** com sugestao de rodar `/pique:desenhar-area` primeiro
+   - **E2 — Desenhada sem serie de dossies:** ha diagnostico + desenho (ex: `diagnostico/<area>/*-consolidado.md` + `solucoes/plugin-<area>-*.md`) mas NAO ha dossies anteriores na pasta `entregas/`. **Seguir** — este sera o `dossie-<area>-01` (serie comeca agora)
+   - **E3 — Com serie de dossies:** ja existem `entregas/dossie-<area>-NN-*.md`. **Seguir** — novo dossie continua a numeracao (NN+1)
+
+   Caso padrao encontrado em 20/04/2026: Financeiro = E3 (serie 01-06 existia); Compras = E2 (desenho 12-16/04 existia, dossie foi criado como 01). Nao assumir paridade entre areas.
 
 Se faltar `cliente` ou `area`, perguntar via AskUserQuestion. Se usuario nao responder em 2 tentativas, abortar.
 
@@ -88,6 +93,8 @@ Lancar **3 Explore agents em paralelo** (Sonnet):
 
 ### Agent 1 — Cards da area no ClickUp (TODAS as lists do folder do cliente)
 
+**IMPORTANTE pro Explore agent:** voce TEM acesso aos tools `mcp__pique-clickup__*`. **EXECUTE direto — nao delegue ao agent `gestor-clickup`.** Delegar gera ping-pong desnecessario (visto em 20/04/2026 com area Compras). Se o MCP pique-clickup estiver desativado, reporte e pare — nao tente fallback silencioso pro MCP oficial sem avisar.
+
 Buscar em 3 lists:
 - **Catalogo de Solucoes** (`901326825973` para Beco) — cards em todos os statuses, filtrando `Area = <area>`
 - **MVP** — cards ja finalizados da area (fundacao ja construida que muda a leitura da precificacao)
@@ -100,6 +107,7 @@ Foco especial em:
 - Cards com campos vazios — potenciais gaps
 - Cards com comentarios flaggando "sem lastro", "validar", "pendente" — precisam atencao
 - Cards com Revisao X = true ja marcado por outro socio — reduzir atrito
+- Cards com custom field `Area` divergente do conteudo (ex: F4 do Beco em 20/04: raw Area=Supervisao mas conteudo e Compras). Flaggar pra correcao na Fase 6
 
 ### Agent 2 — Material do cliente no cerebro
 
@@ -161,7 +169,7 @@ Onde Flag marca: campo vazio critico (Economia, Modelo), comentario de "sem last
 
 1. **Lente do Bloco 6** — apresentar 1-2 sugestoes baseadas na area + perguntar ao usuario. Exemplos por area:
    - Financeiro: "pacote vs a la carte + pricing triangulado"
-   - Compras: "integracao Supabase vs planilhas + CMV atacavel"
+   - Compras: "pacote sequencial F1+F2+F3 + pre-requisitos externos como gargalo" (aplicado 20/04/2026)
    - Gestao Lojas: "padronizacao vs autonomia loja + SPOF Jezi"
    - Supervisao: "bombeiro Edith vs gestor estrategico"
    - RH: "automatizar vs contratar + criticalidade por papel"
@@ -170,6 +178,22 @@ Onde Flag marca: campo vazio critico (Economia, Modelo), comentario de "sem last
 3. Alguma decisao ja tomada em chat paralelo que eu preciso absorver?
 4. Algum card especifico que eu devo puxar primeiro na discussao?
 5. Algum gap da auditoria que eu devo desconsiderar (fora de escopo consciente)?
+
+### Parte 5 — Modo de execucao (atalho opcional)
+
+Apos as perguntas, oferecer explicitamente ao usuario:
+
+```
+Modo de execucao da Fase 3:
+(a) Loop iterativo — discuto task por task, voce valida decisoes
+(b) Caminho recomendado — eu fecho todas as decisoes seguindo minha recomendacao, voce so ve o dossie final
+
+Qual prefere?
+```
+
+Se usuario escolher **(b)** OU disser coisas como "segue sempre o recomendado", "so quero material final", "decide voce" — pular o loop task-por-task da Fase 3 e ir direto pra Fase 4 (Geracao), registrando no dossie quais decisoes foram tomadas em cada card. Economiza 3-5 turnos quando o usuario confia nas recomendacoes. Aplicado 20/04/2026 com sucesso em Compras.
+
+Se usuario escolher **(a)** ou nao se manifestar, seguir fluxo default da Fase 3.
 
 **Formato da apresentacao:**
 
@@ -411,14 +435,23 @@ Se a skill gerou tambem um artefato auxiliar (sumario, pauta separada), adiciona
 
 ### 6.2 Movimentacao de tasks final (se decisoes da Fase 3 pediram)
 
-Confirmar com usuario: "Aplico as movimentacoes de status/comentarios que decidimos na discussao?"
+**Decidir se precisa confirmar:**
+- Se usuario ja autorizou na Fase 2 Parte 5 modo (b) "caminho recomendado", OU disse "segue sempre o recomendado", "so quero material final", "aplica tudo", "pode aplicar" em qualquer turno anterior — **pular o checkpoint** e aplicar o lote direto. Autorizacao abrangente cobre movimentacoes ClickUp derivadas das decisoes ja fechadas.
+- Senao, confirmar: "Aplico as movimentacoes de status/comentarios que decidimos na discussao?"
 
-Se sim: delegar ao `gestor-clickup` em lote:
-- Comentarios aprovados
+Aplicar o lote delegando ao `gestor-clickup`:
+- Comentarios aprovados (texto literal em PT-BR, sem emoji)
 - Mudancas de status aprovadas
 - Atualizacoes de custom field aprovadas
+- Correcoes de Area divergente (ex: F4 Compras Beco em 20/04 — campo raw estava `Supervisao`, update direto via MCP funcionou)
+- Dependencias formais que ficaram so em prosa no card (ex: `waiting_on` entre fases sequenciais)
 
-Reportar URLs + IDs + status final de cada task movida.
+**NAO aplicar sem autorizacao (mesmo com "caminho recomendado"):**
+- Preencher campos Horas/Preco/Recorrencia quando valor depende de input externo (ex: custo-hora Arthur nao fornecido)
+- Marcar Revisao Henrique/Marco como true sem passagem presencial do socio pelo card
+- Mudar status pra `finalizado` ou `descartado` (decisao terminal)
+
+Reportar URLs + IDs + o que foi alterado em cada card (1 linha por operacao) + qualquer falha.
 
 ---
 
