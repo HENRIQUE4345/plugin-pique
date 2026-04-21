@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__.*clickup.*",
+        "matcher": "mcp__.*clickup__(add_comment|add_dependency|add_tag|attach_file|create_task_full|delete_task|move_task|remove_dependency|remove_tag|update_task)",
         "hooks": [
           {
             "type": "prompt",
