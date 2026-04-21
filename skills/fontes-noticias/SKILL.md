@@ -86,7 +86,7 @@ Os briefings ficam publicos em `https://docs.pique.digital/publico/pique/news/YY
 
 ### Leitura de briefings anteriores
 
-O comando `/pique:news` le automaticamente os 3 briefings mais recentes antes de buscar noticias novas (Passo 1.5). Isso permite:
+O comando `/plugin-pique:news` le automaticamente os 3 briefings mais recentes antes de buscar noticias novas (Passo 1.5). Isso permite:
 
 1. **Deduplicacao:** noticias ja reportadas nao se repetem — a menos que tenham desdobramento novo
 2. **Tendencias:** temas que aparecem em 2+ briefings sao nomeados como TENDENCIA e acompanhados com timeline

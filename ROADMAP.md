@@ -30,7 +30,7 @@ Cada uso do plugin = teste real do produto. Cada case da Pique = case vendavel.
 - Multi-usuario via plugin-pique.local.md
 - Auto-avaliacao estruturada em todos os commands (mas sem self-edit real)
 - 18/04: adicionado `desenhar-individual` (Onda 2.5) — mapeamento individual de pessoa de cliente em 4 rodadas com proveniencia rastreavel
-- 20/04: absorvido `plugin-pique-news` como `/pique:news` (Onda 2.6) — briefing diario posta no canal ClickUp via tool `post_chat_message` do MCP (v0.3.0)
+- 20/04: absorvido `plugin-pique-news` como `/plugin-pique:news` (Onda 2.6) — briefing diario posta no canal ClickUp via tool `post_chat_message` do MCP (v0.3.0)
 
 ---
 
@@ -155,7 +155,7 @@ Inclui checkpoint critico de leitura conjunta com cliente entre Rodada 1 e Rodad
 
 ## Onda 2.6 — Briefing de noticias absorvido (abril semana 3)
 
-### 2.6.1 `/pique:news` — Briefing diario no canal ClickUp
+### 2.6.1 `/plugin-pique:news` — Briefing diario no canal ClickUp
 **O que:** Absorcao do plugin-pique-news isolado (v1.0.0) como command nativo do plugin-pique. Scrape 5 camadas via Apify → cruzamento com cerebro (roadmap, pipeline, catalogo, yabadoo, topicos-conteudo) → HTML em docs.pique.digital → teaser no canal ClickUp `1301zr-3373` (workspace Pique, 36702200).
 
 **Mudancas vs v1.0.0:**
@@ -163,7 +163,7 @@ Inclui checkpoint critico de leitura conjunta com cliente entre Rodada 1 e Rodad
 - MCP: `pique-whatsapp` custom (descartado) → `pique-clickup` existente (+1 tool)
 - Formatacao teaser: WhatsApp (`*bold*`) → ClickUp markdown (`**bold**`, bullets `-`)
 - Backup local Drive removido — 100% docs.pique.digital
-- Namespace: `/pique-news:news` → `/pique:news`
+- Namespace: `/pique-news:news` → `/plugin-pique:news`
 
 **Por que:** Plugin-news isolado era overhead pra 1 skill so. WhatsApp dava trabalho operacional e falhava. Consolidar no plugin-pique (onde vivem rituais bom-dia/boa-noite/encerrar) deixa mais natural integrar com /loop ou /bom-dia.
 
