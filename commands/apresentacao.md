@@ -189,6 +189,18 @@ Cada capitulo = 1 fragment HTML. Seguir `docs/arquitetura/contrato-capitulo.md`:
 - Inventar HTML custom quando a narrativa pedir algo unico.
 - Tamanho tipico: 30-150 linhas por capitulo.
 
+**IMPORTANTE — Numero e titulo do capitulo sao dinamicos.** Nunca hardcode "Capitulo 02" ou o titulo no HTML. Use os placeholders:
+- `<span data-cap-numero></span>` → preenchido com o `numero` do manifest
+- `<span data-cap-titulo></span>` → preenchido com o `titulo` do manifest
+
+Exemplo padrao no inicio do capitulo:
+```html
+<p class="section-label reveal">Capitulo <span data-cap-numero></span></p>
+<h2 class="section-title reveal">...</h2>
+```
+
+Isso permite reordenar ou renumerar capitulos editando so o `manifest.json` — sem precisar mexer em N arquivos HTML.
+
 **PRIORIZE narrativa sobre quantidade.** 5 capitulos bem feitos > 12 rasos.
 
 **Componentes reusaveis JS** (declarar em `capitulo.js` + `<script src>` relativo):
