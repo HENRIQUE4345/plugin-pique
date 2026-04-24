@@ -225,13 +225,24 @@ Pergunte: "Quer que eu suba o server e abra no navegador?" Se sim, rode `python 
 
 ### 5.2 Deploy em docs.pique.digital
 
-Pergunte: "Quer que eu faca upload pra `docs.pique.digital/apresentacoes/{slug}/`?"
+Pergunte: "Quer que eu faca deploy pra `docs.pique.digital/publico/apresentacoes/{slug}/`?"
 
-Se sim, usar MCP `docs-pique__upload_page` pra subir os arquivos (casca + pasta do deck). Upload cobre:
-- `_template/` completo (css, js, pages, schema, assets) — pode reutilizar uploads anteriores se ja subido
-- `apresentacoes/{slug}/` completo (manifest + capa + capitulos + assets opcionais)
+Se sim, rodar o script `scripts/deploy-deck.sh` (upload via Dufs/WebDAV):
 
-Retornar URL final: `https://docs.pique.digital/apresentacoes/{slug}/` (a casca resolve `_template/pages/index.html?deck={slug}` automaticamente via index.html redirect — se nao existir redirect, usar URL completa).
+```bash
+cd c:/Users/Henrique Carvalho/Documents/PROGRAMAS/pique-apresentacoes
+./scripts/deploy-deck.sh {slug}
+# ou dry-run pra conferir lista de arquivos antes:
+./scripts/deploy-deck.sh {slug} --dry-run
+```
+
+O script sobe `_template/` completo + `apresentacoes/{slug}/` + cria `index.html` que redireciona pra `_template/pages/index.html?deck={slug}`.
+
+**O MCP `docs-pique__upload_page` NAO serve aqui** — ele aceita so 1 HTML por chamada, nao a estrutura multi-arquivo.
+
+Credenciais vivem em `pique-apresentacoes/.env` (gitignored). Se nao existir `.env`, copiar `.env.example` e preencher com valores de `.suporte/credenciais.md` (Dufs riquedj).
+
+URL final: `https://docs.pique.digital/publico/apresentacoes/{slug}/`
 
 ### 5.3 Distribuicao (oferecer proativamente)
 
