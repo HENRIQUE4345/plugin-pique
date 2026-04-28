@@ -51,42 +51,39 @@ Antes de qualquer coisa, busque o diario de ontem:
 
 Execute TUDO em paralelo:
 
-### 1.1 Google Calendar — HOJE + proximos 3 dias
+### 1.1 Google Calendar — ONTEM + HOJE + proximos dias
 
-Liste eventos de HOJE e dos PROXIMOS 3 DIAS:
-- Use gcal_list_events com timeMin=hoje 00:00 e timeMax=hoje+3 dias 23:59.
-- Cheque TODOS os calendarios do usuario (ler IDs de `plugin-pique.local.md` e CLAUDE.md do plugin).
-- **Filtro no calendario Pique Agenda (compartilhado):** incluir evento apenas se (a) o email do usuario atual (campo `calendarios.primary` em `plugin-pique.local.md`) esta em `attendees`, OU (b) o evento nao tem `attendees` (evento publico da empresa). NAO listar reuniao do outro socio como compromisso seu — ja aconteceu de contaminar briefing e estimativa de tempo livre.
-- Classifique:
-  - **HOJE:** reunioes que ocupam bloco de tempo
-  - **AMANHA/PROXIMOS:** reunioes que precisam de PREP hoje
-- **Calcule TEMPO LIVRE de hoje:**
-  - Horas disponiveis = horas do dia (assumir 8h uteis, ou perguntar se comecou tarde) - reunioes de hoje - 1h buffer (contexto switching, imprevistos)
-  - Esse numero e o TETO de estimativas que cabem no dia
+Busque eventos em 3 janelas:
+- **Ontem** (timeMin=ontem 00:00, timeMax=ontem 23:59) — contexto do que rolou, complementa diario ausente
+- **Hoje** (timeMin=hoje 00:00, timeMax=hoje 23:59) — bloqueia tempo, define teto real do dia
+- **Proximos dias** (timeMin=amanha 00:00, timeMax=hoje+4 dias 23:59) — o que precisa de prep
 
-IDs dos calendarios: consultar `plugin-pique.local.md` (usuario atual) + CLAUDE.md do plugin (calendarios compartilhados e de outros membros).
+Cheque TODOS os calendarios do usuario (ler IDs de `plugin-pique.local.md` e CLAUDE.md do plugin).
+
+**Filtro no calendario Pique Agenda (compartilhado):** incluir evento apenas se o email do usuario atual (`calendarios.primary` em `plugin-pique.local.md`) esta em `attendees`. Eventos no Pique Agenda **sem attendees** NAO sao default "compromisso seu" — sao eventos publicos. Liste-os em uma secao separada "Publico/a confirmar quem participa" no briefing e NAO desconte do tempo livre. NAO listar reuniao do outro socio como compromisso seu.
+
+**Calcule TEMPO LIVRE de hoje:**
+- Horas disponiveis = 8h uteis - reunioes de hoje - 1h buffer (contexto switching, imprevistos)
+- Esse numero e o TETO de estimativas que cabem no dia
 
 ### 1.2 ClickUp — Foto do board
 
 Consulte `pique/infra/clickup-setup.md` para IDs dos Spaces.
 
-Delegue ao agent `gestor-clickup` pra buscar tasks nos seguintes estados (ele usa `list_tasks` com filtros):
+Busque sempre com `assignees: [user_clickup_id]` (usuario que esta rodando a skill — nunca buscar tasks do time).
 
-| O que buscar | Por que |
-|---|---|
-| Tasks com status "Hoje" | Sobrou de ontem? Ficou em andamento? |
-| Tasks com status "Fazendo" | Algo em progresso? |
-| Tasks com status "Essa semana" | Pool disponivel pra puxar |
-| Tasks atrasadas (due_date < hoje) | Divida acumulada |
-| Tasks com start_date = hoje | Precisam comecar hoje (multi-dia) |
-| Tasks com status "Finalizado" recentes (ultimos 2 dias) | O que foi feito |
+Use `list_tasks` com os seguintes filtros em TODOS os Spaces ativos (Pique Digital 901313561086, Conteudo 901313561098, Yabadoo 901313567191, Beto Carvalho 901313567164, Pessoal 901313561154):
 
-Busque em TODOS os Spaces ativos:
-- Pique Digital (901313561086)
-- Conteudo (901313561098)
-- Yabadoo (901313567191)
-- Beto Carvalho (901313567164)
-- Pessoal (901313561154)
+| O que buscar | Filtro | Detalhe retornado |
+|---|---|---|
+| Concluidas ontem | due_date = ontem + include_closed=true | Titulo — o que foi entregue |
+| **Atrasadas** | **due_date < hoje AND status NOT IN (finalizado, descartada)** | **Completo: titulo + descricao + comentarios** |
+| Vencendo hoje | due_date = hoje | Completo: titulo + descricao + comentarios |
+| Vencendo essa semana | due_date entre amanha e fim da semana | So titulo — pool disponivel |
+
+**Atrasadas e separado de "ideias em status `planejado`" no Studio (que sao backlog, nao compromisso firme).** Tasks com due_date no passado e status ativo sao compromissos vencidos — entram primeiro na proposta da Fase 3.
+
+Para "vencendo hoje" E "atrasadas": apos buscar com list_tasks, chame `get_task` em cada task retornada para puxar descricao e comentarios completos. Listar por nome e inferir escopo gera descricao errada — sempre puxar `get_task` antes de descrever escopo no briefing.
 
 ### 1.3 Inbox rapido
 
@@ -116,6 +113,10 @@ Apresente um resumo CURTO e visual:
 - [DATA HH:MM] Evento Y
 - (ou: proximos 3 dias livres)
 
+**Atrasadas (due passou, status ativo):**
+- Task 1 [Space] (vencida ha N dias)
+- (ou: nada atrasado)
+
 **Ficou pra hoje (status Hoje/Fazendo):**
 - Task 1 (status)
 - (ou: board limpo)
@@ -141,6 +142,11 @@ Depois pergunte (MAXIMO 3 perguntas, diretas):
 1. Mudou alguma prioridade ou surgiu algo novo?
 2. Ta travado em alguma coisa?
 3. (Se tiver reuniao amanha/proximos dias) Precisa preparar algo pra [reuniao X]?
+
+**Se o stand-up esta rodando depois das 10h** (sinal de que o usuario provavelmente ja avancou no dia), adicione tambem:
+- O que voce ja fez hoje antes de rodar o stand-up?
+
+Isso evita propor o que ja esta feito e deixa o orcamento do dia mais realista.
 
 Se NAO tinha diario de ontem, adicione:
 4. Resumo rapido do que rolou ontem?
@@ -253,11 +259,20 @@ ESPERE resposta de cada uma antes de passar pra proxima.
 
 ## Fase 5: Execucao
 
+### 5.0 Resolver list_id antes de delegar (criacao de tasks)
+
+Se a Fase 3 incluiu **criacao de tasks novas** (nao so update de existentes), antes de delegar ao `gestor-clickup`:
+
+1. Consultar `pique/infra/clickup-mapa-real-*.md` (foto estrutural mais recente) pra resolver o `list_id` correto baseado no contexto da task (cliente, area, tipo).
+2. Passar `list_id` **resolvido e explicito** no prompt do agent — nunca pedir "ache pelo nome".
+3. Se a list nao existir no mapa ou contexto for ambiguo, perguntar ao usuario antes de criar.
+
+Por que: agent caiu em list errada (Operacional/Geral em vez de Beco — Consultoria/Apresentacao) quando recebeu so o nome.
+
 ### 5.1 Atualizar ClickUp
-- **ANTES de mover, checar statuses disponiveis na list de cada task.** Algumas lists operacionais seguem workflow por fase (tipo `a fazer/fazendo/aguardando/finalizado`) e NAO tem status "Hoje".
-- Se a list TEM status "Hoje": delegue ao `gestor-clickup` pra mover (ele usa `update_task` com `status: "Hoje"`).
-- Se a list NAO tem status "Hoje": NAO force. Fallback = manter status atual + confirmar `due_date = hoje` (ja sinaliza foco pra aquele dia).
-- Se alguma task de ontem que ficou em "Hoje" NAO foi escolhida, pergunte: volta pra "Essa semana" ou fica?
+- NAO mova tasks para status "Hoje" — essa dinamica foi descontinuada.
+- Unico update necessario: se alguma task selecionada nao tem due_date = hoje, delegue ao `gestor-clickup` pra confirmar `due_date = 2026-XX-XX` (data de hoje).
+- Tasks atrasadas que NAO entram no dia: deixar como estao. Nao reagendar automaticamente sem pedir confirmacao.
 
 ### 5.2 Gerar mensagem do WhatsApp
 Gere a mensagem EXATAMENTE neste formato (pronta pra copiar e colar):
@@ -303,6 +318,7 @@ Diga: "Stand-up feito. Mensagem pronta. Bora pro bloco produtivo."
 - A Fase 4 (detalhamento) pode levar mais tempo — isso e esperado e valioso.
 - Bloqueio externo (fora do controle) = registra no "Travado em" do standup. So comenta no ClickUp se precisa de acao de outra pessoa.
 - **NUNCA proponha tasks que somem mais horas que o tempo livre calculado.** Se nao cabe, mostra o estouro e pergunta o que cortar.
+- **Estouro consciente = registrar e seguir, nao argumentar 2x.** Quando user decide estourar (>5 tasks/dia OU horas > tempo livre) ciente do trade-off, registrar no diario e seguir. Nao repetir o aviso.
 - **Task empurrada 2+ vezes = bloqueio cronico.** Sinalizar e adicionar na pauta da review semanal.
 - **Calendar vem primeiro, ClickUp preenche o espaco.** O dia real define o teto, as tasks preenchem.
 - Comunique-se em portugues brasileiro, direto e sem formalidade.

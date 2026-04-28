@@ -71,6 +71,24 @@ Consulte `pique/infra/clickup-setup.md` para IDs.
 
 ## Fase 3: Estruturar a narrativa
 
+### 3.0 Detectar capitulos pre-definidos no argument
+
+**Antes de propor estrutura nova, cheque se o usuario ja deu a estrutura no argument.** Padroes detectaveis na string do argument:
+- "Capitulos sugeridos:" / "Capítulos sugeridos:" seguido de lista numerada
+- "Estrutura sugerida:" / "Estrutura proposta:" seguido de lista numerada
+- Bloco MD com `## Capitulo N` repetido 3+ vezes
+
+Se detectar, **Fase 3 vira confirmacao curta em 1-2 linhas:**
+
+```
+Estrutura recebida no argument ([N capitulos]). Vou ajustar [X e Y se necessario].
+Sigo direto pra Fase 4 (gerar arquivos)?
+```
+
+NAO re-propor a mesma estrutura. So apontar ajustes, se houver, e aguardar OK do usuario.
+
+Se NAO detectar capitulos pre-definidos, siga 3.1 normal.
+
 ### 3.1 Proposta de estrutura
 
 Apresente ao usuario:
@@ -282,7 +300,10 @@ Avalie:
 1. A narrativa ficou clara ou virou lista de bullets?
 2. A casca carregou OK no navegador? (usuario confirmou preview)
 3. O usuario pediu muitos ajustes? (gap no briefing)
-4. Algum padrao novo apareceu em 2+ capitulos desse deck e deveria virar componente reusavel da biblioteca?
+4. Algum padrao novo apareceu em **3+ capitulos** desse deck e deveria virar componente reusavel da biblioteca? **Quando sim, propor promocao explicita:** mover para `pique-apresentacoes/_template/css/apresentacao.css` como classe `.pique-{nome}` (com modificadores via CSS custom properties pra parametrizar cor/tamanho) e atualizar `pique-apresentacoes/docs/arquitetura/biblioteca-componentes.md` na secao apropriada. **Casos prontos pra promocao** (detectados em decks anteriores):
+   - `.pique-entrega-row` — checklist de entregas com cor parametrica via `--pc` (apareceu em 4 capitulos do plano-semanal-s18)
+   - `.pique-week-grid` — calendario semanal 7 dias com `repeat(7, minmax(140px, 1fr))`, classe `.day-card`, parametrizar cor por evento via `--day-color`
+   - Padrao narrativo "[verbo] voce diz" — quote em italico no topo de capitulo de pessoa em apresentacoes recorrentes (nao componente CSS, documentar como pattern em biblioteca-componentes.md secao "Padroes narrativos")
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS:
 

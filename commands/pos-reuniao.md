@@ -59,21 +59,21 @@ Qual reuniao? (numero ou "todas")
 
 Incluir data, hora, nome do evento e participantes (extrair dos attendees).
 
-#### 0.2 Buscar conteudo das anotacoes
+#### 0.2 Buscar conteudo das anotacoes (Drive-first)
 
 Apos o usuario escolher, tente buscar o conteudo nesta ordem:
 
-**Tentativa 1 — Gmail:**
-Busque email de `from:gemini-notes@google.com` com o nome da reuniao no subject (usar `gmail_search_messages`).
-Se encontrar, leia o body com `gmail_read_message`. O email contem: resumo, topicos, proximas etapas.
+**Tentativa 1 — Google Drive (preferida):**
+Pegue o `fileId` do attachment do evento (`title: "Anotações do Gemini"`) e leia direto via `mcp__claude_ai_Google_Drive__read_file_content`. Drive-first e mais direto: zero copy-paste manual, funciona mesmo quando o email do Gemini foi pra outro participante e captura reunioes nao agendadas (basta o doc existir).
 
-**Tentativa 2 — Fallback manual:**
-Se NAO encontrar email do Gemini, mostre o link do Google Doc (extraido do attachment do evento):
+**Tentativa 2 — Gmail (fallback):**
+Se o Drive nao retornar conteudo (sem permissao, attachment removido), busque email de `from:gemini-notes@google.com` com o nome da reuniao no subject (`gmail_search_messages`). Leia body com `gmail_read_message`.
+
+**Tentativa 3 — Fallback manual:**
+Se nada funcionar, mostre o link do Google Doc:
 
 ```
-Nao encontrei o email do Gemini pra essa reuniao (provavelmente foi iniciado por outro participante).
-
-O doc esta aqui: [link do Google Doc]
+Nao consegui ler a anotacao automatica. O doc esta aqui: [link do Google Doc]
 Abre, copia o conteudo e cola aqui que eu processo.
 ```
 
@@ -147,6 +147,30 @@ Para cada informacao na transcricao, classifique:
 - **NOVO** — informacao que nao existia
 - **MUDOU** — algo que existia mas foi alterado/corrigido
 - **CONTRADIZ** — algo que contradiz o que esta no cerebro (sinalizar!)
+
+### 3.1b Confirmar atribuicao de falas ambiguas (gate)
+
+**Trigger:** transcricao multi-speaker SEM speaker labels (celular gravando presencial, microfone ambiente, audio de Meet sem diarizacao) E reuniao com 2+ participantes.
+
+Antes de extrair dores/fatos/decisoes, liste 5-10 frases estruturantes da transcricao (as que carregam dor, decisao, ou auto-narrativa) e pergunte ao usuario:
+
+```
+Antes de extrair, preciso confirmar quem disse o que. Transcricao sem labels — 
+risco de atribuir narrativa do apresentador como se fosse dor do prospect.
+
+Quem disse cada uma?
+
+1. "[frase 1]"
+2. "[frase 2]"
+3. "[frase 3]"
+...
+
+Responda no formato: 1=Henrique, 2=prospect, 3=ambiguo (descartar)
+```
+
+**Especialmente critico em pitch comercial** — narrativas do apresentador costumam colar em dores do cliente sem essa validacao. Caso pitch Vitor Padarias: 4 blocos atribuidos errado, usuario corrigiu 3 rodadas.
+
+ESPERE resposta antes de prosseguir pra 3.2.
 
 ### 3.2 Extrair categorias
 
@@ -226,6 +250,20 @@ Posso executar?
 ```
 
 **Se alguma secao estiver vazia, escreva "Nenhum" — NAO omita.**
+
+**Regras especiais ao montar tasks na Fase 4:**
+
+- **Task pra executor autonomo (Gabriel/Marco/Arthur fazem sozinhos) precisa SECAO DE REFERENCIA.** Descricao generica nao passa. Incluir explicitamente o que a pessoa faz pra ela conseguir destrinchar:
+  - Gabriel = `iairique`, `Yabadoo`, `operacional`/edicao
+  - Marco = `pique B2B`, `gestao-pessoas`, `clientes (Beco/etc)`
+  - Arthur = `engenharia`, `infra/tooling`, `automacoes`
+  - Mencionar tambem o plugin-pique correspondente (`/pique:planejar-tasks` ou `/pique:planejamento-semanal`).
+
+- **Nome mal transcrito = flag `[?]` antes de inferir.** Quando um nome na transcricao nao bate com nenhuma entidade conhecida (ex: "Emargo", "Yamadu", "Marmo" que aparentam ser "Yabadoo"), NAO inferir silenciosamente. Sinalizar com `[?]` na proposta:
+  ```
+  Task: "Validar perfil [?] (transcricao: 'Yamadu' — bater com Yabadoo?)"
+  ```
+  Confirmar com o usuario antes de criar a task. Nao assumir que o transcrito e canonico so porque aparece escrito.
 
 ESPERE o usuario revisar e aprovar antes de continuar.
 

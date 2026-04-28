@@ -89,11 +89,14 @@ Se o usuario ja esta em **plan mode** ao acionar a skill:
 
 **Objetivo:** carregar TODO o contexto pra o Henrique ter visao completa antes de decidir a lente estrategica.
 
-Lancar **3 Explore agents em paralelo** (Sonnet):
+Lancar **3 agents em paralelo**:
+- **Agent 1 (cards ClickUp)** → subagent_type = `plugin-pique:gestor-clickup` (Sonnet)
+- **Agent 2 (cerebro)** → subagent_type = `Explore` (Sonnet)
+- **Agent 3 (auditorias externas)** → subagent_type = `Explore` (Sonnet)
 
 ### Agent 1 — Cards da area no ClickUp (TODAS as lists do folder do cliente)
 
-**IMPORTANTE pro Explore agent:** voce TEM acesso aos tools `mcp__pique-clickup__*`. **EXECUTE direto — nao delegue ao agent `gestor-clickup`.** Delegar gera ping-pong desnecessario (visto em 20/04/2026 com area Compras). Se o MCP pique-clickup estiver desativado, reporte e pare — nao tente fallback silencioso pro MCP oficial sem avisar.
+**IMPORTANTE:** esse agent **deve ser o `plugin-pique:gestor-clickup`, nao o Explore**. Testado em 20/04/2026: hooks bloqueiam o Explore de usar `mcp__pique-clickup__*` (mesmo sendo leitura) — gera ping-pong e obriga redisparo. O gestor-clickup ja tem permissao nativa. Se o MCP pique-clickup estiver desativado, reporte e pare — nao tente fallback silencioso pro MCP oficial sem avisar.
 
 Buscar em 3 lists:
 - **Catalogo de Solucoes** (`901326825973` para Beco) — cards em todos os statuses, filtrando `Area = <area>`
@@ -452,6 +455,37 @@ Aplicar o lote delegando ao `gestor-clickup`:
 - Mudar status pra `finalizado` ou `descartado` (decisao terminal)
 
 Reportar URLs + IDs + o que foi alterado em cada card (1 linha por operacao) + qualquer falha.
+
+### 6.3 Registrar consolidacao na task da pauta GATE (padrao fixo)
+
+Cada consolidacao de area vira comentario na **task da pauta GATE** (no Beco: `86agxeuj7` na list `Pesquisa de Solucoes`). Ao abrir a reuniao de gate, ter todas as areas consolidadas em 1 task facilita leitura.
+
+**Formato** (texto literal, PT-BR, sem emoji, **sem anexar .md** — so referenciar path; memory `feedback_anexar_contexto_clickup`):
+
+```
+Area <Area> consolidada DD/MM como Parte <NN> da serie <Area>.
+
+Dossie: pique/clientes/<cliente>/entregas/dossie-<area>-<NN>-consolidado.md
+
+Cruza <N> cards-mae do Catalogo (<lista IDs>) com <material do cerebro> e <auditorias externas se houver>.
+
+Lente principal (Bloco 6): <lente aplicada — 1-2 linhas>.
+
+Recomendacao tentativa: <1-3 linhas com modelo de venda + pricing preliminar + prazo>.
+
+Alertas pre-apresentacao <mes>:
+- <alerta 1>
+- <alerta 2>
+- ...
+
+Proxima etapa: <1 linha — tipicamente "reuniao interna H+M pra bater X, Y, Z">.
+```
+
+**Regras:**
+- Perguntar ao usuario no inicio da skill (ou descobrir via contexto) qual e a task da pauta GATE ativa. Se nao existe, pular esta etapa
+- Paths do cerebro sao a referencia canonica — nao anexar o arquivo (supersedes regra antiga 03/26)
+- 1 comentario por area, nao misturar
+- Se voce corrigiu custom fields ou fez movimentacao de status na Fase 6.2, mencionar tambem no comentario (1 linha no bloco "Alertas" ou "Proxima etapa")
 
 ---
 

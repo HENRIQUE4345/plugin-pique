@@ -31,6 +31,7 @@ Cada uso do plugin = teste real do produto. Cada case da Pique = case vendavel.
 - Auto-avaliacao estruturada em todos os commands (mas sem self-edit real)
 - 18/04: adicionado `desenhar-individual` (Onda 2.5) — mapeamento individual de pessoa de cliente em 4 rodadas com proveniencia rastreavel
 - 20/04: absorvido `plugin-pique-news` como `/plugin-pique:news` (Onda 2.6) — briefing diario posta no canal ClickUp via tool `post_chat_message` do MCP (v0.3.0)
+- 26/04: adicionado `precificar-plugin` (Onda 2.7, v1.17.0) — precificacao replicavel de plugin por area com 3 lentes (custo Pique + valor cliente + payback). Destila playbook + 3 rodadas manuais (Plugin Financeiro/Compras/Gestao Lojas Beco). 8 fases, gera 2 outputs (doc no hub + Bloco 7 do dossie), com detector de overlap entre plugins e verificacao aritmetica explicita
 
 ---
 

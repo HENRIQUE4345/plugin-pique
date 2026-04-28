@@ -67,6 +67,7 @@ Orquestra mapeamento profundo de uma pessoa individual de cliente Pique. Gera do
 - [ ] Falas literais de terceiros sobre a pessoa (especialmente CEO sobre subordinada) entram com fonte clara + data + autor
 - [ ] Por padrao, vao pra `destino: tbd-{questao}` (default conservador = `interno`)
 - [ ] Nao parafrasear pra suavizar. Nao censurar. Etiqueta resolve o problema etico
+- [ ] **Fonte unica qualitativa de superior hierarquico direto = `tbd-q1` + pendencia de triangulacao.** Quando a UNICA fonte qualitativa de Forcas/Fraquezas/Comportamento sobre a pessoa e escrita pelo superior hierarquico direto (ex: SWOT do chefe sobre subordinada), renderizar no hub sem triangular com pares ou CEO e eticamente problematico — vies de auto-conveniencia, risco de projecao de fraqueza propria do chefe virar narrativa sobre subordinado. Destino default = `tbd-q1` + criar campo C `unica_fonte_qualitativa_e_subordinado_nao_peer` com `carga_etica: alta` + pendencia explicita de triangulacao no `_pendencias-individuais.md`. Caso Ellen/Beco (19/04): F4 (SWOT do Filipe sobre Ellen) era a unica qualitativa; "fraqueza de gestao emocional sob pressao" pode ser real OU projecao do proprio Filipe (que tambem tem "dificuldade com pressao"). Resolvido ad-hoc — agora regra dura.
 
 ### Pos-criacao
 - [ ] Backup do consolidado anterior se sobrescrevendo
@@ -78,11 +79,22 @@ Orquestra mapeamento profundo de uma pessoa individual de cliente Pique. Gera do
 
 ## Plan mode awareness
 
-Se o usuario ja esta em **plan mode** quando acionar a skill:
-- Fases 1-4 (descoberta + 3 primeiras rodadas) podem rodar — sao analise + leituras
+**Branch explicito por cenario** (detectar no inicio da skill, antes da Fase 0):
+
+**Cenario A — Skill invocada DENTRO de plan mode oficial** (sistema sinaliza "Plan mode is active"):
+- Fases 1-4 (descoberta + 3 primeiras rodadas) rodam direto — sao analise + leituras
 - Fase 5 (escrever gabarito) NAO executa ate `ExitPlanMode` ser chamado e o plan ser aprovado
-- Em vez disso, Fase 5 escreve o gabarito-rascunho no plan file (via Edit do plan file)
+- Em vez disso, Fase 5 escreve o gabarito-rascunho no plan file ja existente (via Edit)
 - Apos aprovacao do plan, retomar direto na Fase 5 escrevendo no path real
+
+**Cenario B — Skill invocada FORA de plan mode** (default quando user roda slash direto):
+- NAO tem plan file oficial. Improvisar com fallback explicito:
+- Fases 1-4 rodam direto
+- No fim da Fase 4 (antes de Fase 5), **Write** um plan file em `C:/Users/Henrique Carvalho/.claude/plans/desenhar-{pessoa}-{cliente}.md` com (a) resumo do que sera escrito, (b) distribuicao A/B/C + destinos, (c) pendencias detectadas
+- Em vez de pedir aprovacao implicita, usar `AskUserQuestion` com 2 opcoes: "Escrever gabarito agora" / "Editar plan file antes"
+- Apos resposta, executar Fase 5 normal
+
+A diferenca pratica: cenario A reusa o plan file oficial; cenario B cria um manual + AskUserQuestion. Sem este branch, skill assume plan mode oficial e improvisa quando nao esta — gerou ad-hoc no caso Ze/19-04.
 
 ---
 

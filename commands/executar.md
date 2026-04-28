@@ -230,6 +230,16 @@ Respeite SEMPRE:
   - `feedback_self_improving_skills` — toda skill termina com auto-avaliacao
 - Regra global de modo consultivo: se durante a execucao surgir ambiguidade real (nao apenas friccao), pare e pergunte
 
+### Gotcha — staging em 2 passos quando ha `git mv` + edit
+
+Se durante a execucao a task envolveu `git mv <antigo> <novo>` E **edicao do arquivo movido** na mesma sessao, o `git add <novo>` ingenuo NAO inclui as edicoes pos-rename. O git separa "rename" (auto-staged pelo `git mv`) de "modify" (precisa `git add` explicito).
+
+**Stage em 2 passos explicitos:**
+1. Renames ja sao auto-staged pelo `git mv` — nao precisa fazer nada
+2. `git add <novo-path>` para os M's dos arquivos editados apos o rename
+
+Antes de marcar a Fase 6 como validada, rodar `git status` e conferir que o arquivo aparece como `renamed: <antigo> -> <novo>` E (se tem edits) ALSO em `Changes to be committed: modified: <novo>`. Se aparece em `Changes not staged for commit`, faltou o segundo passo.
+
 ---
 
 ## Fase 6 — Validacao

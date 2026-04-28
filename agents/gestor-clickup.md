@@ -77,6 +77,8 @@ O MCP valida TUDO automaticamente:
 
 `start_date` (`YYYY-MM-DD`), `status`, `tags` (array de nomes — so na criacao), `custom_fields` (`[{id, value}]`), `depends_on` (array de task_ids que esta depende), `parent` (task-mae), `attach_files` (`[{file_name, content_base64}]`), `notify_all` (boolean).
 
+**`start_date` — DEFAULT VAZIO.** Preencher SO quando ha data especifica pra comecar (depende de outra task que termina antes, ritual com dia fixo, bloco agendado no Calendar). Na ausencia de criterio claro, deixar vazio — NAO chutar "comeca hoje" nem "comeca na data de criacao" nem "comeca N dias antes do due_date". CLAUDE.md global do cerebro carrega a mesma regra; agente nao deve inferir start_date sem instrucao explicita do Claude principal.
+
 ### Excecao: ideias de conteudo (`is_idea: true`)
 
 Para tasks no Space Conteudo em status "Ideia", passar `is_idea: true` relaxa as validacoes. Campos obrigatorios sao reduzidos: `name`, `assignees`, `markdown_description`, `list_id`, `tags` (pilar + formato + maturidade). Sem `due_date`, `time_estimate_minutes`, `priority`, `work_type`.
