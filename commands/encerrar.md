@@ -70,6 +70,38 @@ Sinalize no plano: "⚠ N sessoes Claude paralelas detectadas — X arquivos com
 
 **Evidencia do caso Rosa/19-04:** 3 sessoes simultaneas (`/plugin-pique:desenhar-individual marcella beco`, `/plugin-pique:desenhar-individual ellen beco`, `/plugin-pique:desenhar-individual rosa beco`) co-editaram `_pendencias-individuais.md` + `melhorias-plugin.md`. Detectei ad-hoc via `git status` em 4 repos + sistem-reminders de "File has been modified". Split seguro: commit dos exclusivos (gabarito rosa + edit plugin), compartilhados pendentes.
 
+### 1.0c Detectar edits em repos paralelos (CRITICO — fazer logo apos 1.0b)
+
+Sessoes que editam multi-repo (cada vez mais comum: cerebro + plugin + hub HTML simultaneo) podem deixar edits orfaos em repos PARALELOS — repos independentes em `C:\Users\Henrique Carvalho\Documents\PROGRAMAS\<repo>\` que NAO sao submodules do cwd nem aparecem em `git status` do cerebro. A 1.0/1.0b cobrem cwd + submodules; a 1.0c cobre o que esta fora.
+
+**Lista de repos paralelos a verificar (hardcoded, ampliar quando aparecerem):**
+- `plugin-pique`
+- `plugin-social-media`
+- `plugin-whatsapp`
+- `pique-apresentacoes`
+- `pique-consultoria-hub`
+- `marco-brain`
+- `yabadoo-brain`
+
+**Deteccao (mesmo padrao da Fase 3.8 — reutilizar, nao reinventar):**
+1. Localize o JSONL da sessao atual:
+   `ls -t ~/.claude/projects/c--Users-Henrique-Carvalho-Documents-PROGRAMAS-MEU-CEREBRO/*.jsonl | head -1`
+2. Para cada repo da lista, rode (via Grep tool no JSONL):
+   - pattern: `"name":"Edit"|"name":"Write"|"name":"NotebookEdit"`
+   - filtrando matches que contenham o nome do repo (ex: `plugin-pique`)
+   Se houver matches → esta sessao tocou esse repo.
+3. Para cada repo tocado, rode:
+   `git -C "C:/Users/Henrique Carvalho/Documents/PROGRAMAS/<repo>" status --short`
+4. Status sujo (M/D/?? ou `plugin.json` bumpado) = trabalho non-committed pendente.
+
+**Decisao de commit:**
+- Repo paralelo com edits desta sessao + status sujo → propor 1 commit por repo na secao "Git — Repos paralelos" do plano da Fase 2.
+- Se for plugin (plugin-pique/social-media/whatsapp) e `.claude-plugin/plugin.json` foi bumpado → resumo do commit cita a versao nova.
+- Repos paralelos viram commits AUTONOMOS (cada um tem seu proprio historico/versao) — nao agrupar com commit do cerebro.
+- Se nada detectado, sinalize "Nenhum" na secao do plano (regra do plano: nao omitir).
+
+**Evidencia do caso plugin-pique/28-04:** sessao processou `melhorias-plugin.md` aplicando 12 pendentes mas nao detectou que 4 arquivos do plugin-pique (`precificar-plugin.md`, `ROADMAP.md`, `revisar-area.md`, `bom-dia.md`) + `.claude-plugin/plugin.json` bumpado 1.16.2 → 1.18.0 estavam non-committed de sessoes anteriores. Edits orfaos por dias ate auditoria manual. JSONL `d4c26081` registrou 19 Edits + 6 Writes em `plugin-pique` — Grep no JSONL pegaria isso.
+
 ### 1.1 Decisoes tomadas
 Qualquer "vamos fazer X", "nao vamos fazer Y", "decidimos que Z".
 Inclua o MOTIVO se mencionado.
@@ -118,6 +150,10 @@ Apresente o plano neste formato:
 - [Task com verbo] → [responsavel] | [prazo se tem] | [Space]
 - [Task com verbo] → [responsavel] | [prazo se tem] | [Space]
 
+### Git — Repos paralelos
+- [repo] — [N arquivos modificados, resumo do commit proposto]
+- [repo] — clean (sem trabalho a comitar)
+
 ### Calendar — Eventos
 - [Evento] — [data, horario, participantes]
 
@@ -144,6 +180,7 @@ Posso executar?
 - **Confirmar corte de escopo:** se o usuario cortar tasks explicitamente no plano ("so essa task", "corta essas X"), CONFIRME se Calendar e outros outputs tambem saem do escopo — nao presuma. Pergunta direta: "Corto Calendar/sessao/cerebro junto, ou mantenho?".
 - **Antever commit derivado da Fase 5 insight.** Se a conversa gerou dor/aprendizado concreto que vai virar insight de uso IA na Fase 5, antecipar no plano: linha "**Git:** provavel 1 commit se Fase 5 gerar insight em `conhecimento/produtividade/insights-uso-ia.md`". Evita contradicao entre "Git: nenhum commit" no plano e o edit que aparece na execucao.
 - **Pausa por correcoes recorrentes — DEFAULT muda.** Se durante a conversa houve 2+ ciclos de correcao no MESMO artefato (dossie, plano, proposta, deck) — sinal claro de "ainda nao fechou entendimento" — o DEFAULT do plano nao e seguir pra execucao completa. E **pausar pra aprofundar e salvar contexto**. Tasks ClickUp/Calendar ficam pra depois. Sinalize no topo do plano: "⚠ N ciclos de correcao em [artefato] detectados — proponho pausar pra fechar entendimento. Tasks de execucao ficam pra proxima sessao."
+- **Git de repos paralelos e separado do cerebro.** Commits propostos em repos paralelos detectados pela 1.0c viram commits autonomos por repo, NAO juntos com o commit do cerebro. Cada repo tem seu proprio historico/versao. Se for plugin com `.claude-plugin/plugin.json` bumpado, resumo do commit cita a versao nova.
 
 ESPERE o usuario revisar e aprovar antes de continuar.
 
@@ -183,6 +220,15 @@ Apos aprovacao, execute na ordem:
 - Se houver, faca commit com mensagem descritiva: `cerebro: [resumo curto do que mudou]`
 - Inclua TODOS os arquivos alterados/criados nesta conversa
 - Se nao houver mudancas pendentes, pule este passo
+
+### 3.7b Commits em repos paralelos (se Fase 1.0c detectou)
+- Para cada repo paralelo aprovado no plano da Fase 2, rode `git -C "<path>" status` confirmando estado
+- Faca commit AUTONOMO em cada repo (nao agrupar com cerebro)
+- Mensagem segue convencao do repo de destino:
+  - `plugin-pique`/`plugin-social-media`/`plugin-whatsapp` → `feat: <resumo>` ou `vX.Y.Z: <resumo>` se bumpou `.claude-plugin/plugin.json`
+  - `pique-apresentacoes`/`pique-consultoria-hub` → seguir padrao do `git log` mais recente do repo
+- NAO faca push automatico — pode ter trabalho de outras sessoes ainda em curso. Liste o `git push` necessario na Fase 4 pro usuario decidir.
+- Se for plugin com bump de versao, lembre na Fase 4 dos comandos `/plugin marketplace update` + `/reload-plugins`.
 
 ### 3.8 Registrar telemetria enriquecida
 
@@ -256,6 +302,9 @@ Apresente resumo do que foi feito:
 **Calendar:** [X eventos criados]
 **Sessao:** [salva/nao necessario]
 **Git:** [commit feito / nada pendente]
+**Repos paralelos:** [N commits em <repos> | nada detectado]
+  - Push pendente em: <repo1> <repo2>  (rode manual se quiser sincronizar)
+  - Plugin bumpado: rodar `/plugin marketplace update <marketplace>` + `/reload-plugins`
 
 Tudo atualizado. Pode fechar esse chat.
 ```
