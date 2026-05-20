@@ -186,7 +186,40 @@ Saida:
 Pronto pra entrar em plan mode com esse escopo. Vou chamar EnterPlanMode.
 ```
 
-NAO espere confirmacao verbal aqui — siga direto pra Fase 3 chamando `EnterPlanMode`.
+NAO espere confirmacao verbal aqui — siga direto pra Fase 2.6.
+
+---
+
+## Fase 2.6 — Checkpoint custo-beneficio (so se tarefa cheira a extracao tecnica)
+
+**Quando aplicar:** a task ou os arquivos da Fase 2 mencionam alguma destas operacoes:
+
+- decrypt / descriptografar / senha / brute-force de credencial
+- OCR / extrair texto de PDF / parser de formato proprietario
+- scraping / scrape / crawl de site sem API
+- conversao de binario / reverse-engineering de schema
+
+**Quando PULAR:** task e refactor, doc, config, codigo de feature normal, fix de bug. Sem mencao a extracao -> seguir direto pra Fase 3.
+
+**Acao quando aplicar:** ANTES do plan mode, pausar com as 3 perguntas da memory `feedback_custo_beneficio_extracao`:
+
+```
+Antes de planejar a extracao, custo-beneficio rapido:
+
+1. Que decisao concreta esse dado vai mover?
+2. Qual a cobertura temporal/granularidade? (1 ponto isolado vs serie continua)
+3. Se descartar essa fonte, o que perde de fato?
+
+Se a decisao for vaga OU a cobertura for pontual sem serie OU a perda for marginal — vale pular essa extracao. Pode responder rapido?
+```
+
+ESPERE resposta. Tres caminhos:
+
+- **Responde com decisao clara + cobertura util:** segue Fase 3 (plan mode) normal
+- **Responde "descarta"/"nao vale"/"pula":** marca a task como `[!]` (skip) no ledger com nota `(custo-beneficio: descartado)`, propoe Edit + commit (Fase 7), encerra
+- **Responde vago ou hesita:** anotar pra Fase 8 como pendencia ("custo-beneficio inconclusivo · revisar antes de codar") e seguir conservador
+
+Precedente: PDFs cartao Beto 13/05 — 20min queimados em senha antes de descobrir que 4 faturas pontuais nao moviam ponteiro. Pergunta certa resolveu em 1min.
 
 ---
 
@@ -331,6 +364,39 @@ Output final:
 ```
 
 NAO chamar `/pique:encerrar` automaticamente — o usuario decide.
+
+---
+
+## Fase 8.5 — Memoria do contexto (sugerir, nao salvar automatico)
+
+Antes da auto-avaliacao, reflita sobre o que ACONTECEU nessa task — nao na skill em si, no conteudo da execucao. Se algo dessas categorias aconteceu de verdade, vale propor salvar como memoria:
+
+- **BUSQUEI:** algo nao trivial que tive que descobrir (caminho de arquivo, convencao de sistema externo, regra de ferramenta, ID, gotcha) que pode aparecer de novo em outras tasks → candidato a `reference`
+- **CORRIGIU/CONFIRMOU:** feedback explicito que o usuario me deu durante a execucao ("nao faz assim", "perfeito, manda assim das proximas") → candidato a `feedback`
+- **DESCOBRI:** fato de projeto/cliente/iniciativa que mudou ou foi explicitado pela primeira vez (deadline, decisao, papel de pessoa) → candidato a `project`
+- **APRENDI SOBRE O USUARIO:** preferencia nova, ferramenta que ele usa, contexto pessoal → candidato a `user`
+
+Se NADA disso aconteceu (task fluiu sem busca real, sem correcao, sem fato novo), NAO mostre nada e siga direto pra auto-avaliacao. Nao force.
+
+Se houver candidatos REAIS, mostre:
+
+```
+[MEMORIA — vale salvar?]
+
+1. [tipo] — [titulo curto]
+   [1-2 linhas do conteudo proposto, com "Why:" e "How to apply:" se for feedback/project]
+
+2. [tipo] — [titulo curto]
+   [...]
+
+Salvar quais? (numeros, "todas", ou "nao")
+```
+
+Regras:
+- Sem aprovacao = nao salva nada. Usuario decide.
+- Antes de criar, checar `MEMORY.md` por duplicata: se existe memoria com mesmo escopo, propor UPDATE em vez de CREATE
+- Salvar via padrao auto-memory: arquivo proprio em `~/.claude/projects/.../memory/` + linha em `MEMORY.md`
+- Usuario pode editar texto antes de aprovar
 
 ---
 
