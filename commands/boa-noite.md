@@ -58,11 +58,37 @@ Busque em TODOS os Spaces ativos:
 ### 1.3 Google Calendar — Amanha
 Liste eventos de AMANHA (todos os calendarios do usuario — IDs em plugin-pique.local.md + CLAUDE.md do plugin).
 
+### 1.4 Chats enriquecidos de hoje (telemetria destilada)
+
+Le `~/.claude/telemetria/chats-enriquecidos.jsonl` (cada linha = 1 chat encerrado via `/pique:encerrar`).
+
+Filtrar entradas cujo `ts` caia em "hoje" BRT (janela: `<hoje>T03:00:00Z` ate `<amanha>T03:00:00Z`).
+
+Pra cada entrada, capturar: `tema`, `resumo`, `projeto`, `categoria`, `wall_seconds`, `commits`, `arquivos_tocados` (so quantos), `tags`.
+
+**Use isso pra:** reconstruir o que foi DECIDIDO/PRODUZIDO no dia em chats que viraram artefato real. E a fonte mais rica do "o que aconteceu" — supera ClickUp quando voce esqueceu de mover tasks.
+
+Limitacao: so captura chats encerrados formalmente. Chat aberto/abandonado nao aparece. Sem problema — vira sinal pra encerrar mais.
+
+### 1.5 Commits do dia (repos PROGRAMAS)
+
+Rodar em paralelo nos repos ativos da pasta `C:\Users\Henrique Carvalho\Documents\PROGRAMAS\` que tem `.git/`:
+
+```bash
+git -C "<repo>" log --since="00:00" --oneline --no-merges
+```
+
+Repos relevantes (auto-detectar via `Get-ChildItem -Directory | Where-Object { Test-Path .git }`, mas priorizar): MEU-CEREBRO, pique (submodule), plugin-pique, plugin-social-media, plugin-pique-news, pique-consultoria-hub, pique-decks-react, yabadoo-brain, marco-brain, remotion-iairique, docs-pique-hosting.
+
+Agrupar commits por repo. Limitar output a 20 linhas por repo (mais que isso = dia outlier, mencionar mas nao listar tudo).
+
+**Use isso pra:** captar trabalho code-heavy ou de manutencao do cerebro que NUNCA virou task (commit no MEU-CEREBRO de ajuste de mapa, bump de submodule, fix em plugin).
+
 ---
 
 ## Fase 2: Review do dia
 
-Apresente um resumo comparando PLANEJADO vs FEITO:
+Apresente um resumo comparando PLANEJADO vs FEITO. Cruze TODAS as fontes (check-in, ClickUp, chats enriquecidos, commits). Quando ClickUp diverge das outras fontes, SINALIZE — provavelmente esqueceu de mover task.
 
 ```
 ## Fechamento do dia:
@@ -73,14 +99,18 @@ Apresente um resumo comparando PLANEJADO vs FEITO:
 - [ ] Task 3
 (ou: "Sem check-in hoje — me conta o que foi planejado")
 
-**Concluido hoje (ClickUp):**
-- Task 1 — Finalizado
-- Task 2 — Finalizado
-- Task extra — Finalizado (nao planejada, apareceu no dia)
+**Concluido hoje (cruzando fontes):**
+- Task 1 [ClickUp Finalizado] — Resumo
+- Tema X [chat enriquecido] — Resumo do que rolou, sem task no ClickUp
+- Manutencao Y [commits MEU-CEREBRO: 3] — Bump de mapa, etc
 
-**Pendente:**
-- Task 3 — Ainda em Hoje (nao terminou)
-- Task 4 — Fazendo (em andamento)
+**Em andamento / pendente:**
+- Task 3 — Ainda em "Hoje" (nao terminou)
+- Task 4 — "Fazendo" (em andamento)
+
+**Divergencias entre fontes** (so se houver):
+- Trabalhou em X (chat + commit) mas nao tem task — registrar retroativo?
+- Task Y ainda em "Hoje" mas chat indica que fechou — mover pra Finalizado?
 
 **Amanha:**
 - [HH:MM] Evento 1
