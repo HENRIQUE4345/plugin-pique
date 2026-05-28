@@ -88,25 +88,27 @@ Agrupar commits por repo. Limitar output a 20 linhas por repo (mais que isso = d
 
 ## Fase 2: Review do dia
 
-Apresente um resumo comparando PLANEJADO vs FEITO. Cruze TODAS as fontes (check-in, ClickUp, chats enriquecidos, commits). Quando ClickUp diverge das outras fontes, SINALIZE — provavelmente esqueceu de mover task.
+Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriquecidos, commits). Quando ClickUp diverge das outras fontes, SINALIZE — provavelmente esqueceu de mover task.
+
+**FILTRO OBRIGATORIO — apenas profissional.** Cortar tudo que e pessoal: academia, conta de luz, familia, saude pessoal, lazer, compras domesticas, etc. Itens pessoais nao entram no review nem no diario do boa-noite. Se o usuario quiser registrar pessoal, ele faz separadamente em outro lugar.
+
+**ESTRUTURA OBRIGATORIA — 3 blocos separados**, mesmo que algum esteja vazio (escrever "Nenhum" em vez de omitir):
 
 ```
-## Fechamento do dia:
+## Fechamento do dia (apenas profissional):
 
-**Planejado (check-in):**
-- [ ] Task 1
-- [ ] Task 2
-- [ ] Task 3
-(ou: "Sem check-in hoje — me conta o que foi planejado")
+**Planejado feito** (estava no check-in e fez):
+- [item] ✓ [fonte: ClickUp / chat / commit]
 
-**Concluido hoje (cruzando fontes):**
-- Task 1 [ClickUp Finalizado] — Resumo
-- Tema X [chat enriquecido] — Resumo do que rolou, sem task no ClickUp
-- Manutencao Y [commits MEU-CEREBRO: 3] — Bump de mapa, etc
+**Planejado nao feito** (estava no check-in mas nao fez):
+- [item] [motivo curto: "empurrado pra amanha" / "mudou prioridade" / "nao deu tempo"]
+
+**Feito sem estar no plano** (apareceu no dia e fez):
+- [tema] [fonte] — resumo curto
 
 **Em andamento / pendente:**
-- Task 3 — Ainda em "Hoje" (nao terminou)
-- Task 4 — "Fazendo" (em andamento)
+- Task X — Ainda em "Hoje" (nao terminou)
+- Task Y — "Fazendo" (em andamento)
 
 **Divergencias entre fontes** (so se houver):
 - Trabalhou em X (chat + commit) mas nao tem task — registrar retroativo?
@@ -117,6 +119,11 @@ Apresente um resumo comparando PLANEJADO vs FEITO. Cruze TODAS as fontes (check-
 - [HH:MM] Evento 2
 - (ou: sem compromissos)
 ```
+
+**Como classificar profissional vs pessoal:**
+- Profissional = qualquer coisa relacionada a Pique, Yabadoo, Beto Carvalho, clientes, equipe (Marco/Arthur/Gabriel/Carol/Bruno), produto, codigo, conteudo (@iairique), gestao da empresa, infra Pique, financeiro empresa
+- Pessoal = academia, casa, familia, saude pessoal, compras pessoais, lazer, financeiro familia/casa, relacionamentos
+- Em duvida: pergunta se conta como profissional. NAO assume.
 
 Depois pergunte (MAXIMO 3 perguntas, diretas):
 
@@ -191,22 +198,29 @@ Crie ou atualize `diarios/YYYY-MM-DD.md`:
 - Se o arquivo ja existe (tem check-in): adicione a secao Check-out.
 - Se NAO existe: crie com check-in (baseado no que o usuario informou) + check-out.
 
+**Mesma estrutura de 3 blocos da Fase 2 + filtro profissional obrigatorio.** Nada pessoal entra no diario do boa-noite.
+
 ```markdown
-## Check-out (boa-noite)
+## Check-out (boa-noite) — apenas profissional
 **Horario:** HH:MM
 
-**Feito:**
-- [x] Task 1 — [resumo curto do que foi feito]
-- [x] Task 2 — [resumo curto]
+**Planejado feito:**
+- [x] [item] — [resumo curto + fonte se relevante]
 
-**Nao feito:**
-- [ ] Task 3 — [motivo: travou em X / nao deu tempo / mudou prioridade]
+**Planejado nao feito:**
+- [ ] [item] — [motivo curto: empurrado pra X / mudou prioridade / nao deu tempo]
+
+**Feito sem estar no plano:**
+- [tema] — [resumo curto + fonte]
+
+**Em andamento:**
+- [task / projeto] — [estado atual]
 
 **Aguardando:**
-- Task que depende de terceiro — [quem/o que]
+- [item] — aguardando [quem/o que]
 
 **Blockers:**
-- [lista de blockers ou "nenhum"]
+- [lista ou "nenhum"]
 
 **Notas pra amanha:**
 - [contexto que o bom-dia precisa saber]
