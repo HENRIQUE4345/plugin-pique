@@ -125,7 +125,31 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 - Pessoal = academia, casa, familia, saude pessoal, compras pessoais, lazer, financeiro familia/casa, relacionamentos
 - Em duvida: pergunta se conta como profissional. NAO assume.
 
-Depois pergunte (MAXIMO 3 perguntas, diretas):
+### 2.1 Mensagem WhatsApp — PRIORIDADE MAXIMA, sai LOGO APOS o review
+
+**REGRA CRITICA:** assim que terminar o review do fechamento (3 blocos + amanha), gerar IMEDIATAMENTE a mensagem WhatsApp pronta pra copiar/colar. Antes de qualquer pergunta, antes da proposta consolidada, antes de executar qualquer coisa. O usuario quer copiar e mandar logo — nao deixar isso em fila.
+
+Formato EXATO (pronto pra copiar):
+
+```
+Feito:
+- [highlight 1]
+- [highlight 2]
+- [highlight 3]
+- [...]
+Fica pra amanha: [task / nada]
+```
+
+Regras pra montar a mensagem:
+- **So profissional** (mesmo filtro da Fase 2)
+- **Destilar pros highlights** (3-7 bullets max — nao listar tudo, escolher o que importa)
+- **Linguagem oral, sem jargao** ("plano trimestral fechado", nao "etapa 1+2 do briefing-trimestre-jun-ago")
+- **Sem links, sem markdown rico** (vai pra WhatsApp puro)
+- **"Fica pra amanha"** = 1 linha curta. Se nao tem nada, escrever "nada"
+
+Apos enviar a mensagem, ENTAO continue pra Fase 2.2.
+
+### 2.2 Perguntas finais do review (MAXIMO 3, diretas)
 
 1. Tem algo que fez hoje que nao ta no ClickUp? (pra registrar)
 2. As tasks que ficaram — voltam pra "Essa semana" ou continuam em "Hoje" pra amanha?
@@ -228,14 +252,9 @@ Crie ou atualize `diarios/YYYY-MM-DD.md`:
 - [decisoes pendentes]
 ```
 
-### 5.3 Gerar mensagem do WhatsApp
-Gere a mensagem EXATAMENTE neste formato (pronta pra copiar e colar):
+### 5.3 Mensagem WhatsApp — JA FOI GERADA na Fase 2.1
 
-```
-Feito:
-- [o que fechou]
-Fica pra amanha: [task / nada]
-```
+A mensagem WhatsApp ja saiu imediatamente apos o review (Fase 2.1) — usuario ja copiou e mandou. NAO regerar aqui. Se por algum motivo nao foi gerada antes (skip incorreto), gerar agora seguindo o formato da Fase 2.1.
 
 ### 5.4 Bloco telemetria do dia
 
