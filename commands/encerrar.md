@@ -7,10 +7,9 @@ Encerramento de conversa. Processa tudo que foi discutido e distribui para os lu
 
 ## Ferramentas
 
-- **Operacoes ClickUp** (criar tasks, atualizar): delegar ao agent `gestor-clickup`
 - **Google Calendar** (criar eventos): chamar diretamente (connector leve)
 
-> **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis (agent gestor-clickup falhar), avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
+> **ClickUp fora do fluxo (decisao 2026-06-16):** esta skill NAO cria nem propoe tasks no ClickUp. Ela apenas LISTA as acoes que apareceram na conversa pra o Henrique nao perder o fio (Fase 1.3 / plano). 95% das vezes nao precisa virar task — quando precisar, ele pede manualmente. So entao use `/plugin-pique:planejar-tasks` ou o agent `gestor-clickup`. Nunca crie task por iniciativa propria no encerramento.
 
 ## Quando usar
 
@@ -84,7 +83,7 @@ Sessoes que editam multi-repo (cada vez mais comum: cerebro + plugin + hub HTML 
 - `marco-brain`
 - `yabadoo-brain`
 
-**Deteccao (mesmo padrao da Fase 3.8 — reutilizar, nao reinventar):**
+**Deteccao (mesmo padrao da Fase 3.7 — reutilizar, nao reinventar):**
 1. Localize o JSONL da sessao atual:
    `ls -t ~/.claude/projects/c--Users-Henrique-Carvalho-Documents-PROGRAMAS-MEU-CEREBRO/*.jsonl | head -1`
 2. Para cada repo da lista, rode (via Grep tool no JSONL):
@@ -111,12 +110,13 @@ Inclua o MOTIVO se mencionado.
 Fatos, contextos, dados que nao existiam antes no cerebro.
 Cruze com `_mapa.md` — ja existe arquivo sobre esse tema?
 
-### 1.3 Tasks identificadas
-Acoes concretas que precisam ser feitas. Para cada uma identifique:
+### 1.3 Acoes identificadas (so registro — NAO cria task)
+Acoes concretas que apareceram na conversa. Liste pra o Henrique nao perder o fio — mas NAO crie nem proponha criar task no ClickUp. Pra cada uma:
 - O que (verbo no infinitivo)
 - Quem (Henrique, Marco, outro)
 - Prazo (se mencionado)
-- Prioridade (se mencionavel pelo contexto)
+
+Quem decide o que vira task e o Henrique, manualmente. Se ele pedir explicitamente, ai sim use `/plugin-pique:planejar-tasks` ou o agent `gestor-clickup`.
 
 ### 1.4 Eventos / compromissos
 Reunioes agendadas, prazos combinados, datas mencionadas.
@@ -147,9 +147,10 @@ Apresente o plano neste formato:
 ### Cerebro — Criar
 - [novo-arquivo.md] em [pasta/] — [descricao curta]
 
-### ClickUp — Tasks
-- [Task com verbo] → [responsavel] | [prazo se tem] | [Space]
-- [Task com verbo] → [responsavel] | [prazo se tem] | [Space]
+### Acoes identificadas (so registro — NAO crio task)
+- [Acao com verbo] → [responsavel] | [prazo se tem]
+- [Acao com verbo] → [responsavel] | [prazo se tem]
+(quer que alguma vire task no ClickUp? me peca — nao crio por padrao)
 
 ### Git — Repos paralelos
 - [repo] — [N arquivos modificados, resumo do commit proposto]
@@ -172,15 +173,15 @@ Posso executar?
 
 **Regras do plano:**
 - Se uma secao esta vazia, escreva "Nenhum" — NAO omita a secao
-- Tasks seguem as regras do CLAUDE.md (verbo, responsavel, prazo, descricao)
+- Acoes ficam SO como registro no plano — nunca crie task no ClickUp sem o Henrique pedir explicitamente
 - NAO crie arquivo novo se ja existe um sobre o tema — atualize o existente
 - NAO salve sessao se a conversa foi curta/operacional (ex: "cria task X", "muda status Y")
 - Sessao so faz sentido pra brainstorms, reunioes, downloads mentais, analises longas
 - **Split em 2+ notas quando conversa cobre temas distintos:** se a conversa cobriu 2+ temas claramente separados (ex: fluxo de trabalho + permissoes ClickUp) E a nota unica estimada passaria de ~100 linhas, proponha 2 (ou N) notas menores no plano em vez de 1 doc denso. Cada nota deve ter tema coerente, nome de arquivo distinto. Alinha com regra dos 150 linhas do CLAUDE.md do cerebro e facilita referencia futura. O usuario decide — se preferir manter 1 nota, respeite.
-- **Brainstorm estrategico vs execucao de sprint:** se a conversa DESENHOU arquitetura nova (definindo projeto/plugin/area, nao fechando sprint), tasks sao HIPOTESES FUTURAS, nao commits imediatos. Comece propondo 1-2 tasks essenciais e PERGUNTE antes de expandir. Evita poluir o ClickUp com 5+ tasks que viram backlog morto.
-- **Confirmar corte de escopo:** se o usuario cortar tasks explicitamente no plano ("so essa task", "corta essas X"), CONFIRME se Calendar e outros outputs tambem saem do escopo — nao presuma. Pergunta direta: "Corto Calendar/sessao/cerebro junto, ou mantenho?".
+- **Brainstorm estrategico vs execucao de sprint:** se a conversa DESENHOU arquitetura nova (definindo projeto/plugin/area, nao fechando sprint), as acoes sao HIPOTESES FUTURAS. Liste enxuto (1-2 acoes essenciais), nao despeje 5+ itens que viram ruido no registro.
+- **Confirmar corte de escopo:** se o usuario cortar itens explicitamente no plano ("so isso", "corta essas X"), CONFIRME se Calendar e outros outputs tambem saem do escopo — nao presuma. Pergunta direta: "Corto Calendar/sessao/cerebro junto, ou mantenho?".
 - **Antever commit derivado da Fase 5 insight.** Se a conversa gerou dor/aprendizado concreto que vai virar insight de uso IA na Fase 5, antecipar no plano: linha "**Git:** provavel 1 commit se Fase 5 gerar insight em `conhecimento/produtividade/insights-uso-ia.md`". Evita contradicao entre "Git: nenhum commit" no plano e o edit que aparece na execucao.
-- **Pausa por correcoes recorrentes — DEFAULT muda.** Se durante a conversa houve 2+ ciclos de correcao no MESMO artefato (dossie, plano, proposta, deck) — sinal claro de "ainda nao fechou entendimento" — o DEFAULT do plano nao e seguir pra execucao completa. E **pausar pra aprofundar e salvar contexto**. Tasks ClickUp/Calendar ficam pra depois. Sinalize no topo do plano: "⚠ N ciclos de correcao em [artefato] detectados — proponho pausar pra fechar entendimento. Tasks de execucao ficam pra proxima sessao."
+- **Pausa por correcoes recorrentes — DEFAULT muda.** Se durante a conversa houve 2+ ciclos de correcao no MESMO artefato (dossie, plano, proposta, deck) — sinal claro de "ainda nao fechou entendimento" — o DEFAULT do plano nao e seguir pra execucao completa. E **pausar pra aprofundar e salvar contexto**. Calendar e demais outputs ficam pra depois. Sinalize no topo do plano: "⚠ N ciclos de correcao em [artefato] detectados — proponho pausar pra fechar entendimento. Execucao fica pra proxima sessao."
 - **Git de repos paralelos e separado do cerebro.** Commits propostos em repos paralelos detectados pela 1.0c viram commits autonomos por repo, NAO juntos com o commit do cerebro. Cada repo tem seu proprio historico/versao. Se for plugin com `.claude-plugin/plugin.json` bumpado, resumo do commit cita a versao nova.
 
 ESPERE o usuario revisar e aprovar antes de continuar.
@@ -199,30 +200,25 @@ Apos aprovacao, execute na ordem:
 - Use o template padrao do CLAUDE.md
 - Atualize `_mapa.md` com a nova entrada
 
-### 3.3 ClickUp
-- Crie tasks seguindo as regras do CLAUDE.md
-- Consulte `pique/infra/clickup-setup.md` para IDs
-- Status inicial: "A fazer" (a menos que o contexto indique outro)
-
-### 3.4 Google Calendar
+### 3.3 Google Calendar
 - Crie eventos no calendario Pique Agenda (a menos que seja pessoal)
 - Adicione participantes como convidados
 - Inclua pauta/contexto na descricao
 
-### 3.5 Salvar sessao
+### 3.4 Salvar sessao
 - Se aprovado no plano, crie o arquivo de sessao com template padrao
 - Inclua: contexto, conteudo principal, decisoes, relacionados
 
-### 3.6 Salvar memory
+### 3.5 Salvar memory
 - Se houve feedback ou preferencia, salve na memoria do agente
 
-### 3.7 Commit do cerebro
+### 3.6 Commit do cerebro
 - Verifique se ha mudancas pendentes no git (arquivos modificados ou novos)
 - Se houver, faca commit com mensagem descritiva: `cerebro: [resumo curto do que mudou]`
 - Inclua TODOS os arquivos alterados/criados nesta conversa
 - Se nao houver mudancas pendentes, pule este passo
 
-### 3.7b Commits em repos paralelos (se Fase 1.0c detectou)
+### 3.6b Commits em repos paralelos (se Fase 1.0c detectou)
 - Para cada repo paralelo aprovado no plano da Fase 2, rode `git -C "<path>" status` confirmando estado
 - Faca commit AUTONOMO em cada repo (nao agrupar com cerebro)
 - Mensagem segue convencao do repo de destino:
@@ -231,7 +227,7 @@ Apos aprovacao, execute na ordem:
 - NAO faca push automatico — pode ter trabalho de outras sessoes ainda em curso. Liste o `git push` necessario na Fase 4 pro usuario decidir.
 - Se for plugin com bump de versao, lembre na Fase 4 dos comandos `/plugin marketplace update` + `/reload-plugins`.
 
-### 3.8 Registrar telemetria enriquecida
+### 3.7 Registrar telemetria enriquecida
 
 Registra 1 linha JSONL com metadata desta conversa em `~/.claude/telemetria/chats-enriquecidos.jsonl`. E o que alimenta `/pique:tempo` e a fase 1.5 do `/pique:review-semanal`.
 
@@ -299,7 +295,6 @@ Apresente resumo do que foi feito:
 - Atualizado: [lista]
 - Criado: [lista]
 
-**ClickUp:** [X tasks criadas]
 **Calendar:** [X eventos criados]
 **Sessao:** [salva/nao necessario]
 **Git:** [commit feito / nada pendente]
