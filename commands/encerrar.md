@@ -240,7 +240,7 @@ Apos aprovacao, execute na ordem:
 - Se NAO tinha carimbo (ad-hoc/eventualidade): use melhor-esforco pra o inicio (1ª acao da sessao no historico) ou registre so o fim.
 
 **Anexar 1 linha no log:** `conhecimento/produtividade/log-do-feito.md`.
-- Garanta que existe a secao do mes corrente (`## YYYY-MM`). Se nao, crie no topo das secoes de mes (mais recente primeiro).
+- A secao e `## YYYY-MM` da **data de INICIO** do item (a coluna Data), nao do relogio agora — chat que vira o dia (inicio 23:50, /encerrar 00:10) loga no mes do inicio. **Grep se `## YYYY-MM` ja existe** antes de criar (idempotente); se nao, criar no topo das secoes de mes (mais recente primeiro).
 - Anexe a linha na tabela do mes: `| DD/MM | titulo curto | HH:MM–HH:MM | Nmin | Modo | P/E |`.
   - **Modo** = etiqueta do item (Pensar/Produzir/Afiar).
   - **P** se o item estava no HOJE (planejada); **E** se foi eventualidade.

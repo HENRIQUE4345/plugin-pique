@@ -93,6 +93,21 @@ Agrupar commits por repo. Limitar output a 20 linhas por repo (mais que isso = d
 
 **Use isso pra:** (a) montar o **Balanco de modos** na Fase 2; (b) saber o que precisa de backfill/devolucao na Fase 5.2b. Cruze com a telemetria (1.4) e commits (1.5): item `[x]` no HOJE mas ausente do log = feito sem `/encerrar`, vai precisar de backfill.
 
+> **Principio da varredura:** as fontes 1.1–1.7 sao **lentes que se sobrepoem, nao somam**. O mesmo trabalho aparece em 3-4 delas (uma sessao de codigo = chat enriquecido + commit + linha de log + task ClickUp). O boa-noite **cruza e deduplica na narrativa**, mas **nunca soma os relogios num numero unico** (ver Fase 5.4).
+
+### 1.7 Timeline do dia (TRANSCRIB) — [STUB, integracao futura]
+
+**Status: NAO CONECTADO.** TRANSCRIB (`C:\Users\Henrique Carvalho\Documents\PROGRAMAS\TRANSCRIB`, app "YabaDoo") e a fonte-mestra de contexto bruto do dia (mais rica que o `DIARIO.md`) — o Henrique fala por audio o tempo todo; o app guarda todas as sessoes (Meet/Plaud/gravacao direta), notas rapidas e notas Plaud. Conceito completo: `conhecimento/produtividade/transcrib-fonte-mestra-do-dia.md`.
+
+**Comportamento HOJE:** checar a flag `transcrib_conectado` em `plugin-pique.local.md`. Se ausente/`false` (ou se `TRANSCRIB/historico.json` nao existir), imprimir 1 linha e seguir — **nao ler, nao quebrar, nao perguntar**:
+`> TRANSCRIB: nao conectado ainda — timeline do dia vem do diario + telemetria. (slot reservado)`
+
+**Comportamento FUTURO (quando `transcrib_conectado: true`):**
+1. **Puxar o dia** (leitura direta de JSON — sem servidor): `historico.json` (registros com `timestamp` de hoje), `notas.json` (notas nao-consolidadas/nao-exportadas, ordenar por `criada_em`), `.txt` de transcricoes (abrir `utf-8-sig`).
+2. **Montar a TIMELINE** do dia (ordenar por hora real) e **cruzar** com as fontes 1.1–1.6.
+3. **3 outputs** — rotear cada item: **(O1) COMPROMISSO → Calendar** (subtipo compromisso/reuniao com data) · **(O2) ATUALIZA o cerebro** (insight/ideia/decisao → nota, cruzando `_mapa.md`) · **(O3) → INBOX** (bruto/ambiguo → linha `[HH:MM] [TRANSCRIB] [AUDIO]` no `inbox/DIARIO.md`). **Dedup (N8):** se o momento ja esta no DIARIO por outro canal (±5min), ENRIQUECER a nota existente, nao criar linha nova.
+4. Zerar a fila → Fase 5.2c.
+
 ---
 
 ## Fase 2: Review do dia
@@ -123,15 +138,21 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 - Trabalhou em X (chat + commit) mas nao tem task — registrar retroativo?
 - Task Y ainda em "Hoje" mas chat indica que fechou — mover pra Finalizado?
 
-**Balanco de modos** (do log do feito de hoje — Fase 1.6):
+**Balanco de modos** (lente do TRILHO — so o que passou por /iniciar→/encerrar, do log da Fase 1.6):
 - Pensar: [n] · [Xmin] | Produzir: [n] · [Xmin] | Afiar: [n] · [Xmin]
-- Planejado vs eventualidade: [nP] planejadas (P) / [nE] ad-hoc (E) — [X]% do tempo em ad-hoc
-- (so CONSTATAR — sem julgar. E o dado real de tempo por modo; serve pra calibrar o SEMANA na segunda. Se o log de hoje esta vazio mas houve trabalho, sinalize "dia rodou sem /iniciar→/encerrar — log nao capturou".)
+- Planejado vs eventualidade: [nP] planejadas (P) / [nE] ad-hoc (E)
+- Parciais (iniciados, nao fechados): [n] · [Xmin logado] — devolvidos pro radar (ver 5.2b)
+- Cobertura do trilho: o log cobriu ~[X]% do dia; ~[Y]% rodou FORA do trilho (chats sem /iniciar, micro-operacao) — a telemetria ve como atividade (cat. A/B/C) mas SEM modo confiavel. Nao inventar modo pra esse pedaco.
+- (so CONSTATAR — sem julgar. % e aproximacao: `Y ≈ max(0,(wall_telemetria − min_trilho)/wall_telemetria)`, e wall-clock infla com janela paralela. Se o log esta vazio mas houve trabalho: "dia rodou sem /iniciar→/encerrar — log nao capturou".)
 
 **Amanha:**
 - [HH:MM] Evento 1
 - [HH:MM] Evento 2
 - (ou: sem compromissos)
+
+**Inbox (acumulado):**
+- [N] contextos em `inbox/contextos/` + [M] linhas novas no `inbox/DIARIO.md` — rodar /inbox agora ou deixar pro ritual de quarta? _(NAO disparo sozinho — /inbox pausa pra voce revisar o PLANO.md)_
+- (ou: inbox limpo)
 ```
 
 **Como classificar profissional vs pessoal:**
@@ -166,8 +187,8 @@ Apos enviar a mensagem, ENTAO continue pra Fase 2.2.
 ### 2.2 Perguntas finais do review (MAXIMO 3, diretas)
 
 1. Tem algo que fez hoje que nao ta no ClickUp? (pra registrar)
-2. As tasks que ficaram — voltam pra "Essa semana" ou continuam em "Hoje" pra amanha?
-3. Alguma nota ou contexto importante pra amanha?
+2. Os itens que ficaram — voltam pro radar (continuam no SEMANA / vao pro RESTO) ou ficam no HOJE pra amanha? _(se ficam pra amanha, o boa-noite NAO limpa esses; ver 5.2b)_
+3. Alguma nota ou contexto importante pra amanha? _(prep pra reuniao de amanha entra como "Notas pra amanha" no diario — o bom-dia oferece como candidato do HOJE)_
 
 Se NAO tinha check-in, adicione: "Nao achei check-in de hoje. O que foi planejado de manha?" (substitui a pergunta 1)
 
@@ -202,10 +223,12 @@ ANTES de executar qualquer coisa, apresente a proposta completa em UM bloco:
 ```
 ## Proposta de fechamento
 
-**ClickUp — Atualizacoes:**
-- Task X → mover pra "Finalizado"
-- Task Y → manter em "Hoje"
-- Task Z → mover pra "Essa semana"
+**ClickUp — Atualizacoes (minimo):**
+- Task X (concluida) → mover pra "Finalizado"
+- (incompletas NAO mudam status aqui — o trilho/HOJE cuida disso na 5.2b)
+
+**Trilho (TAREFAS.md) — consolidacao:**
+- [resumo do que vai pro log + o que volta pro radar — preview da 5.2b]
 
 **Diario (diarios/YYYY-MM-DD.md):**
 [preview do conteudo completo do diario]
@@ -224,9 +247,9 @@ ESPERE aprovacao. Se o usuario pedir ajustes, ajuste e apresente de novo.
 
 SO execute apos aprovacao da Fase 4.
 
-### 5.1 Atualizar ClickUp
+### 5.1 Atualizar ClickUp (minimo)
 - Tasks concluidas que ainda nao estao como "Finalizado" → mover para **"Finalizado"**.
-- Tasks incompletas: seguir a decisao do usuario (volta pra "Essa semana" ou fica em "Hoje").
+- Tasks incompletas: NAO mexer no status ClickUp ("Essa semana"/"Hoje" nao existem mais). O que ficou pendente e tratado no trilho (HOJE) pela Fase 5.2b, nao no ClickUp.
 - Se o usuario fez algo que nao tinha task, pergunte se quer criar uma task retroativa ou so registrar no diario.
 - Se o usuario deu contexto em alguma task (Fase 3), atualizar descricao.
 
@@ -268,14 +291,34 @@ Crie ou atualize `diarios/YYYY-MM-DD.md`:
 
 ### 5.2b Consolidar trilho → log (camada Log do feito)
 
-Fecha o ciclo do dia no `TAREFAS.md` + `log-do-feito.md`:
+Fecha o ciclo do dia no `TAREFAS.md` + `log-do-feito.md`. **Re-Read o `## HOJE` AGORA** (pode ter mudado durante o review — outra janela).
 
-1. **Backfill do log:** pra cada item `[x]` do `## HOJE` que NAO tem linha correspondente no `log-do-feito.md` de hoje (feito sem `/encerrar`), anexe a linha no log com tempos best-effort (da telemetria 1.4 / commits 1.5) + modo (etiqueta do item) + **P**. Mesmo formato da Fase 3.4b do `/encerrar`.
-2. **Itens nao-feitos** (`[ ]`/`[~]` no HOJE) — seguir a decisao do usuario (Fase 2.2, pergunta 2):
-   - Itens que ja existem no `## SEMANA` sobrevivem la (o bom-dia copia, nao move) → so saem do HOJE.
-   - Itens ad-hoc que NAO estao no SEMANA e ficaram pela metade → **devolver ao `## RESTO`** pra nao perder.
-3. **Limpar o HOJE:** o trilho de HOJE e descartavel (regenera no proximo bom-dia). Resetar a secao pro placeholder `_(vazio — rodar /bom-dia)_`. **Excecao:** se o usuario disse "deixa em Hoje pra amanha" pra item especifico, mantenha esse(s).
-4. **Commit do cerebro:** as edicoes de hoje (diario + TAREFAS.md + log-do-feito.md) entram em 1 commit `cerebro: boa-noite YYYY-MM-DD` (se o submodule `pique/` foi tocado, commitar separado). Nao fazer push automatico.
+**Guarda de re-execucao (N6):** se a 1a linha do HOJE ja e `<!-- hoje: consolidado AAAA-MM-DD -->` com data = hoje, o boa-noite ja fechou hoje. Perguntar: *"ja fechei hoje — quer so revisar, ou re-consolidar?"* Nao re-tocar log/trilho sem confirmar.
+
+1. **Backfill do log (idempotente):** pra cada `[x]` do `## HOJE`, antes de anexar **grep no `log-do-feito.md` de hoje por (DD/MM + titulo)** — se ja existe, pular (nao duplicar). Senao anexar (tempos best-effort da 1.4/1.5 + modo + **P**, formato do `/encerrar` 3.4b).
+2. **Reconciliar `[~]` orfaos (iniciados sem /encerrar) — B1:** pra cada `[~]` com `(iniciada: HH:MM)` que NAO virou `[x]`:
+   - **(a) Logar parcial:** `| DD/MM | titulo (parcial) | HH:MM–HH:MM | Nmin | Modo | P |` — inicio = o `(iniciada:)`; fim = ultimo rastro real (commit/edit da 1.5 ou last_ts de chat da 1.4); sem rastro → `Nmin = ?` + `(parcial — fim incerto)`.
+   - **(b) Devolver:** `[~]`→`[ ]` **removendo o sufixo `(iniciada:)`** (o tempo ja foi pro log; manter calcularia duracao errada amanha). Esta no SEMANA → sobrevive la; ad-hoc → `## RESTO` como `[ ]`.
+   - **(c) Sinalizar** no review: "N itens ficaram pela metade — devolvidos pro radar, tempo parcial logado."
+3. **Outros `[ ]` (nunca comecaram):** do SEMANA → sobrevivem la (so saem do HOJE); ad-hoc fora do SEMANA → `## RESTO`. Seguir a Fase 2.2 (se "fica pra amanha", manter no HOJE).
+4. **Limpar e carimbar o HOJE:** resetar pro placeholder COM o carimbo de estado:
+   ```
+   ## HOJE
+   <!-- hoje: consolidado AAAA-MM-DD -->
+   _(vazio — rodar /bom-dia)_
+   ```
+   (`consolidado` distingue "boa-noite fechou" de "nunca montado" — o gate do bom-dia Fase 0.2 le isso.) **Excecao:** se ficou item "pra amanha" no HOJE, ele NAO esta limpo → **nao** carimbar `consolidado`.
+5. **Regra de mes do log (N5):** a secao e `## YYYY-MM` da **data de inicio** do item (coluna Data), nao do relogio do ritual. Usar o **dia BRT sendo fechado** (janela `T03:00Z`, igual telemetria) — apos meia-noite fecha o dia anterior, nao o civil. **Grep se `## YYYY-MM` ja existe** antes de criar (idempotente) e dar append.
+6. **Commit do cerebro:** diario + TAREFAS.md + log-do-feito.md em 1 commit `cerebro: boa-noite YYYY-MM-DD` (submodule `pique/` separado se tocado). Sem push.
+
+### 5.2c Zerar o TRANSCRIB (marcar processado) — [STUB, futuro]
+
+**HOJE: no-op** (TRANSCRIB nao conectado — ver 1.7).
+
+**FUTURO:** depois que a timeline (1.7) virou os 3 outputs E o cerebro/Calendar foram escritos, marcar processado pra "zerar a fila" (espelha "inbox sempre termina vazio"):
+- **Dois-passos, nunca invertido** (risco alto de nota orfa): (1) confirmar que o conteudo foi pro destino; (2) so entao `marcar_consolidadas(ids)` + `marcar_exportadas(ids)` (metodos ja existem em `storage.py`).
+- **Sempre** `marcar_exportadas` no fim — audio nao-exportado e apagado pela limpeza automatica do app.
+- Audit-trail: registrar 1 evento `origem="boa-noite"` no historico do TRANSCRIB.
 
 ### 5.3 Mensagem WhatsApp — JA FOI GERADA na Fase 2.1
 
@@ -293,19 +336,26 @@ Para enriquecer cada sessao, use `Grep` pontual (NUNCA `Read` integral — estou
 
 Regras completas de parsing (slug cwd, wall time, primeiro prompt, modelos) em `/pique:tempo` secao "Como ler". Siga elas.
 
-Formato do bloco (adicionar apos a mensagem WhatsApp, antes do Encerrar):
+Formato do bloco — **3 lentes** que medem coisas diferentes e **NAO somam entre si** (adicionar apos a mensagem WhatsApp, antes do Encerrar):
 
 ```
-Telemetria hoje:
-- [N] chats, [Xh]h total (maior: [Yh]h — [projeto] / "[primeiro prompt resumido 6-8 palavras]")
-- Projetos: [A] [%], [B] [%], [C] [%]
-- Modelos: opus ([n]), sonnet ([n]), haiku ([n])
-- Primeiros prompts: "[...]", "[...]", "[...]"
+As 3 lentes do dia (medem coisas diferentes — NAO somar entre si):
+
+Lente 1 — TRILHO (intencao/modo): [Xh] logados · Pensar/Produzir/Afiar [.../.../...]
+  → o tempo que voce decidiu gastar, por modo. So pega trabalho com /iniciar→/encerrar.
+
+Lente 2 — TELEMETRIA (presenca/wall-clock): [N] chats · [Xh] wall total
+  (maior: [Yh] — [projeto] / "[1o prompt 6-8 palavras]") · projetos: [A%] [B%] [C%] · modelos: opus[n] sonnet[n]
+  → quanto tempo de janela aberta. INFLA com janelas paralelas — nao e tempo focado.
+
+Lente 3 — COMMITS (output/prova): [N] commits em [M] repos ([repo:n], [repo:n])
+  + [K] repos com trabalho nao-commitado (sujo — ver 1.5)
+  → o que materializou. Sem tempo — e evidencia de entrega.
 ```
 
-Se nao houver nenhum chat de hoje alem do proprio (ex: primeiro uso do dia e foi direto no boa-noite), escreva linha unica: `Telemetria hoje: so este chat ([Xm]m ate agora).`
+Se nao houver nenhum chat de hoje alem do proprio: `Telemetria hoje: so este chat ([Xm]m ate agora).`
 
-Nao comente os numeros. Nao diga se foi muito/pouco. Nao compare com ontem.
+**Regra critica:** zero interpretacao, zero soma, zero "voce passou muito tempo em X". As 3 lentes ficam abertas, divergentes, honestas — cada uma mente sozinha, por isso ficam lado a lado. A reconciliacao real (dedup cross-lente) e trabalho futuro (Bloco 4) — nao force aqui. Nao compare com ontem.
 
 ### 5.5 Encerrar
 Diga: "Dia fechado. Descansa que amanha o /pique:bom-dia puxa esse contexto automatico."

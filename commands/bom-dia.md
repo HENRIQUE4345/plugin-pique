@@ -7,11 +7,18 @@ Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
 
 **Filosofia do ritual (hibrido — sistema sugere, humano confirma):**
 
-Esta skill faz **SELECAO AUTOMATICA** das tasks do dia baseada em regras (atrasadas + due hoje + dependencias + capacidade). A pessoa so **CONFIRMA ou AJUSTA** em 30 segundos. Nao e decisao diaria pesada — e validacao rapida.
+Esta skill **monta o HOJE do trilho** (`TAREFAS.md`) a partir de 3 fontes, nesta ordem de autoridade — a pessoa so **CONFIRMA ou AJUSTA** em 30 segundos:
+
+1. **Agenda (Calendar)** = esqueleto e TETO de tempo. Define quantas horas sobram. Nao e fonte de itens, e restricao.
+2. **SEMANA do `TAREFAS.md`** = ESPINHA. Os candidatos do dia saem daqui (ja vem etiquetados por modo Pensar/Produzir/Afiar). Selecionar os que cabem no teto, ordenar por execucao.
+3. **ClickUp** = OVERLAY, **so leitura**: prazo duro (atrasadas/vence-hoje via due_date) + cobranca (aguardando terceiro). NAO e a fonte do dia.
+4. **Chat** = o que o Henrique mencionar ao vivo entra como ad-hoc.
+
+**READ-ONLY de manha:** o bom-dia NAO move status, NAO muta due_date por conta propria, NAO cria task. A unica escrita ClickUp permitida e condicional e confirmada (Fase 5.1). Tudo que ele escreve e no lado do Henrique: `## HOJE` do trilho + check-in no diario + msg WhatsApp.
 
 Por que hibrido: 100% automatico ignora capacidade mental do dia (cansaco, reuniao surpresa). 100% manual cria fadiga cognitiva diaria. O ponto doce e: sistema filtra o obvio, humano decide o contexto.
 
-**Contexto obrigatorio:** antes de rodar, considere o documento de fundamentos `conhecimento/produtividade/clickup-fundamentos-pique.md` — contem os 3 tipos de trabalho, pipelines, policies e limites (max 5 tasks/dia por pessoa).
+**Contexto obrigatorio:** antes de rodar, considere `conhecimento/produtividade/clickup-fundamentos-pique.md`. **Reorg ClickUp 26/06 (frente=Space): "Essa semana" e "Hoje" deixaram de existir como status — viraram views por due_date. NAO filtrar por esses status.** Limite: max 5 tasks/dia.
 
 ## Ferramentas
 
@@ -31,17 +38,22 @@ Se o arquivo nao existir, pergunte o nome do usuario e crie usando o template.
 
 ---
 
-## Fase 0: Contexto do dia anterior (automatico)
+## Fase 0: Contexto do dia anterior + gate do HOJE (automatico)
 
-Antes de qualquer coisa, busque o diario de ontem:
-
+### 0.1 Diario de ontem
 1. Leia `{diarios_path}/YYYY-MM-DD.md` do dia anterior (calcule a data).
-2. Se existir, extraia:
-   - O que foi feito (secao Check-out)
-   - O que ficou pendente
-   - Blockers
-   - Notas pra hoje
-3. Se NAO existir, pule — vai precisar pedir contexto manual na Fase 2.
+2. Se existir, extraia: o que foi feito (Check-out), o que ficou pendente, blockers, **"Notas pra amanha"** (vira candidato de prep na Fase 3.2 — B3, sugere, nao entra sozinho).
+3. Se NAO existir, pule — vai pedir contexto manual na Fase 2.
+
+### 0.2 Gate do HOJE (consolidar antes de montar — B2/N3)
+
+Read o `## HOJE` do `TAREFAS.md` e olhe a linha de carimbo `<!-- hoje: ... -->`:
+- `<!-- hoje: consolidado AAAA-MM-DD -->` → o boa-noite ja fechou. Segue limpo (vai montar por cima do placeholder).
+- `<!-- hoje: montado AAAA-MM-DD -->` com **data != hoje** → o boa-noite foi pulado. **Rodar mini-consolidacao** antes de montar.
+- **ausente** mas ha linhas `[ ]`/`[~]`/`[x]` no HOJE → HOJE escrito a mao / orfao. **Rodar mini-consolidacao** (nao confiar que esta limpo).
+- ausente e HOJE vazio/placeholder → primeiro uso, segue normal.
+
+**Mini-consolidacao** (mesma rotina do boa-noite Fase 5.2b — reusar, nao reinventar): pra cada `[x]` carimbado nao-logado → backfill no `log-do-feito.md`; pra cada `[~]` orfao → logar parcial + devolver pra `[ ]` sem carimbo; itens nao-feitos que nao estao no SEMANA → `## RESTO`; limpar o HOJE. Avisar em 1 linha: *"HOJE de DD/MM nao foi fechado pelo boa-noite — consolidei N itens pro log antes de montar."*
 
 **Futuro (cerebro-pique):** ler tambem `diarios/marco/YYYY-MM-DD.md` pra saber o que o time fez.
 
@@ -66,29 +78,32 @@ Cheque TODOS os calendarios do usuario (ler IDs de `plugin-pique.local.md` e CLA
 - Horas disponiveis = 8h uteis - reunioes de hoje - 1h buffer (contexto switching, imprevistos)
 - Esse numero e o TETO de estimativas que cabem no dia
 
-### 1.2 ClickUp — Foto do board
+### 1.2 ClickUp — overlay de prazo + cobranca (SO LEITURA)
 
-Consulte `pique/infra/clickup-setup.md` para IDs dos Spaces.
+> ClickUp NAO e a fonte do dia — isso e o SEMANA do trilho (Fase 1.4). Aqui ele entra so como **overlay**: prazo duro que pode forcar um item, e cobranca. **Reorg 26/06:** "Essa semana"/"Hoje" NAO existem mais como status — NAO filtrar por eles, so por due_date + status atuais (a fazer / fazendo / aguardando terceiro / finalizado).
 
-Busque sempre com `assignees: [user_clickup_id]` (usuario que esta rodando a skill — nunca buscar tasks do time).
+Consulte `pique/infra/clickup-setup.md` para IDs dos Spaces. Busque sempre com `assignees: [user_clickup_id]` (nunca tasks do time), em TODOS os Spaces ativos (Pique Digital 901313561086, Pique Studio 901313561098, Yabadoo 901313567191, Beto Carvalho 901313567164, Pessoal 901313561154), `status NOT IN (finalizado, descartada)`:
 
-Use `list_tasks` com os seguintes filtros em TODOS os Spaces ativos (Pique Digital 901313561086, Conteudo 901313561098, Yabadoo 901313567191, Beto Carvalho 901313567164, Pessoal 901313561154):
-
-| O que buscar | Filtro | Detalhe retornado |
+| O que buscar | Filtro | Uso |
 |---|---|---|
-| Concluidas ontem | due_date = ontem + include_closed=true | Titulo — o que foi entregue |
-| **Atrasadas** | **due_date < hoje AND status NOT IN (finalizado, descartada)** | **Completo: titulo + descricao + comentarios** |
-| Vencendo hoje | due_date = hoje | Completo: titulo + descricao + comentarios |
-| Vencendo essa semana | due_date entre amanha e fim da semana | So titulo — pool disponivel |
+| **Atrasadas** | `due_date < hoje` | prazo duro — pode forcar entrada no dia |
+| **Vence hoje** | `due_date = hoje` | prazo duro — pode forcar entrada no dia |
+| **Aguardando terceiro** | `status = "aguardando terceiro"` | cobranca — cruza com `## AGUARDANDO` do trilho |
 
-**Atrasadas e separado de "ideias em status `planejado`" no Studio (que sao backlog, nao compromisso firme).** Tasks com due_date no passado e status ativo sao compromissos vencidos — entram primeiro na proposta da Fase 3.
-
-Para "vencendo hoje" E "atrasadas": apos buscar com list_tasks, chame `get_task` em cada task retornada para puxar descricao e comentarios completos. Listar por nome e inferir escopo gera descricao errada — sempre puxar `get_task` antes de descrever escopo no briefing.
+Para **atrasadas** e **vence hoje** (sao poucas): apos `list_tasks`, chame `get_task` em cada uma pra puxar descricao+comentarios (inferir escopo pelo nome gera briefing errado). Nao buscar "vencendo essa semana" como pool — esse mecanismo morreu na reorg; a selecao do dia vem do SEMANA do trilho (Fase 1.4). Pessoal nao usa due_date (so prioridade) — normal nao retornar nada de prazo la.
 
 ### 1.3 Inbox rapido
 
 - Leia `inbox/DIARIO.md` — tem algo registrado que afeta o dia?
 - NAO processe o inbox, apenas escaneie por itens urgentes ou contexto relevante.
+
+### 1.4 SEMANA do trilho (a espinha do dia)
+
+Read no `TAREFAS.md` (raiz do cerebro). Capture:
+- `## SEMANA` — os itens `[ ]` com etiqueta de modo. **Esta e a fonte primaria dos candidatos do dia.**
+- `## AGUARDANDO` — o que o Henrique espera dos outros (cruza com a cobranca da Fase 1.2 → visao unica de cobranca).
+
+Se o `## SEMANA` estiver vazio ou com data de semana antiga (ex: segunda antes do `/planejamento-semanal`): avise *"SEMANA nao montada/desatualizada — rode /planejamento-semanal primeiro, ou me diga o foco da semana."* Sem espinha, o dia so tem o prazo duro do ClickUp + o que voce mencionar.
 
 ---
 
@@ -113,17 +128,17 @@ Apresente um resumo CURTO e visual:
 - [DATA HH:MM] Evento Y
 - (ou: proximos 3 dias livres)
 
-**Atrasadas (due passou, status ativo):**
-- Task 1 [Space] (vencida ha N dias)
-- (ou: nada atrasado)
+**SEMANA do trilho (espinha do dia):**
+- `[Modo]` Item 1 — [foco da semana]
+- `[Modo]` Item 2
+- (ou: SEMANA nao montada — rodar /planejamento-semanal)
 
-**Ficou pra hoje (status Hoje/Fazendo):**
-- Task 1 (status)
-- (ou: board limpo)
+**Prazo duro (ClickUp — overlay):**
+- Atrasadas: Task 1 [Space] (vencida ha N dias) — (ou: nada atrasado)
+- Vence hoje: Task 2 [Space] — (ou: nada vence hoje)
 
-**Pool da semana (Essa semana):**
-- Task 1 [Space]
-- Task 2 [Space]
+**Cobranca (aguardando terceiro + AGUARDANDO do trilho):**
+- [quem] — [o que trava] — (ou: nada travando)
 
 **Inbox:** [nada relevante / resumo de 1 linha]
 ```
@@ -173,19 +188,20 @@ Antes de propor, listar TUDO que o usuario falou na conversa:
 
 Incluir TODOS na proposta — separando o que e pra hoje vs o que e pra criar como task futura. NAO omitir nada que o usuario falou.
 
-### 3.2 Selecionar tasks — ordem de prioridade (selecao automatica)
+### 3.2 Montar os candidatos do dia — SEMANA = espinha, ClickUp = overlay
 
-Montar a lista candidata nesta ordem (de cima pra baixo):
+A fonte dos candidatos e o `## SEMANA` do trilho (Fase 1.4), NAO o ClickUp. Ordem:
 
-1. **Atrasadas** (due_date < hoje) — divida, entra primeiro
-2. **Bloqueando alguem** (outra task depende desta) — destravar o time
-3. **Due date = hoje** — vence hoje, nao pode empurrar
-4. **Start date = hoje** (task multi-dia) — precisa comecar pra nao atrasar
-5. **Pool "Essa semana"** — puxar por prioridade (urgent > high > normal > low)
+1. **Espinha = itens da SEMANA** (`[ ]`, ja com modo) — ordenar por execucao (a ordem em que faz sentido fazer hoje). Esta e a base do dia.
+2. **Overlay de prazo duro (ClickUp, Fase 1.2):** atrasada ou vence-hoje que **forca** o dia →
+   - se ja casa com um item da SEMANA, **anotar a urgencia** nele (nao duplicar);
+   - se NAO esta na SEMANA, **adicionar** como item de prazo (etiquetar modo: execucao→`[Produzir]`, decisao→`[Pensar]`).
+3. **Prep de ontem (B3):** se a Fase 0 trouxe "prep pra hoje/amanha" do diario, **oferecer** como candidato (sugere, nao entra sozinho).
+4. **Ad-hoc:** o que o usuario mencionou no chat (Fase 3.1).
 
-Para cada task, mostrar a **estimativa de tempo** ao lado.
+Mostrar a **estimativa de tempo** ao lado de cada um. **Filtrar bloqueados** (Fase 3.2.1).
 
-**Limite: MAX 5 tasks por pessoa.** WIP limit pessoal (alinhado com fundamentos `conhecimento/produtividade/clickup-fundamentos-pique.md`). Se a lista candidata tem mais de 5, selecionar as 5 mais prioritarias e deixar as demais pra Fase 3.4 (nao coube).
+**Limite: MAX 5 tasks por pessoa** (WIP pessoal). Se passa de 5, selecionar as 5 que mais cabem no teto + prazo, deixar o resto pra Fase 3.4 (nao coube). **Item puro de trilho (sem task ClickUp) e normal e maioria** — nao precisa existir no ClickUp pra entrar no dia.
 
 ### 3.2.1 Verificar dependencias (novo)
 
@@ -201,7 +217,7 @@ Isso evita a frustracao de sugerir algo que a pessoa nao consegue comecar.
 2. Se o total de atrasadas + due hoje ja estoura o tempo livre:
    - Avisar: "Voce tem Xh de tasks obrigatorias pra Yh de tempo livre"
    - Perguntar o que empurrar — NAO decidir sozinho
-3. **O que nao couber: reagendar AGORA** (atualizar due_date no ClickUp), nao deixar pra depois.
+3. **O que nao couber:** sinalizar pra reagendar (NAO mutar due_date sozinho — bom-dia e read-only de manha). Listar em "nao coube" e perguntar se quer mover; so atualiza ClickUp se confirmar (Fase 5.1).
 4. Se a mesma task foi empurrada 2+ vezes, sinalizar como **bloqueio cronico** pra entrar na review semanal.
 
 ### 3.4 Formatar proposta
@@ -269,10 +285,13 @@ Se a Fase 3 incluiu **criacao de tasks novas** (nao so update de existentes), an
 
 Por que: agent caiu em list errada (Operacional/Geral em vez de Beco — Consultoria/Apresentacao) quando recebeu so o nome.
 
-### 5.1 Atualizar ClickUp
-- NAO mova tasks para status "Hoje" — essa dinamica foi descontinuada.
-- Unico update necessario: se alguma task selecionada nao tem due_date = hoje, delegue ao `gestor-clickup` pra confirmar `due_date = 2026-XX-XX` (data de hoje).
-- Tasks atrasadas que NAO entram no dia: deixar como estao. Nao reagendar automaticamente sem pedir confirmacao.
+### 5.1 ClickUp — CONDICIONAL (read-only por padrao)
+
+bom-dia **nao muta ClickUp por padrao**. Itens puros de trilho (sem task ClickUp) nao tocam ClickUp — vivem so no TAREFAS.md.
+
+**Unica escrita permitida, e SO se o usuario confirmou:** item que TEM task ClickUp e ele pediu pra reagendar (Fase 3.3) → delegar ao `gestor-clickup` pra ajustar `due_date`. Sem confirmacao explicita, nao mexe.
+- NAO mover status, NAO mover pra "Hoje" (status morto), NAO criar task de manha.
+- Atrasadas/vencendo que ficam de fora: deixar como estao.
 
 ### 5.2 Gerar mensagem do WhatsApp
 Gere a mensagem EXATAMENTE neste formato (pronta pra copiar e colar):
@@ -309,20 +328,25 @@ NAO preencha a secao Check-out — isso e feito pelo `/pique:boa-noite`.
 
 O `TAREFAS.md` (raiz do cerebro) e o **trilho pessoal de execucao** — o que o Henrique faz. O bom-dia escreve a secao `## HOJE` puxando do `## SEMANA`. O `/iniciar` depois carimba inicio item a item; o `/encerrar` fecha.
 
-1. Read no `TAREFAS.md`. Localize `## SEMANA` e `## HOJE`.
-2. Pra cada item confirmado na proposta do dia (Fase 3.4), **mapeie ao modo**:
-   - Se o item ja existe no `## SEMANA`, herde a etiqueta de modo dele (`` `[Pensar]` `` / `` `[Produzir]` `` / `` `[Afiar]` ``).
-   - Se for prazo de ClickUp que nao esta no SEMANA, infira: execucao/entrega → `[Produzir]`; decisao/mapeamento → `[Pensar]`; ferramenta/skill/automacao → `[Afiar]`.
-3. Substitua o placeholder `_(vazio — rodar /bom-dia)_` (ou o HOJE anterior) por:
+1. **Re-Read o `## HOJE` AGORA** (nao confiar no Read da Fase 1.4 — pode ter minutos de idade; outra janela pode ter mexido). Localize `## SEMANA` e `## HOJE`.
+2. **Proteger trabalho de janela paralela (N2) — antes de reescrever:**
+   - Se o HOJE tem item `[x]` com carimbo de duracao `(HH:MM → HH:MM · Nmin)` que ainda NAO esta no `log-do-feito.md` de hoje → **fazer o backfill dessa linha pro log ANTES** (mesma rotina do boa-noite 5.2b). Nunca descartar um `[x]` carimbado sem logar.
+   - Se o HOJE tem item `[~]` com `(iniciada:)` → **sessao viva em outra janela. Preservar** (nao sobrescrever). Em duvida, preservar e avisar.
+   - So substituir: placeholder, `[ ]` nao-tocados, e itens ja logados.
+3. Pra cada item confirmado na proposta (Fase 3.4), **mapeie ao modo**:
+   - Se ja existe no `## SEMANA`, herde a etiqueta de modo dele (`` `[Pensar]` `` / `` `[Produzir]` `` / `` `[Afiar]` ``).
+   - Se for prazo de ClickUp fora do SEMANA, infira: execucao→`[Produzir]`; decisao→`[Pensar]`; ferramenta→`[Afiar]`.
+4. Escreva a secao `## HOJE` com o **carimbo de estado** na 1a linha (logo apos `## HOJE`):
    ```
+   ## HOJE
+   <!-- hoje: montado AAAA-MM-DD -->
    - [ ] `[Modo]` **Titulo curto** — 1 linha do que fazer  ← começa aqui
    - [ ] `[Modo]` **Titulo curto** — 1 linha do que fazer
    ```
-   - **Ordenados por execucao** (mesma ordem da proposta confirmada).
-   - **So o 1o item** leva ` ← começa aqui`.
-   - **Sem carimbo de tempo** — `(iniciada: HH:MM)` e responsabilidade do `/iniciar`.
-4. **Nao duplica** o ClickUp/WhatsApp: a proposta (Fase 3) e a mensagem (5.2) seguem pra consciencia de prazo/equipe; o HOJE e o trilho pessoal. Cobranca da equipe continua no `## AGUARDANDO`/ClickUp. Os MESMOS itens de execucao do Henrique aparecem nos dois lugares — aqui etiquetados por modo.
-5. Edit minimo: so a secao `## HOJE`. Nao mexer em SEMANA/AGUARDANDO/DECISOES/FRENTES/RESTO.
+   - `AAAA-MM-DD` = data de hoje (o gate da Fase 0 le esse carimbo).
+   - **Ordenados por execucao**; **so o 1o** leva ` ← começa aqui`; **sem** `(iniciada:)` (isso e do `/iniciar`).
+5. **Nao duplica** ClickUp/WhatsApp: a proposta e a msg seguem pra consciencia de prazo/equipe; o HOJE e o trilho pessoal. Os MESMOS itens de execucao aparecem nos dois — aqui etiquetados por modo.
+6. Edit minimo: so a secao `## HOJE`. Nao mexer em SEMANA/AGUARDANDO/DECISOES/FRENTES/RESTO.
 
 ### 5.4 Encerrar
 Diga: "Stand-up feito. HOJE montado no trilho (N itens). Mensagem pronta. Rode `/iniciar` pra carimbar o 1o item e carregar o modo."
@@ -332,14 +356,14 @@ Diga: "Stand-up feito. HOJE montado no trilho (N itens). Mensagem pronta. Rode `
 ## Regras
 
 - NAO faca perguntas desnecessarias. O reconhecimento automatico deve cobrir 80% do contexto.
-- Se o board ta vazio (sem tasks em Essa semana), avise e pergunte o que quer focar.
+- Se o `## SEMANA` do trilho esta vazio, avise (rodar /planejamento-semanal) e pergunte o que quer focar.
 - Respeite o limite de **max 5 tasks/dia por pessoa** (WIP limit pessoal dos fundamentos). Idealmente 3. Menos e melhor que mais.
 - A Fase 4 (detalhamento) pode levar mais tempo — isso e esperado e valioso.
 - Bloqueio externo (fora do controle) = registra no "Travado em" do standup. So comenta no ClickUp se precisa de acao de outra pessoa.
 - **NUNCA proponha tasks que somem mais horas que o tempo livre calculado.** Se nao cabe, mostra o estouro e pergunta o que cortar.
 - **Estouro consciente = registrar e seguir, nao argumentar 2x.** Quando user decide estourar (>5 tasks/dia OU horas > tempo livre) ciente do trade-off, registrar no diario e seguir. Nao repetir o aviso.
 - **Task empurrada 2+ vezes = bloqueio cronico.** Sinalizar e adicionar na pauta da review semanal.
-- **Calendar vem primeiro, ClickUp preenche o espaco.** O dia real define o teto, as tasks preenchem.
+- **Calendar primeiro, SEMANA do trilho preenche o espaco.** A agenda define o teto; os itens da SEMANA (espinha) preenchem; ClickUp so anota prazo duro por cima.
 - Comunique-se em portugues brasileiro, direto e sem formalidade.
 
 ## Auto-avaliacao (executar sempre ao final)

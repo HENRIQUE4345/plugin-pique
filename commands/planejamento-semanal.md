@@ -237,9 +237,22 @@ ESPERE confirmacao antes de executar.
 
 Apos confirmacao:
 
+#### 6.0 Escrever o `## SEMANA` do TAREFAS.md (a espinha que o bom-dia consome) — OBRIGATORIO
+
+Esta e a fonte primaria do dia: sem ela, o `/bom-dia` nao tem de onde puxar (brecha que existia ate o planejamento passar a manter a SEMANA). Edit minimo, **so na secao `## SEMANA`** do `TAREFAS.md` (raiz do cerebro):
+
+1. Cabecalho com o range da semana: `## SEMANA (DD/MM–DD/MM)`.
+2. Pra cada prioridade do **Henrique** confirmada (3-8 itens de foco), 1 linha:
+   ```
+   - [ ] `[Modo]` **titulo curto** — 1 linha de contexto
+   ```
+   - **Etiquetar o modo** de cada uma (Pensar=decidir/mapear · Produzir=entregar · Afiar=ferramenta). Se nao estiver claro, perguntar.
+3. **So o Henrique vai pro trilho.** As prioridades do **Marco** continuam indo pro ClickUp (6.1), NAO pro `## SEMANA` (o trilho e o que o Henrique executa).
+4. Nao mexer em HOJE/AGUARDANDO/DECISOES/FRENTES/RESTO. O bom-dia da semana puxa daqui.
+
 #### 6.1 ClickUp
-- Mover tasks confirmadas para status **"Essa semana"**
-- Criar tasks novas seguindo as regras do CLAUDE.md (verbo, responsavel, prazo, descricao)
+- Criar/atualizar tasks confirmadas com status **"A fazer"** + campo de fase/onda (reorg 26/06). **NAO usar "Essa semana"/"Hoje"** — esses status nao existem mais (viraram views por due_date).
+- Criar tasks novas seguindo as regras do CLAUDE.md (verbo, responsavel, prazo, descricao).
 - Se alguma task foi removida/adiada, perguntar: volta pra "A fazer" ou fica?
 
 #### 6.2 Google Calendar
