@@ -84,6 +84,15 @@ Agrupar commits por repo. Limitar output a 20 linhas por repo (mais que isso = d
 
 **Use isso pra:** captar trabalho code-heavy ou de manutencao do cerebro que NUNCA virou task (commit no MEU-CEREBRO de ajuste de mapa, bump de submodule, fix em plugin).
 
+**git status (nao so log):** nos MESMOS repos, rodar tambem `git -C "<repo>" status --short` pra flagar **trabalho nao-commitado** (modificado/novo mas ainda fora de commit). E uma ponta que escapa — sinaliza no review ("repo X com N arquivos sujos — commitar?") pra nao perder.
+
+### 1.6 Ler o log do feito de hoje + o HOJE do trilho
+
+1. Read `conhecimento/produtividade/log-do-feito.md`. Capture as linhas cuja Data = hoje (DD/MM) — sao as tarefas ja fechadas pelo `/encerrar` com modo + P/E + duracao.
+2. Read `TAREFAS.md` (raiz do cerebro), secao `## HOJE`. Capture o estado de cada item: `[x]` (feito), `[~]` (iniciado e nao fechado), `[ ]` (nem comecou).
+
+**Use isso pra:** (a) montar o **Balanco de modos** na Fase 2; (b) saber o que precisa de backfill/devolucao na Fase 5.2b. Cruze com a telemetria (1.4) e commits (1.5): item `[x]` no HOJE mas ausente do log = feito sem `/encerrar`, vai precisar de backfill.
+
 ---
 
 ## Fase 2: Review do dia
@@ -113,6 +122,11 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 **Divergencias entre fontes** (so se houver):
 - Trabalhou em X (chat + commit) mas nao tem task — registrar retroativo?
 - Task Y ainda em "Hoje" mas chat indica que fechou — mover pra Finalizado?
+
+**Balanco de modos** (do log do feito de hoje — Fase 1.6):
+- Pensar: [n] · [Xmin] | Produzir: [n] · [Xmin] | Afiar: [n] · [Xmin]
+- Planejado vs eventualidade: [nP] planejadas (P) / [nE] ad-hoc (E) — [X]% do tempo em ad-hoc
+- (so CONSTATAR — sem julgar. E o dado real de tempo por modo; serve pra calibrar o SEMANA na segunda. Se o log de hoje esta vazio mas houve trabalho, sinalize "dia rodou sem /iniciar→/encerrar — log nao capturou".)
 
 **Amanha:**
 - [HH:MM] Evento 1
@@ -251,6 +265,17 @@ Crie ou atualize `diarios/YYYY-MM-DD.md`:
 - [prep necessario pra reunioes]
 - [decisoes pendentes]
 ```
+
+### 5.2b Consolidar trilho → log (camada Log do feito)
+
+Fecha o ciclo do dia no `TAREFAS.md` + `log-do-feito.md`:
+
+1. **Backfill do log:** pra cada item `[x]` do `## HOJE` que NAO tem linha correspondente no `log-do-feito.md` de hoje (feito sem `/encerrar`), anexe a linha no log com tempos best-effort (da telemetria 1.4 / commits 1.5) + modo (etiqueta do item) + **P**. Mesmo formato da Fase 3.4b do `/encerrar`.
+2. **Itens nao-feitos** (`[ ]`/`[~]` no HOJE) — seguir a decisao do usuario (Fase 2.2, pergunta 2):
+   - Itens que ja existem no `## SEMANA` sobrevivem la (o bom-dia copia, nao move) → so saem do HOJE.
+   - Itens ad-hoc que NAO estao no SEMANA e ficaram pela metade → **devolver ao `## RESTO`** pra nao perder.
+3. **Limpar o HOJE:** o trilho de HOJE e descartavel (regenera no proximo bom-dia). Resetar a secao pro placeholder `_(vazio — rodar /bom-dia)_`. **Excecao:** se o usuario disse "deixa em Hoje pra amanha" pra item especifico, mantenha esse(s).
+4. **Commit do cerebro:** as edicoes de hoje (diario + TAREFAS.md + log-do-feito.md) entram em 1 commit `cerebro: boa-noite YYYY-MM-DD` (se o submodule `pique/` foi tocado, commitar separado). Nao fazer push automatico.
 
 ### 5.3 Mensagem WhatsApp — JA FOI GERADA na Fase 2.1
 

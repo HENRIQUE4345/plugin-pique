@@ -128,8 +128,22 @@ Cruze com `_mapa.md`.
 ### 1.6 Conteudo de sessao
 A conversa em si tem valor como registro? (brainstorm, reuniao, download mental, analise)
 
-### 1.7 Feedback ou preferencias do usuario
+### 1.7 Feedback ou preferencias do usuario — **regra-alavanca**
 O usuario corrigiu algo, pediu pra mudar abordagem, ou expressou preferencia sobre como trabalhar?
+
+Pra CADA feedback, aplique o **discriminador** (regra-alavanca — alinha com o CLAUDE.md do cerebro: "regra que descreve passo-de-skill vai pro `.md` da skill, nao pra memoria"):
+
+- **(ii) Passo de uma skill/ritual** — o feedback descreve COMO um ritual/skill especifico deve se comportar (ex: "no boa-noite, sempre puxe X primeiro", "o /iniciar devia carregar Y", "no encerrar nao faca Z"). → **edita o `.md` da skill** (repo-fonte do plugin) + bump + reload. **NAO vira memoria passiva.** Entra na secao "Skill — ajuste de roteiro" do plano (Fase 2).
+- **(i) Calibracao de comportamento meu** — regra geral de como respondo/calibro/evito vies, sem nomear um passo de skill (ex: tom, quando perguntar, nao concordar reflexo). → memoria do agente. Entra na secao "Memory" do plano.
+
+**Teste:** "da pra apontar QUAL arquivo `.md` e QUAL passo mudaria?" Sim → skill (ii). Nao → memoria (i). Em duvida entre os dois, prefira (ii) — feedback acionavel num roteiro e mais durável editado do que guardado.
+
+### 1.8 Item do trilho trabalhado?
+Esta sessao trabalhou um item do `## HOJE` do `TAREFAS.md` (raiz do cerebro)?
+
+- Read o `## HOJE`. Houve um item `[~]` (iniciado por `/iniciar`) ou `[ ]` que casa com o tema desta conversa? → e o item a **fechar** (planejada = **P**).
+- A conversa produziu trabalho substantivo que NAO estava no HOJE (apareceu no dia)? → e **eventualidade** (**E**), tambem vai pro log.
+- Conversa puramente operacional (1-2 acoes simples, sem bloco de trabalho real)? → nao loga, pula a secao Trilho do plano.
 
 ---
 
@@ -147,6 +161,10 @@ Apresente o plano neste formato:
 ### Cerebro — Criar
 - [novo-arquivo.md] em [pasta/] — [descricao curta]
 
+### Trilho — fechar item + log (Fase 1.8)
+- Item do HOJE a fechar: [titulo] → `[x]` + log como **P** (ou: "trabalho ad-hoc [titulo] → log como **E**")
+- (ou "Nenhum — conversa operacional, sem item de trilho")
+
 ### Acoes identificadas (so registro — NAO crio task)
 - [Acao com verbo] → [responsavel] | [prazo se tem]
 - [Acao com verbo] → [responsavel] | [prazo se tem]
@@ -162,8 +180,12 @@ Apresente o plano neste formato:
 ### Sessao
 - Salvar como `sessoes/YYYY-MM-DD-HHMM-[tipo]-[descricao].md`? [Sim/Nao e por que]
 
-### Memory (preferencias Claude)
-- [regra ou feedback a salvar na memoria do agente]
+### Skill — ajuste de roteiro (regra-alavanca, Fase 1.7-ii)
+- [arquivo `.md` da skill no repo-fonte] — [passo a adicionar/mudar] (+ bump + reload)
+- (ou "Nenhum — nenhum feedback descreveu passo de skill")
+
+### Memory (preferencias Claude — Fase 1.7-i)
+- [regra de comportamento meu a salvar na memoria do agente]
 
 ### Nada a fazer
 - [itens da conversa que NAO precisam de acao — listar brevemente pra transparencia]
@@ -209,8 +231,26 @@ Apos aprovacao, execute na ordem:
 - Se aprovado no plano, crie o arquivo de sessao com template padrao
 - Inclua: contexto, conteudo principal, decisoes, relacionados
 
-### 3.5 Salvar memory
-- Se houve feedback ou preferencia, salve na memoria do agente
+### 3.4b Fechar item do trilho + log do feito (se Fase 1.8 detectou)
+
+**Fechar no `TAREFAS.md` (`## HOJE`):**
+- Item trabalhado: `[~]`/`[ ]` → `[x]`.
+- Capture a hora local de fim `HH:MM` (Windows: `powershell -NoProfile -Command "Get-Date -Format HH:mm"`).
+- Se a linha tinha `(iniciada: HH:MM)` (carimbo do `/iniciar`): calcule duracao = fim − inicio e **substitua o sufixo** por `(HH:MM → HH:MM · Nmin)` (mesma mecanica do `/inc` Fase 7.1).
+- Se NAO tinha carimbo (ad-hoc/eventualidade): use melhor-esforco pra o inicio (1ª acao da sessao no historico) ou registre so o fim.
+
+**Anexar 1 linha no log:** `conhecimento/produtividade/log-do-feito.md`.
+- Garanta que existe a secao do mes corrente (`## YYYY-MM`). Se nao, crie no topo das secoes de mes (mais recente primeiro).
+- Anexe a linha na tabela do mes: `| DD/MM | titulo curto | HH:MM–HH:MM | Nmin | Modo | P/E |`.
+  - **Modo** = etiqueta do item (Pensar/Produzir/Afiar).
+  - **P** se o item estava no HOJE (planejada); **E** se foi eventualidade.
+- Se a unica linha do mes for o placeholder vazio `| | | | | | |`, substitua-o; senao, append.
+
+**Item nao-feito** (sessao parou no meio): deixa `[~]` no HOJE (o `/boa-noite` decide devolver ao RESTO). Nao loga incompleto.
+
+### 3.5 Salvar memory / ajustar skill (regra-alavanca, Fase 1.7)
+- **Feedback (i) comportamento meu:** salve na memoria do agente (padrao auto-memory + linha no `MEMORY.md`).
+- **Feedback (ii) passo de skill:** NAO salva em memoria — aplique o **Edit no `.md`-fonte da skill** (repo do plugin) conforme a secao "Skill — ajuste de roteiro" do plano, faca o **bump de versao** no `.claude-plugin/plugin.json` e registre na Fase 4 os comandos `/plugin marketplace update` + `/reload-plugins`. O commit desse repo segue pela Fase 3.6b (repos paralelos).
 
 ### 3.6 Commit do cerebro
 - Verifique se ha mudancas pendentes no git (arquivos modificados ou novos)

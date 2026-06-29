@@ -305,8 +305,27 @@ Crie ou atualize `diarios/YYYY-MM-DD.md` com:
 
 NAO preencha a secao Check-out — isso e feito pelo `/pique:boa-noite`.
 
+### 5.3b Escrever o trilho de HOJE no TAREFAS.md (camada Trilho)
+
+O `TAREFAS.md` (raiz do cerebro) e o **trilho pessoal de execucao** — o que o Henrique faz. O bom-dia escreve a secao `## HOJE` puxando do `## SEMANA`. O `/iniciar` depois carimba inicio item a item; o `/encerrar` fecha.
+
+1. Read no `TAREFAS.md`. Localize `## SEMANA` e `## HOJE`.
+2. Pra cada item confirmado na proposta do dia (Fase 3.4), **mapeie ao modo**:
+   - Se o item ja existe no `## SEMANA`, herde a etiqueta de modo dele (`` `[Pensar]` `` / `` `[Produzir]` `` / `` `[Afiar]` ``).
+   - Se for prazo de ClickUp que nao esta no SEMANA, infira: execucao/entrega → `[Produzir]`; decisao/mapeamento → `[Pensar]`; ferramenta/skill/automacao → `[Afiar]`.
+3. Substitua o placeholder `_(vazio — rodar /bom-dia)_` (ou o HOJE anterior) por:
+   ```
+   - [ ] `[Modo]` **Titulo curto** — 1 linha do que fazer  ← começa aqui
+   - [ ] `[Modo]` **Titulo curto** — 1 linha do que fazer
+   ```
+   - **Ordenados por execucao** (mesma ordem da proposta confirmada).
+   - **So o 1o item** leva ` ← começa aqui`.
+   - **Sem carimbo de tempo** — `(iniciada: HH:MM)` e responsabilidade do `/iniciar`.
+4. **Nao duplica** o ClickUp/WhatsApp: a proposta (Fase 3) e a mensagem (5.2) seguem pra consciencia de prazo/equipe; o HOJE e o trilho pessoal. Cobranca da equipe continua no `## AGUARDANDO`/ClickUp. Os MESMOS itens de execucao do Henrique aparecem nos dois lugares — aqui etiquetados por modo.
+5. Edit minimo: so a secao `## HOJE`. Nao mexer em SEMANA/AGUARDANDO/DECISOES/FRENTES/RESTO.
+
 ### 5.4 Encerrar
-Diga: "Stand-up feito. Mensagem pronta. Bora pro bloco produtivo."
+Diga: "Stand-up feito. HOJE montado no trilho (N itens). Mensagem pronta. Rode `/iniciar` pra carimbar o 1o item e carregar o modo."
 
 ---
 
