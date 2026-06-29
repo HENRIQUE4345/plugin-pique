@@ -7,9 +7,12 @@ Encerramento de conversa. Processa tudo que foi discutido e distribui para os lu
 
 ## Ferramentas
 
-- **Google Calendar** (criar eventos): chamar diretamente (connector leve)
+Esta skill NAO executa nenhuma acao externa — nada que saia pra fora ou mexa com outra pessoa. Tudo que ela faz e local e reversivel por git: cerebro, sessao, memory, commit local, telemetria, log. Por isso ela roda sozinha ate o fim, SEM pedir "posso executar?".
 
-> **ClickUp fora do fluxo (decisao 2026-06-16):** esta skill NAO cria nem propoe tasks no ClickUp. Ela apenas LISTA as acoes que apareceram na conversa pra o Henrique nao perder o fio (Fase 1.3 / plano). 95% das vezes nao precisa virar task — quando precisar, ele pede manualmente. So entao use `/plugin-pique:planejar-tasks` ou o agent `gestor-clickup`. Nunca crie task por iniciativa propria no encerramento.
+Acoes externas (task no ClickUp, evento no Calendar) viram so REGISTRO na lista "Ficou em aberto" do resumo final — quando o Henrique precisar, ele pede na hora.
+
+> **ClickUp fora do fluxo (decisao 2026-06-16):** NAO cria nem propoe task. So lista a acao pra o Henrique nao perder o fio. Quando precisar, ele pede — ai use `/plugin-pique:planejar-tasks` ou o agent `gestor-clickup`.
+> **Calendar fora do fluxo (decisao 2026-06-29):** NAO cria evento. Compromisso/reuniao que aparecer vira so registro na lista "Ficou em aberto". Quando precisar, ele pede na hora.
 
 ## Quando usar
 
@@ -37,8 +40,8 @@ Se `/inbox` rodou em paralelo ou antes na mesma sessao, arquivos que voce estava
 4. **Ajuste referencias:** se voce ja editou um arquivo na conversa que foi movido, garanta que:
    - Suas edicoes foram preservadas (elas seguem o arquivo pro novo lugar)
    - Qualquer LINK pra ele em outros arquivos (CLAUDE.md, clickup-setup.md, outros docs) aponte pro NOVO caminho
-   - O plano da Fase 2 use o NOVO caminho, nao o antigo
-5. Sinalize no plano: "⚠ /inbox rodou em paralelo — arquivo X foi movido de inbox/contextos/ pra sessoes/"
+   - As decisoes da Fase 2 usem o NOVO caminho, nao o antigo
+5. Sinalize no resumo final (Fase 4): "⚠ /inbox rodou em paralelo — arquivo X foi movido de inbox/contextos/ pra sessoes/"
 
 Nao comite mudancas do `/inbox` junto com as suas — elas sao de outra operacao. Comite APENAS o que esta conversa produziu.
 
@@ -60,13 +63,11 @@ Outras sessoes Claude rodando simultaneas no mesmo dia podem ter editado **arqui
 2. Sinal pratico: se `git diff <arquivo>` mostra hunks que voce nao reconhece como suas, compartilhado.
 3. Confirmacao extra: sistem-reminders do tipo "File has been modified since read" durante a conversa sao sinal forte de edicao concorrente.
 
-**Decisao de commit:**
+**Decisao de commit (default seguro automatico — NAO pergunte):**
 - **Exclusivos** — commit normal, arquivo por arquivo ou agrupado por tema
-- **Compartilhados** — 2 opcoes, apresentar ao usuario no plano:
-  - (a) Comitar seletivamente via `git add -p` (interativo) isolando so as suas hunks
-  - (b) Deixar pra commit em lote quando as outras sessoes encerrarem (default mais seguro)
+- **Compartilhados** (com edits de terceiros) — NAO comite. Deixe pendentes pra commit em lote quando as outras sessoes encerrarem. (Se precisar isolar so as suas hunks, `git add -p` resolve — mas o default e deixar pendente, mais seguro.)
 
-Sinalize no plano: "⚠ N sessoes Claude paralelas detectadas — X arquivos compartilhados tem edits de terceiros. Proponho commit apenas dos exclusivos: [lista]. Compartilhados ficam pendentes: [lista]."
+Sinalize no resumo final (Fase 4): "⚠ N sessoes Claude paralelas detectadas — X arquivos compartilhados tem edits de terceiros. Comitei apenas os exclusivos: [lista]. Compartilhados ficam pendentes: [lista]."
 
 **Evidencia do caso Rosa/19-04:** 3 sessoes simultaneas (`/plugin-pique:desenhar-individual marcella beco`, `/plugin-pique:desenhar-individual ellen beco`, `/plugin-pique:desenhar-individual rosa beco`) co-editaram `_pendencias-individuais.md` + `melhorias-plugin.md`. Detectei ad-hoc via `git status` em 4 repos + sistem-reminders de "File has been modified". Split seguro: commit dos exclusivos (gabarito rosa + edit plugin), compartilhados pendentes.
 
@@ -83,7 +84,7 @@ Sessoes que editam multi-repo (cada vez mais comum: cerebro + plugin + hub HTML 
 - `marco-brain`
 - `yabadoo-brain`
 
-**Deteccao (mesmo padrao da Fase 3.7 — reutilizar, nao reinventar):**
+**Deteccao (mesmo padrao da Fase 3.6 — reutilizar, nao reinventar):**
 1. Localize o JSONL da sessao atual:
    `ls -t ~/.claude/projects/c--Users-Henrique-Carvalho-Documents-PROGRAMAS-MEU-CEREBRO/*.jsonl | head -1`
 2. Para cada repo da lista, rode (via Grep tool no JSONL):
@@ -94,11 +95,12 @@ Sessoes que editam multi-repo (cada vez mais comum: cerebro + plugin + hub HTML 
    `git -C "C:/Users/Henrique Carvalho/Documents/PROGRAMAS/<repo>" status --short`
 4. Status sujo (M/D/?? ou `plugin.json` bumpado) = trabalho non-committed pendente.
 
-**Decisao de commit:**
-- Repo paralelo com edits desta sessao + status sujo → propor 1 commit por repo na secao "Git — Repos paralelos" do plano da Fase 2.
+**Decisao de commit (automatico — NAO pergunte):**
+- Repo paralelo com edits desta sessao + status sujo → commit autonomo por repo na Fase 3.5b. Liste no resumo final (Fase 4).
 - Se for plugin (plugin-pique/social-media/whatsapp) e `.claude-plugin/plugin.json` foi bumpado → resumo do commit cita a versao nova.
 - Repos paralelos viram commits AUTONOMOS (cada um tem seu proprio historico/versao) — nao agrupar com commit do cerebro.
-- Se nada detectado, sinalize "Nenhum" na secao do plano (regra do plano: nao omitir).
+- So comite o que ESTA conversa tocou nesse repo. Se houver M/?? que nao e seu (outra sessao), deixe pendente — nao arraste.
+- Se nada detectado, nao precisa mencionar.
 
 **Evidencia do caso plugin-pique/28-04:** sessao processou `melhorias-plugin.md` aplicando 12 pendentes mas nao detectou que 4 arquivos do plugin-pique (`precificar-plugin.md`, `ROADMAP.md`, `revisar-area.md`, `bom-dia.md`) + `.claude-plugin/plugin.json` bumpado 1.16.2 → 1.18.0 estavam non-committed de sessoes anteriores. Edits orfaos por dias ate auditoria manual. JSONL `d4c26081` registrou 19 Edits + 6 Writes em `plugin-pique` — Grep no JSONL pegaria isso.
 
@@ -116,10 +118,10 @@ Acoes concretas que apareceram na conversa. Liste pra o Henrique nao perder o fi
 - Quem (Henrique, Marco, outro)
 - Prazo (se mencionado)
 
-Quem decide o que vira task e o Henrique, manualmente. Se ele pedir explicitamente, ai sim use `/plugin-pique:planejar-tasks` ou o agent `gestor-clickup`.
+Quem decide o que vira task e o Henrique, manualmente. Vai pra lista "Ficou em aberto" (Fase 4). Se ele pedir explicitamente, ai sim use `/plugin-pique:planejar-tasks` ou o agent `gestor-clickup`.
 
-### 1.4 Eventos / compromissos
-Reunioes agendadas, prazos combinados, datas mencionadas.
+### 1.4 Eventos / compromissos (so registro — NAO cria evento)
+Reunioes agendadas, prazos combinados, datas mencionadas. Liste pra o Henrique nao perder — mas NAO crie evento no Calendar. Vai pra lista "Ficou em aberto" (Fase 4); quando precisar, ele pede na hora.
 
 ### 1.5 Atualizacoes em arquivos existentes
 Algo que foi discutido muda ou complementa um arquivo que ja existe no cerebro?
@@ -133,8 +135,8 @@ O usuario corrigiu algo, pediu pra mudar abordagem, ou expressou preferencia sob
 
 Pra CADA feedback, aplique o **discriminador** (regra-alavanca — alinha com o CLAUDE.md do cerebro: "regra que descreve passo-de-skill vai pro `.md` da skill, nao pra memoria"):
 
-- **(ii) Passo de uma skill/ritual** — o feedback descreve COMO um ritual/skill especifico deve se comportar (ex: "no boa-noite, sempre puxe X primeiro", "o /iniciar devia carregar Y", "no encerrar nao faca Z"). → **edita o `.md` da skill** (repo-fonte do plugin) + bump + reload. **NAO vira memoria passiva.** Entra na secao "Skill — ajuste de roteiro" do plano (Fase 2).
-- **(i) Calibracao de comportamento meu** — regra geral de como respondo/calibro/evito vies, sem nomear um passo de skill (ex: tom, quando perguntar, nao concordar reflexo). → memoria do agente. Entra na secao "Memory" do plano.
+- **(ii) Passo de uma skill/ritual** — o feedback descreve COMO um ritual/skill especifico deve se comportar (ex: "no boa-noite, sempre puxe X primeiro", "o /iniciar devia carregar Y", "no encerrar nao faca Z"). → **edita o `.md` da skill** (repo-fonte do plugin) + bump + reload. **NAO vira memoria passiva.** Aplica na Fase 3.4 e e listado no resumo final (Fase 4).
+- **(i) Calibracao de comportamento meu** — regra geral de como respondo/calibro/evito vies, sem nomear um passo de skill (ex: tom, quando perguntar, nao concordar reflexo). → memoria do agente. Salva na Fase 3.4.
 
 **Teste:** "da pra apontar QUAL arquivo `.md` e QUAL passo mudaria?" Sim → skill (ii). Nao → memoria (i). Em duvida entre os dois, prefira (ii) — feedback acionavel num roteiro e mais durável editado do que guardado.
 
@@ -143,95 +145,48 @@ Esta sessao trabalhou um item do `## HOJE` do `TAREFAS.md` (raiz do cerebro)?
 
 - Read o `## HOJE`. Houve um item `[~]` (iniciado por `/iniciar`) ou `[ ]` que casa com o tema desta conversa? → e o item a **fechar** (planejada = **P**).
 - A conversa produziu trabalho substantivo que NAO estava no HOJE (apareceu no dia)? → e **eventualidade** (**E**), tambem vai pro log.
-- Conversa puramente operacional (1-2 acoes simples, sem bloco de trabalho real)? → nao loga, pula a secao Trilho do plano.
+- Conversa puramente operacional (1-2 acoes simples, sem bloco de trabalho real)? → nao loga, pula o passo de trilho (Fase 3.3b).
 
 ---
 
-## Fase 2: Plano de encerramento
+## Fase 2: Decisoes de encerramento (interno — NAO pergunte, NAO mostre plano, NAO espere)
 
-Apresente o plano neste formato:
+NAO existe mais checkpoint. Esta skill so faz acoes locais e reversiveis por git (cerebro, sessao, memory, commit local, telemetria, log) — nada sai pra fora nem mexe com outra pessoa. Por isso voce NAO apresenta um plano nem pede "posso executar?". Resolva as decisoes abaixo SOZINHO, com default seguro, e va DIRETO pra Fase 3. O que ficou decidido aparece no resumo da Fase 4 — depois de feito, nao como pedido de aprovacao.
 
-```
-## Encerramento — [titulo curto da conversa]
+**Regras de decisao (aplicar sozinho):**
 
-### Cerebro — Atualizar
-- [arquivo] — [o que muda / o que adiciona]
-- [arquivo] — [o que muda]
+- **Sessao:** salva se a conversa foi brainstorm / reuniao / download mental / analise longa. NAO salva se foi operacional curto (ex: "muda status X", "cria task Y"). Sem perguntar.
+- **Criar vs atualizar:** NAO crie arquivo novo se ja existe um sobre o tema — atualize o existente (cruze com `_mapa.md`).
+- **Em duvida se algo vale salvar:** decida com o teste "isso eu descubro lendo o cerebro/codigo depois?". Sim → descarta. Nao, e e duravel → salva. NAO jogue a duvida pro Henrique.
+- **Split em 2+ notas:** se a conversa cobriu 2+ temas claramente separados E a nota unica passaria de ~100 linhas, salve N notas menores (tema coerente, nome de arquivo distinto) em vez de 1 doc denso. Alinha com a regra dos 150 linhas do CLAUDE.md do cerebro. Default e 1 nota.
+- **Brainstorm estrategico vs execucao de sprint:** se a conversa DESENHOU arquitetura nova (definindo projeto/plugin/area, nao fechando sprint), as acoes sao HIPOTESES FUTURAS — registre enxuto (1-2 essenciais) na lista "Ficou em aberto", nao despeje 5+ itens que viram ruido.
+- **Acoes / compromissos:** ficam SO como registro na lista "Ficou em aberto" (Fase 4). Nunca crie task no ClickUp nem evento no Calendar.
+- **Sessoes Claude paralelas (1.0b):** default seguro automatico — commite so os exclusivos, deixe os compartilhados pendentes, mencione no resumo (Fase 4).
+- **Repos paralelos (1.0c):** commit autonomo por repo, sem push. Push fica sempre manual — liste no resumo (Fase 4).
+- **Pausa por correcoes recorrentes:** se houve 2+ ciclos de correcao no MESMO artefato (dossie, plano, proposta, deck) — sinal de que o entendimento ainda nao fechou — salve o contexto bruto MAS nao trate como resolvido. Sinalize no topo do resumo (Fase 4): "⚠ N ciclos de correcao em [artefato] — salvei o contexto, mas isso merece aprofundar numa proxima sessao."
+- **Ja executado durante a conversa:** se outra skill (ex: `/pique:bom-dia`) ja salvou algo nesta sessao, NAO duplique. Sinalize no resumo: "Ja executado durante a conversa — nada pendente."
 
-### Cerebro — Criar
-- [novo-arquivo.md] em [pasta/] — [descricao curta]
-
-### Trilho — fechar item + log (Fase 1.8)
-- Item do HOJE a fechar: [titulo] → `[x]` + log como **P** (ou: "trabalho ad-hoc [titulo] → log como **E**")
-- (ou "Nenhum — conversa operacional, sem item de trilho")
-
-### Acoes identificadas (so registro — NAO crio task)
-- [Acao com verbo] → [responsavel] | [prazo se tem]
-- [Acao com verbo] → [responsavel] | [prazo se tem]
-(quer que alguma vire task no ClickUp? me peca — nao crio por padrao)
-
-### Git — Repos paralelos
-- [repo] — [N arquivos modificados, resumo do commit proposto]
-- [repo] — clean (sem trabalho a comitar)
-
-### Calendar — Eventos
-- [Evento] — [data, horario, participantes]
-
-### Sessao
-- Salvar como `sessoes/YYYY-MM-DD-HHMM-[tipo]-[descricao].md`? [Sim/Nao e por que]
-
-### Skill — ajuste de roteiro (regra-alavanca, Fase 1.7-ii)
-- [arquivo `.md` da skill no repo-fonte] — [passo a adicionar/mudar] (+ bump + reload)
-- (ou "Nenhum — nenhum feedback descreveu passo de skill")
-
-### Memory (preferencias Claude — Fase 1.7-i)
-- [regra de comportamento meu a salvar na memoria do agente]
-
-### Nada a fazer
-- [itens da conversa que NAO precisam de acao — listar brevemente pra transparencia]
-
-Posso executar?
-```
-
-**Regras do plano:**
-- Se uma secao esta vazia, escreva "Nenhum" — NAO omita a secao
-- Acoes ficam SO como registro no plano — nunca crie task no ClickUp sem o Henrique pedir explicitamente
-- NAO crie arquivo novo se ja existe um sobre o tema — atualize o existente
-- NAO salve sessao se a conversa foi curta/operacional (ex: "cria task X", "muda status Y")
-- Sessao so faz sentido pra brainstorms, reunioes, downloads mentais, analises longas
-- **Split em 2+ notas quando conversa cobre temas distintos:** se a conversa cobriu 2+ temas claramente separados (ex: fluxo de trabalho + permissoes ClickUp) E a nota unica estimada passaria de ~100 linhas, proponha 2 (ou N) notas menores no plano em vez de 1 doc denso. Cada nota deve ter tema coerente, nome de arquivo distinto. Alinha com regra dos 150 linhas do CLAUDE.md do cerebro e facilita referencia futura. O usuario decide — se preferir manter 1 nota, respeite.
-- **Brainstorm estrategico vs execucao de sprint:** se a conversa DESENHOU arquitetura nova (definindo projeto/plugin/area, nao fechando sprint), as acoes sao HIPOTESES FUTURAS. Liste enxuto (1-2 acoes essenciais), nao despeje 5+ itens que viram ruido no registro.
-- **Confirmar corte de escopo:** se o usuario cortar itens explicitamente no plano ("so isso", "corta essas X"), CONFIRME se Calendar e outros outputs tambem saem do escopo — nao presuma. Pergunta direta: "Corto Calendar/sessao/cerebro junto, ou mantenho?".
-- **Antever commit derivado da Fase 5 insight.** Se a conversa gerou dor/aprendizado concreto que vai virar insight de uso IA na Fase 5, antecipar no plano: linha "**Git:** provavel 1 commit se Fase 5 gerar insight em `conhecimento/produtividade/insights-uso-ia.md`". Evita contradicao entre "Git: nenhum commit" no plano e o edit que aparece na execucao.
-- **Pausa por correcoes recorrentes — DEFAULT muda.** Se durante a conversa houve 2+ ciclos de correcao no MESMO artefato (dossie, plano, proposta, deck) — sinal claro de "ainda nao fechou entendimento" — o DEFAULT do plano nao e seguir pra execucao completa. E **pausar pra aprofundar e salvar contexto**. Calendar e demais outputs ficam pra depois. Sinalize no topo do plano: "⚠ N ciclos de correcao em [artefato] detectados — proponho pausar pra fechar entendimento. Execucao fica pra proxima sessao."
-- **Git de repos paralelos e separado do cerebro.** Commits propostos em repos paralelos detectados pela 1.0c viram commits autonomos por repo, NAO juntos com o commit do cerebro. Cada repo tem seu proprio historico/versao. Se for plugin com `.claude-plugin/plugin.json` bumpado, resumo do commit cita a versao nova.
-
-ESPERE o usuario revisar e aprovar antes de continuar.
+Va direto pra Fase 3.
 
 ---
 
 ## Fase 3: Execucao
 
-Apos aprovacao, execute na ordem:
+Execute na ordem (sem pedir aprovacao — as decisoes ja foram tomadas na Fase 2):
 
 ### 3.1 Atualizar arquivos existentes
-- Edite os arquivos conforme o plano
+- Edite os arquivos conforme as decisoes da Fase 2
 - Mantenha o formato e template padrao do cerebro
 
 ### 3.2 Criar arquivos novos
 - Use o template padrao do CLAUDE.md
 - Atualize `_mapa.md` com a nova entrada
 
-### 3.3 Google Calendar
-- Crie eventos no calendario Pique Agenda (a menos que seja pessoal)
-- Adicione participantes como convidados
-- Inclua pauta/contexto na descricao
-
-### 3.4 Salvar sessao
-- Se aprovado no plano, crie o arquivo de sessao com template padrao
+### 3.3 Salvar sessao
+- Se a Fase 2 decidiu salvar, crie o arquivo de sessao com template padrao
 - Inclua: contexto, conteudo principal, decisoes, relacionados
 
-### 3.4b Fechar item do trilho + log do feito (se Fase 1.8 detectou)
+### 3.3b Fechar item do trilho + log do feito (se Fase 1.8 detectou)
 
 **Fechar no `TAREFAS.md` (`## HOJE`):**
 - Item trabalhado: `[~]`/`[ ]` → `[x]`.
@@ -248,26 +203,27 @@ Apos aprovacao, execute na ordem:
 
 **Item nao-feito** (sessao parou no meio): deixa `[~]` no HOJE (o `/boa-noite` decide devolver ao RESTO). Nao loga incompleto.
 
-### 3.5 Salvar memory / ajustar skill (regra-alavanca, Fase 1.7)
+### 3.4 Salvar memory / ajustar skill (regra-alavanca, Fase 1.7)
 - **Feedback (i) comportamento meu:** salve na memoria do agente (padrao auto-memory + linha no `MEMORY.md`).
-- **Feedback (ii) passo de skill:** NAO salva em memoria — aplique o **Edit no `.md`-fonte da skill** (repo do plugin) conforme a secao "Skill — ajuste de roteiro" do plano, faca o **bump de versao** no `.claude-plugin/plugin.json` e registre na Fase 4 os comandos `/plugin marketplace update` + `/reload-plugins`. O commit desse repo segue pela Fase 3.6b (repos paralelos).
+- **Feedback (ii) passo de skill:** NAO salva em memoria — aplique o **Edit no `.md`-fonte da skill** (repo do plugin) conforme a Fase 1.7, faca o **bump de versao** no `.claude-plugin/plugin.json` e registre na Fase 4 os comandos `/plugin marketplace update` + `/reload-plugins`. O commit desse repo segue pela Fase 3.5b (repos paralelos).
 
-### 3.6 Commit do cerebro
+### 3.5 Commit do cerebro
 - Verifique se ha mudancas pendentes no git (arquivos modificados ou novos)
 - Se houver, faca commit com mensagem descritiva: `cerebro: [resumo curto do que mudou]`
-- Inclua TODOS os arquivos alterados/criados nesta conversa
+- Inclua TODOS os arquivos alterados/criados nesta conversa — MENOS os compartilhados com edits de terceiros (1.0b), que ficam pendentes
 - Se nao houver mudancas pendentes, pule este passo
 
-### 3.6b Commits em repos paralelos (se Fase 1.0c detectou)
-- Para cada repo paralelo aprovado no plano da Fase 2, rode `git -C "<path>" status` confirmando estado
+### 3.5b Commits em repos paralelos (se Fase 1.0c detectou)
+- Para cada repo paralelo detectado na Fase 1.0c, rode `git -C "<path>" status` confirmando estado
 - Faca commit AUTONOMO em cada repo (nao agrupar com cerebro)
 - Mensagem segue convencao do repo de destino:
   - `plugin-pique`/`plugin-social-media`/`plugin-whatsapp` → `feat: <resumo>` ou `vX.Y.Z: <resumo>` se bumpou `.claude-plugin/plugin.json`
   - `pique-apresentacoes`/`pique-consultoria-hub` → seguir padrao do `git log` mais recente do repo
+- So comite o que ESTA conversa tocou. Arquivo M/?? de outra sessao fica pendente — nao arraste.
 - NAO faca push automatico — pode ter trabalho de outras sessoes ainda em curso. Liste o `git push` necessario na Fase 4 pro usuario decidir.
 - Se for plugin com bump de versao, lembre na Fase 4 dos comandos `/plugin marketplace update` + `/reload-plugins`.
 
-### 3.7 Registrar telemetria enriquecida
+### 3.6 Registrar telemetria enriquecida
 
 Registra 1 linha JSONL com metadata desta conversa em `~/.claude/telemetria/chats-enriquecidos.jsonl`. E o que alimenta `/pique:tempo` e a fase 1.5 do `/pique:review-semanal`.
 
@@ -324,26 +280,33 @@ Se o append falhar (permissao, disco), silenciar — nao bloqueia o encerrar. Ap
 
 ---
 
-## Fase 4: Confirmacao final
+## Fase 4: Confirmacao final (o fim — sem pergunta)
 
-Apresente resumo do que foi feito:
+Apresente o resumo do que FOI feito. Termina aqui — NAO faca nenhuma pergunta, NAO peca confirmacao. O Henrique nao precisa responder nada.
 
 ```
 ## Encerrado
+[⚠ avisos do topo, se houver: /inbox em paralelo, sessoes paralelas, ciclos de correcao]
 
-**Cerebro:**
-- Atualizado: [lista]
-- Criado: [lista]
+**Salvei:**
+- Cerebro — atualizado: [lista] | criado: [lista]
+- Sessao: [salva como ... / nao necessario]
+- Memory: [regra salva / ajuste de skill aplicado / nada]
+- Git: [commit feito no cerebro / nada pendente]
+- Repos paralelos: [N commits em <repos> | nada]
 
-**Calendar:** [X eventos criados]
-**Sessao:** [salva/nao necessario]
-**Git:** [commit feito / nada pendente]
-**Repos paralelos:** [N commits em <repos> | nada detectado]
-  - Push pendente em: <repo1> <repo2>  (rode manual se quiser sincronizar)
-  - Plugin bumpado: rodar `/plugin marketplace update <marketplace>` + `/reload-plugins`
+**Ficou em aberto** (eu nao crio — voce pede quando precisar):
+- Tasks: [acao → quem | prazo]  (ou "nenhuma")
+- Compromissos: [evento → data, participantes]  (ou "nenhum")
 
-Tudo atualizado. Pode fechar esse chat.
+**Pendencias manuais:**
+- Push em: <repo1> <repo2>  (rode se quiser sincronizar)
+- Plugin bumpado: rodar `/plugin marketplace update <marketplace>` + `/reload-plugins`
+
+Tudo guardado. Pode fechar o chat.
 ```
+
+Se uma secao nao tem nada, escreva "nenhum"/"nada" — nao omita (transparencia).
 
 ---
 
@@ -397,20 +360,20 @@ Categorias:
 
 ## Regras
 
-- NAO execute nada sem aprovacao do plano (Fase 2).
-- Se a conversa foi puramente operacional (ex: "muda status da task"), o plano vai ser minimo — e ta certo. Nao invente acoes desnecessarias.
-- Se a conversa ja executou tudo durante o fluxo (ex: usou `/pique:bom-dia` que ja salva diario), sinalize no plano: "Ja executado durante a conversa — nada pendente."
-- Quando em duvida se algo deve ser salvo, inclua no plano com "[?] — vale salvar?" pra o usuario decidir.
+- **Execute direto apos as decisoes da Fase 2** — sem mostrar plano, sem pedir aprovacao. Nada aqui sai pra fora nem mexe com terceiro; tudo e local e reversivel por git (push fica sempre manual).
+- Se a conversa foi puramente operacional (ex: "muda status da task"), o processamento vai ser minimo — e ta certo. Nao invente acoes desnecessarias.
+- Se a conversa ja executou tudo durante o fluxo (ex: usou `/pique:bom-dia` que ja salva diario), sinalize no resumo final: "Ja executado durante a conversa — nada pendente."
+- Quando em duvida se algo vale salvar, decida com o teste "isso eu descubro lendo o cerebro/codigo depois?" — NAO jogue a duvida pro Henrique.
 - NAO duplique informacao. Se algo ja foi salvo por outra skill na mesma conversa, nao salve de novo.
 - Comunique-se em portugues brasileiro, direto e sem formalidade.
 
 ## Auto-avaliacao (executar sempre ao final)
 
 Avalie a execucao com base nestas perguntas:
-1. O plano classificou corretamente o que salvar vs descartar?
+1. A classificacao da Fase 2 acertou o que salvar vs descartar?
 2. Houve duplicacao com algo ja salvo por outra skill na conversa?
-3. Alguma acao relevante da conversa ficou de fora do plano?
-4. Conversas puramente operacionais geraram plano minimo (sem acoes inventadas)?
+3. Alguma acao relevante da conversa ficou de fora do registro?
+4. Conversas puramente operacionais geraram processamento minimo (sem acoes inventadas)?
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
