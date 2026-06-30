@@ -83,6 +83,7 @@ Com o evento do Calendar + conteudo do Gemini, preencha automaticamente:
 - **Qual reuniao:** nome do evento
 - **Quem estava:** attendees do evento
 - **Data:** data do evento
+- **Proveniencia (registro de segunda-mao):** se o email do Henrique NAO esta nos attendees, marcar `henrique_presente = false`. Isso ativa o modo registro-de-segunda-mao: documenta a reuniao pro acervo Pique, mas (a) poe no header da sessao "Henrique nao presente — registro a partir das anotacoes do Gemini"; (b) **pula o gate de atribuicao de fala** (Fase 3.1b); (c) nao cria task com o Henrique como dono sem ele confirmar. Usado quando o `/boa-noite` delega reuniao que o Henrique nao participou.
 
 Pule a Fase 1 e va direto pra Fase 2.
 
@@ -115,6 +116,8 @@ Consulte `_mapa.md` e busque:
 - Tem sessao de reuniao anterior com os mesmos participantes?
 - Tem decisoes pendentes que podem ter sido resolvidas?
 
+**Nao-duplicar (gate):** antes de criar sessao nova, **grep em `pique/sessoes/` (e `sessoes/`) por (data + slug do titulo)**. Se ja existe sessao OU doc de prep dessa mesma reuniao → **ATUALIZAR o existente, nao criar duplicata** (registra so o delta). Critico quando o `/boa-noite` delega: a reuniao pode ja ter sido documentada manualmente.
+
 ### 2.2 ClickUp
 
 Consulte `pique/infra/clickup-setup.md` para IDs.
@@ -140,6 +143,10 @@ Classifique automaticamente:
 
 Quando o usuario colar a transcricao:
 
+### 3.0 Descartar ruido pre-reuniao (Meet/celular com microfone aberto)
+
+Transcricao de Meet/celular costuma capturar audio solto ANTES da reuniao comecar (conversa paralela, futebol, WhatsApp). Se o inicio e tematicamente desconexo do titulo/participantes E ha um ponto claro onde a reuniao arranca (saudacoes, entrada de participante remoto, leitura de pauta), **descartar o trecho `[00:00–XX:XX]` e processar so dali**. Sinalizar: "descartei [00:00–XX:XX] como ruido pre-reuniao". Na duvida, manter — nao cortar conteudo de reuniao real.
+
 ### 3.1 Cruzar com contexto existente
 
 Para cada informacao na transcricao, classifique:
@@ -150,7 +157,7 @@ Para cada informacao na transcricao, classifique:
 
 ### 3.1b Confirmar atribuicao de falas ambiguas (gate)
 
-**Trigger:** transcricao multi-speaker SEM speaker labels (celular gravando presencial, microfone ambiente, audio de Meet sem diarizacao) E reuniao com 2+ participantes.
+**Trigger:** transcricao multi-speaker SEM speaker labels (celular gravando presencial, microfone ambiente, audio de Meet sem diarizacao) E reuniao com 2+ participantes. **PULAR este gate** se `henrique_presente = false` (modo registro-de-segunda-mao, Fase 0.3): o Henrique nao estava na reuniao, nao ha narrativa dele pra separar de dor de prospect — documentar fiel ao que o Gemini ja rotulou.
 
 Antes de extrair dores/fatos/decisoes, liste 5-10 frases estruturantes da transcricao (as que carregam dor, decisao, ou auto-narrativa) e pergunte ao usuario:
 
@@ -264,6 +271,8 @@ Posso executar?
   Task: "Validar perfil [?] (transcricao: 'Yamadu' — bater com Yabadoo?)"
   ```
   Confirmar com o usuario antes de criar a task. Nao assumir que o transcrito e canonico so porque aparece escrito.
+
+- **Resolver o dono antes de cravar assignee (`resolve_member`).** Antes de propor o assignee de cada task, rodar `resolve_member` no dono designado. Se NAO resolver (membro novo / guest sem acesso — ex: alguem que comecou essa semana), NAO atribuir silenciosamente: gerar task de onboarding "Adicionar [nome] ao ClickUp" + marcar o assignee como temporario (ex: Marco) na proposta, sinalizando. Conecta com a regra do guest sem acesso a list.
 
 ESPERE o usuario revisar e aprovar antes de continuar.
 
