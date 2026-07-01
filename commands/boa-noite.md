@@ -107,6 +107,12 @@ Agrupar commits por repo. Limitar output a 20 linhas por repo (mais que isso = d
 **Se ausente/`false` (estado ATUAL — a flag so liga depois que o Henrique validar o app v2.1.0 ao vivo / E2E):** imprimir 1 linha e seguir — **nao ler, nao quebrar, nao perguntar**:
 `> TRANSCRIB: nao conectado (flag off) — timeline do dia vem do diario + telemetria. (slot reservado)`
 
+**MAS — mesmo com flag off, checar exports MANUAIS.** O Henrique pode exportar os `.md` na mao pra `inbox/yabadoo-desktop/` (ponte ate a integracao ligar). Dar um `ls inbox/yabadoo-desktop/*.md` (barato). Se houver arquivos, **classificar cada um** (grep em `pique/sessoes/` + `sessoes/` por data+slug) e guardar `transcrib_manual[]` pra apresentar na Fase 2:
+- **destilado** (ja tem ata/doc) → redundante → marcar pra excluir (5.2c)
+- **nao-destilado** (sessao/nota sem ata) → candidato a documentar (5.2c)
+- **bruto-clipboard / pessoal-trivial** → frio pro `/inbox` ou descarte
+NAO processar aqui — so detectar (radar) e sinalizar: "N exports manuais no inbox/yabadoo-desktop/ — documentar agora ou deixar pro /inbox?".
+
 **Se `true` (futuro) — DETECTAR a fila, NAO reimplementar o export.** O app ja encapsula a destilacao em `processor.exportar_dia_no_cerebro()` (escreve os `.md` do dia em `inbox/yabadoo-desktop/` e **so entao** chama `marcar_exportadas()` — dois-passos atomico e idempotente, ja no codigo). O boa-noite e RADAR: aqui ele so **detecta a fila** — ler a contagem de `notas_manager.nao_exportadas()` (quantas pendentes; quantas sao `nota`/`sessao` vs bruto) — e guarda pra apresentar na Fase 2. A leitura/escrita pesada e DELEGADA ao Export na Fase 5.2c. **O bruto-do-dia (clips de clipboard) NAO entra na destilacao** (decisao do Henrique): so notas+sessoes contam pro review/diario; o bruto fica como arquivo frio no inbox pro `/inbox` garimpar depois.
 
 ### 1.8 Reunioes do Meet (deteccao — sempre roda, barato)
@@ -342,7 +348,13 @@ Fecha o ciclo do dia no `TAREFAS.md` + `log-do-feito.md`. **Re-Read o `## HOJE` 
 
 ### 5.2c Zerar o TRANSCRIB (delegar o Export) — atras da flag
 
-**Se flag `transcrib_conectado` off (estado ATUAL): no-op + 1 linha** (ver 1.7). Nao tentar ler/escrever nada.
+**Se flag `transcrib_conectado` off (estado ATUAL):** o Export automatico e no-op (nao ha app pra disparar). **MAS se a 1.7 detectou `transcrib_manual[]`** (exports feitos a mao) E o Henrique aprovou tratar na 2.2, aplicar a **regra de limpeza do desktop** — **dois-passos sempre** (destino escrito ANTES de apagar o bruto):
+- **destilado** (ja tem ata) → **excluir o bruto** (a ata ja e o destino; nao deixar redundante acumulando no inbox).
+- **nao-destilado destilavel** (sessao/nota) → **documentar** (ata em `pique/sessoes/`, aplicando sensibilidade — **Nivel B** se tocar salario/fiscal/feedback-de-pessoa/familia) → **so entao excluir** o bruto. Se e sensivel e o escopo do que entra nao esta claro, **segurar o bruto e perguntar** (nunca apagar sensivel sem confirmar).
+- **bruto-clipboard cru / pessoal-trivial** → frio pro `/inbox` OU descartar (pessoal fora do escopo profissional).
+- **Resíduo do Henrique** de qualquer sessao documentada aqui → rotear pro `TAREFAS.md` igual `/pos-reuniao` §5.3b (decisao→DECISOES, acao→SEMANA/RESTO, espera→AGUARDANDO; filtro anti-cemiterio).
+
+Se a flag esta off E **nao ha** export manual: 1 linha e seguir (ver 1.7). Nao tentar ler/escrever nada.
 
 **Se on (futuro) — DELEGAR ao app, NAO escrever/marcar a mao.** O metodo `processor.exportar_dia_no_cerebro()` ja faz o dois-passos atomico (escreve os `.md` do dia em `inbox/yabadoo-desktop/` E **so entao** `marcar_exportadas()`; idempotente). O boa-noite:
 1. **Dispara o Export** (via a forma que o app expoe — o "como" tecnico fica no doc do repo TRANSCRIB, nao aqui).

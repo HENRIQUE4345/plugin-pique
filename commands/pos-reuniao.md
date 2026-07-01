@@ -253,6 +253,10 @@ ESPERE resposta antes de prosseguir pra 3.2.
 **Calendar:**
 - Criar evento: [se aplicavel]
 
+**Trilho pessoal do Henrique (`TAREFAS.md`):**
+- [resíduo que exige DECISÃO/AÇÃO dele] → [§DECISÕES / SEMANA / RESTO / AGUARDANDO]
+- (ou: "Nenhum — nada que dependa só do Henrique")
+
 Posso executar?
 ```
 
@@ -326,6 +330,17 @@ Crie `sessoes/YYYY-MM-DD-HHMM-[tipo]-[descricao].md` com template padrao:
 - Crie tasks seguindo as regras do CLAUDE.md
 - Se alguma task existente foi resolvida na reuniao, proponha mover para "Finalizado"
 - Se alguma task existente ganhou contexto novo, atualize a descricao
+
+### 5.3b Rotear resíduo do Henrique pro trilho pessoal
+
+O ClickUp (5.3) recebe as entregas da EQUIPE (a Carol gere). O que sobra que depende **do Henrique** — decisão que só ele toma, ação dele, ou espera de terceiro — NÃO vive no ClickUp; vive no `TAREFAS.md` (trilho pessoal, raiz do cerebro). Sem este passo, a decisão fica presa na ata e se perde (era o gap: a reunião virava ata + tasks de equipe, mas nada alimentava o trilho dele).
+
+Das **Decisões** + **Pendências** (Fase 3.2), separe o **resíduo do Henrique** e roteie cada um pro lugar certo, apontando a ata como fonte:
+- **Decisão que só ele toma** → `## DECISÕES`
+- **Ação dele com prazo** → `## SEMANA` (se é desta semana) ou `## RESTO`
+- **Ele esperando terceiro** → `## AGUARDANDO`
+
+**Filtro anti-cemitério (crítico):** só entra o que exige **ação/decisão dele**. Informação, entrega de equipe (já foi pro ClickUp em 5.3) e o que já foi resolvido **NÃO viram item** — ficam só na ata. Se a reunião gerou muitas decisões dele, consolide num **item-âncora único** apontando pra ata (não espalhe 10 linhas — o próprio Henrique rejeita "lotar de tarefa, senão vira cemitério"). **Não duplicar** com o ClickUp (equipe) nem com o `AGUARDANDO` existente.
 
 ### 5.4 Google Calendar
 
