@@ -119,7 +119,11 @@ Busque `sessoes/*-review-semanal-<user_name>.md` mais recente (semana passada). 
 
 ### 1.10 Insights de uso IA da semana
 
-Leia `conhecimento/produtividade/insights-uso-ia.md` (se existir). Filtre entradas dos ultimos 7 dias pelo header `### YYYY-MM-DD HH:MM`.
+Leia DOIS docs (se existirem) e junte as entradas:
+- `conhecimento/produtividade/insights-uso-ia.md` — insights pessoais do teu workflow.
+- `pique/conhecimento/produtividade/insights-operacao-pique.md` — insights de operacao Pique, COMPARTILHADO com o Marco (skill/agent/automacao promoviveis pro plugin). Se o cwd JA e o cerebro-pique, o path e `conhecimento/produtividade/insights-operacao-pique.md`.
+
+Filtre entradas dos ultimos 7 dias pelo header `### YYYY-MM-DD HH:MM`. Os insights do doc compartilhado podem ter vindo do Marco — sao candidatos diretos a virar skill nova no plugin.
 
 Agrupe por Categoria (automacao/skill/agent/contexto/workflow). Destaque padroes RECORRENTES — mesma **Acao sugerida** (ou muito similar) aparece em 2+ chats na semana. Ignore insights unicos da semana (ficam acumulando pra virar recorrentes em semanas futuras).
 

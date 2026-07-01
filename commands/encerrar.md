@@ -339,7 +339,7 @@ Se identificar algo evidenciado:
 **Categoria:** [automacao | skill | agent | contexto | workflow]
 ```
 
-2. Anexe em `conhecimento/produtividade/insights-uso-ia.md` neste formato (no final do arquivo, apos `## Entradas`):
+2. Anexe a entrada (no final do arquivo alvo, apos `## Entradas`) neste formato:
 ```
 ### YYYY-MM-DD HH:MM — [tema curto da conversa]
 **Padrao observado:** [1 frase]
@@ -347,7 +347,15 @@ Se identificar algo evidenciado:
 **Categoria:** [uma das 5]
 ```
 
-Se o arquivo nao existe ainda, crie com cabecalho padrao do cerebro (template em CLAUDE.md do cerebro) e adicione a entrada inicial.
+**Roteamento por categoria — escolha o arquivo alvo:**
+
+- Se `Categoria ∈ {skill, agent, automacao}` (insight promovivel pro plugin-pique — vale pros dois socios): apende no **doc compartilhado da Pique**. Resolva o path pelo cwd (mesmo teste da Fase 0.3 do `/pique:sincronizar`):
+  - Se existe subpasta `pique/` no cwd (cerebro pessoal com submodule): `pique/conhecimento/produtividade/insights-operacao-pique.md`.
+  - Se o cwd JA e o cerebro-pique (nao ha `pique/` abaixo e `git remote` aponta pra `cerebro-pique`): `conhecimento/produtividade/insights-operacao-pique.md`.
+  - Esse arquivo viaja pros dois via `/pique:sincronizar` (esta dentro do submodule).
+- Se `Categoria ∈ {contexto, workflow}` (dor pessoal do teu proprio workflow, nao vira skill do plugin): apende no **doc pessoal local de sempre**: `conhecimento/produtividade/insights-uso-ia.md` (raiz do cerebro aberto). Sem mudanca de comportamento.
+
+Se o arquivo alvo nao existe ainda, crie com cabecalho padrao do cerebro (template em CLAUDE.md do cerebro) e adicione a entrada inicial.
 
 Categorias:
 - **automacao** — script, cron, RemoteTrigger
