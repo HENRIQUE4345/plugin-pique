@@ -624,6 +624,17 @@ def main():
     warnings = []
     repos, outside_files = classify_files(files, cerebro_root, warnings)
 
+    # Caso submodule-only (edita so docs do pique/): nenhum arquivo do super-repo
+    # foi tocado, entao classify_files nao criou o RepoWork "super". Mas commitar o
+    # submodule muda o gitlink -> o super PRECISA bumpar o ponteiro, senao fica com
+    # 'M pique' pendente (a sujeira que a obra elimina). Cria o super so pro bump.
+    has_submodule = any(rw["role"] == "submodule" for rw in repos.values())
+    has_super = any(rw["role"] == "super" for rw in repos.values())
+    if has_submodule and not has_super:
+        cerebro_top = git_toplevel(cerebro_root)
+        if cerebro_top:
+            repos[normp(cerebro_top)] = new_repowork(cerebro_top, "super")
+
     for rw in repos.values():
         enrich_repo(rw)
 
