@@ -235,7 +235,12 @@ def derive_commits(cwd, first_ts, warnings):
     if not cwd or not first_ts or not os.path.isdir(cwd):
         return []
     try:
-        since = first_ts.replace("Z", "").split(".")[0]
+        # mantem o 'Z' (marcador UTC) — sem ele, git interpreta --since como horario
+        # LOCAL do sistema, deslocando o filtro pelo offset do fuso (bug real: commits
+        # feitos ate ~3h depois do first_ts real ficavam excluidos em UTC-3).
+        since = first_ts.split(".")[0]
+        if not since.endswith("Z"):
+            since += "Z"
         proc = subprocess.run(
             ["git", "log", f"--since={since}", "--pretty=%h"],
             cwd=cwd, capture_output=True, text=True, timeout=5,
