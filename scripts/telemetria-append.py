@@ -200,12 +200,27 @@ def derive_from_transcript(transcript_path, warnings):
                         for block in content:
                             if isinstance(block, dict) and block.get("type") == "text":
                                 texts.append(block.get("text", ""))
+                    # texto real do usuario vence; se o turno so tem tags (ex: sessao
+                    # aberta direto com um slash-command puro), cai no nome do comando
+                    # extraido de <command-name> em vez de pular o turno e perder o inicio.
+                    real = None
+                    cmd = None
                     for t in texts:
                         stripped = t.strip()
-                        if not stripped or stripped.startswith("<"):
+                        if not stripped:
                             continue
-                        primeiro_prompt = stripped[:200]
+                        if stripped.startswith("<"):
+                            if cmd is None:
+                                m = re.search(r"<command-name>\s*(.*?)\s*</command-name>", stripped, re.DOTALL)
+                                if m and m.group(1).strip():
+                                    cmd = m.group(1).strip()
+                            continue
+                        real = stripped
                         break
+                    if real is not None:
+                        primeiro_prompt = real[:200]
+                    elif cmd is not None:
+                        primeiro_prompt = cmd[:200]
     except OSError as e:
         warn(warnings, f"erro lendo transcript: {e}")
         return result

@@ -103,7 +103,13 @@ def do_insights(payload, cerebro_root, dry_run):
     if payload["categoria"] not in CATEGORIAS_INSIGHT:
         err(3, f"categoria invalida: {payload['categoria']!r} (esperado um de {sorted(CATEGORIAS_INSIGHT)})")
 
-    target = os.path.join(cerebro_root, "conhecimento", "produtividade", "insights-uso-ia.md")
+    # roteamento por categoria (regra do proprio doc compartilhado):
+    #   skill/agent/automacao -> insights-operacao-pique.md (submodule pique/, viaja pros 2 socios)
+    #   contexto/workflow      -> insights-uso-ia.md (local, dor pessoal do workflow)
+    if payload["categoria"] in {"skill", "agent", "automacao"}:
+        target = os.path.join(cerebro_root, "pique", "conhecimento", "produtividade", "insights-operacao-pique.md")
+    else:
+        target = os.path.join(cerebro_root, "conhecimento", "produtividade", "insights-uso-ia.md")
     if not os.path.isfile(target):
         err(6, f"arquivo alvo nao existe: {target}")
 

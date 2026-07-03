@@ -7,7 +7,9 @@ Encerramento de conversa. Processa tudo que foi discutido e distribui para os lu
 
 ## Ferramentas
 
-Esta skill NAO executa nenhuma acao externa — nada que saia pra fora ou mexa com outra pessoa. Tudo que ela faz e local e reversivel por git: cerebro, sessao, memory, commit local, telemetria, log. Por isso ela roda sozinha ate o fim, SEM pedir "posso executar?".
+Esta skill NAO executa nenhuma acao externa que mexa com outra pessoa. Tudo que ela faz e local e reversivel por git — MENOS o `git push`, que agora e automatico dentro do commit (com abort-em-conflito, nunca resolve sozinho). Por isso ela roda sozinha ate o fim, SEM pedir "posso executar?".
+
+A **cauda mecanica** (deteccao multi-repo, commit+push, telemetria, appends nos 3 logs) foi movida pra 4 scripts Python permanentes em `${CLAUDE_PLUGIN_ROOT}/scripts/`. Voce so fornece o JULGAMENTO (o que salvar, onde, como classificar, a mensagem de commit); o script faz a parte deterministica e devolve 1 JSON no stdout — voce ramifica por ele.
 
 Acoes externas (task no ClickUp, evento no Calendar) viram so REGISTRO na lista "Ficou em aberto" do resumo final — quando o Henrique precisar, ele pede na hora.
 
@@ -22,110 +24,72 @@ Acoes externas (task no ClickUp, evento no Calendar) viram so REGISTRO na lista 
 
 ---
 
-## Regra dura: consultar `_mapa.md` ANTES de grep/glob
+## Contrato dos scripts (ler uma vez, vale pro fluxo todo)
 
-Antes de qualquer grep/glob procurando arquivo existente no cerebro, leia `_mapa.md` primeiro. O mapa indexa todos os arquivos por tema/pasta e resolve 90% das buscas em 1 leitura. Regra ja vive no CLAUDE.md do cerebro — esta skill DEVE segui-la na Fase 1 (secoes 1.2 e 1.5 que cruzam com o mapa, e qualquer outra varredura).
+Todos os 4 scripts vivem em `${CLAUDE_PLUGIN_ROOT}/scripts/`, emitem **1 linha JSON no stdout** (o produto — voce ramifica por ela, NAO pelo exit code) e nunca abortam a sessao. Chamada padrao via Bash: `python "${CLAUDE_PLUGIN_ROOT}/scripts/<nome>.py" ...`.
+
+- **`--payload`**: passe o JSON inline entre **aspas simples** (`--payload '{"tema":"..."}'`). Se o conteudo tiver aspas simples (apostrofo), monte o JSON num arquivo com o Write tool e passe `--payload - < arquivo.json`.
+- **`--session-id`**: obrigatorio em `commit-cerebro`, `telemetria-append` e (recomendado) `append-log`. Pegue na **Fase 0**.
+- **Status que sao SUCESSO, nao erro:** `dedup_skip`, `merged`, `created`, `noop`, `dry_run`. Se vier um desses, NAO repita a chamada.
+- Se `${CLAUDE_PLUGIN_ROOT}/scripts/` nao existir → **modo degradado** (ver secao final "Fallback").
+
+---
+
+## Fase 0: descobrir o session_id (primeiro de tudo)
+
+Seu `session_id` foi injetado no contexto no inicio desta conversa pelo hook de abertura, na linha:
+
+```
+[telemetria] session_id=<uuid>
+```
+
+Ache essa linha e guarde o uuid — ele entra em todas as chamadas de script. Se a conversa passou por compact/resume, a linha pode ter reaparecido; qualquer ocorrencia serve (o id nao muda na mesma sessao).
+
+**Fallback (nao achou a linha — sessao antiga ou hook nao instalado):**
+```
+python "${CLAUDE_PLUGIN_ROOT}/scripts/session-info.py" list-active --cwd "<cwd atual>"
+```
+Cruze o `last_files`/`started` das sessoes vivas com os arquivos que ESTA conversa tocou pra identificar a sua. Em ultimo caso, opere em modo degradado (secao final).
 
 ---
 
 ## Fase 1: Varredura da conversa (automatico, NAO pergunte nada)
 
-### 1.0 Detectar interferencia do /inbox (CRITICO — fazer PRIMEIRO)
+### 1.0 Regra dura: consultar `_mapa.md` ANTES de grep/glob
+Antes de qualquer grep/glob procurando arquivo existente no cerebro, leia `_mapa.md` primeiro. Ele indexa tudo por tema/pasta e resolve 90% das buscas em 1 leitura. Vale nas secoes 1.2 e 1.5 (que cruzam com o mapa) e em qualquer varredura.
 
-Se `/inbox` rodou em paralelo ou antes na mesma sessao, arquivos que voce estava editando podem ter sido MOVIDOS/RENOMEADOS. Detecte antes de qualquer varredura:
+### 1.0b Mapa do que sera commitado (substitui a varredura manual multi-repo)
 
-1. Rode `git status` no cerebro
-2. Se ver arquivos DELETADOS em `inbox/contextos/*.md` E arquivos UNTRACKED em `sessoes/` ou `diarios/` com data de hoje → `/inbox` rodou
-3. Para cada arquivo deletado de `inbox/contextos/`, busque a contraparte em `sessoes/` (novo nome segue padrao `YYYY-MM-DD-HHMM-tipo-descricao.md`)
-4. **Ajuste referencias:** se voce ja editou um arquivo na conversa que foi movido, garanta que:
-   - Suas edicoes foram preservadas (elas seguem o arquivo pro novo lugar)
-   - Qualquer LINK pra ele em outros arquivos (CLAUDE.md, clickup-setup.md, outros docs) aponte pro NOVO caminho
-   - As decisoes da Fase 2 usem o NOVO caminho, nao o antigo
-5. Sinalize no resumo final (Fase 4): "⚠ /inbox rodou em paralelo — arquivo X foi movido de inbox/contextos/ pra sessoes/"
+Antes era varredura manual de `git status` em cwd + submodule + 7 repos paralelos. Agora **um dry-run** te da o mapa completo:
 
-Nao comite mudancas do `/inbox` junto com as suas — elas sao de outra operacao. Comite APENAS o que esta conversa produziu.
+```
+python "${CLAUDE_PLUGIN_ROOT}/scripts/commit-cerebro.py" --session-id <sid> --message "dry" --dry-run
+```
 
-### 1.0b Detectar sessoes Claude paralelas editando arquivos compartilhados (CRITICO — fazer logo apos 1.0)
+O JSON traz, por repo (`submodule` pique / `super` MEU-CEREBRO / `parallel` plugin-pique etc / `outside`):
+- `claimed` — arquivos que ESTA sessao tocou nesse repo (do manifest de touches dos hooks).
+- `shared_blocked[]` — compartilhados (`_mapa.md`, `TAREFAS.md`, `melhorias-plugin.md`, `log-do-feito.md`, `_tasks-*.md`...) que uma **sessao-irma viva** tambem tocou → o script NAO vai comitar (conservador). Cada um traz as `sessions` que colidem.
+- `unclaimed_dirty[]` — arquivos sujos no repo que NINGUEM reivindicou (nem os touches, nem `--files`). **Julgue cada um:** e desta conversa (o hook perdeu por algum motivo)? → some na lista de `--files` do commit real. NAO e seu (outra sessao)? → deixe, o script nao toca.
+- `outside[]` — arquivos/repos fora da allowlist (ex: repo de terceiro, sem origin) → so reportados, nunca comitados.
 
-Outras sessoes Claude rodando simultaneas no mesmo dia podem ter editado **arquivos compartilhados** (indexes, ledgers, logs, docs de acompanhamento) que tambem foram tocados nesta conversa. Comitar cegamente arrasta edits de terceiros sem contexto.
+Sessoes-irmas vivas voce tambem ve com `session-info.py list-active`. Guarde esse mapa: ele alimenta a decisao de `--files` na Fase 3.7 e os avisos da Fase 4.
 
-**Arquivos compartilhados tipicos (detectar):**
-- Indexes: `_mapa.md` (cerebro ou subpastas), `docs/_mapa.md` (hubs)
-- Ledgers de pendencias: `_pendencias-*.md`, `_tasks-*.md`
-- Logs de auto-avaliacao: `pique/infra/melhorias-plugin.md`
-- Tarefas locais: `TAREFAS.md`, `TASKS.md`
-- CLAUDE.md (global ou por pasta)
-
-**Deteccao:**
-1. Apos `git status`, separe arquivos em 2 grupos:
-   - **Exclusivos desta conversa** — arquivos que SO esta conversa tocou (gabaritos novos, docs novos, edits pontuais que voce fez)
-   - **Compartilhados com mudancas externas** — arquivos que voce editou MAS cujo conteudo atual tem linhas adicionadas por outra sessao (ex: `_pendencias-individuais.md` com tasks 14-21 Marcella + 28-33 Ellen + 22-27 Rosa, quando sua conversa so adicionou Rosa)
-2. Sinal pratico: se `git diff <arquivo>` mostra hunks que voce nao reconhece como suas, compartilhado.
-3. Confirmacao extra: sistem-reminders do tipo "File has been modified since read" durante a conversa sao sinal forte de edicao concorrente.
-
-**Decisao de commit (default seguro automatico — NAO pergunte):**
-- **Exclusivos** — commit normal, arquivo por arquivo ou agrupado por tema
-- **Compartilhados** (com edits de terceiros) — NAO comite. Deixe pendentes pra commit em lote quando as outras sessoes encerrarem. (Se precisar isolar so as suas hunks, `git add -p` resolve — mas o default e deixar pendente, mais seguro.)
-
-Sinalize no resumo final (Fase 4): "⚠ N sessoes Claude paralelas detectadas — X arquivos compartilhados tem edits de terceiros. Comitei apenas os exclusivos: [lista]. Compartilhados ficam pendentes: [lista]."
-
-**Evidencia do caso Rosa/19-04:** 3 sessoes simultaneas (`/plugin-pique:desenhar-individual marcella beco`, `/plugin-pique:desenhar-individual ellen beco`, `/plugin-pique:desenhar-individual rosa beco`) co-editaram `_pendencias-individuais.md` + `melhorias-plugin.md`. Detectei ad-hoc via `git status` em 4 repos + sistem-reminders de "File has been modified". Split seguro: commit dos exclusivos (gabarito rosa + edit plugin), compartilhados pendentes.
-
-### 1.0c Detectar edits em repos paralelos (CRITICO — fazer logo apos 1.0b)
-
-Sessoes que editam multi-repo (cada vez mais comum: cerebro + plugin + hub HTML simultaneo) podem deixar edits orfaos em repos PARALELOS — repos independentes em `C:\Users\Henrique Carvalho\Documents\PROGRAMAS\<repo>\` que NAO sao submodules do cwd nem aparecem em `git status` do cerebro. A 1.0/1.0b cobrem cwd + submodules; a 1.0c cobre o que esta fora.
-
-**Lista de repos paralelos a verificar (hardcoded, ampliar quando aparecerem):**
-- `plugin-pique`
-- `plugin-social-media`
-- `plugin-whatsapp`
-- `pique-apresentacoes`
-- `pique-consultoria-hub`
-- `marco-brain`
-- `yabadoo-brain`
-
-**Deteccao (mesmo padrao da Fase 3.6 — reutilizar, nao reinventar):**
-1. Localize o JSONL da sessao atual:
-   `ls -t ~/.claude/projects/c--Users-Henrique-Carvalho-Documents-PROGRAMAS-MEU-CEREBRO/*.jsonl | head -1`
-2. Para cada repo da lista, rode (via Grep tool no JSONL):
-   - pattern: `"name":"Edit"|"name":"Write"|"name":"NotebookEdit"`
-   - filtrando matches que contenham o nome do repo (ex: `plugin-pique`)
-   Se houver matches → esta sessao tocou esse repo.
-3. Para cada repo tocado, rode:
-   `git -C "C:/Users/Henrique Carvalho/Documents/PROGRAMAS/<repo>" status --short`
-4. Status sujo (M/D/?? ou `plugin.json` bumpado) = trabalho non-committed pendente.
-
-**Decisao de commit (automatico — NAO pergunte):**
-- Repo paralelo com edits desta sessao + status sujo → commit autonomo por repo na Fase 3.5b. Liste no resumo final (Fase 4).
-- Se for plugin (plugin-pique/social-media/whatsapp) e `.claude-plugin/plugin.json` foi bumpado → resumo do commit cita a versao nova.
-- Repos paralelos viram commits AUTONOMOS (cada um tem seu proprio historico/versao) — nao agrupar com commit do cerebro.
-- So comite o que ESTA conversa tocou nesse repo. Se houver M/?? que nao e seu (outra sessao), deixe pendente — nao arraste.
-- Se nada detectado, nao precisa mencionar.
-
-**Evidencia do caso plugin-pique/28-04:** sessao processou `melhorias-plugin.md` aplicando 12 pendentes mas nao detectou que 4 arquivos do plugin-pique (`precificar-plugin.md`, `ROADMAP.md`, `revisar-area.md`, `bom-dia.md`) + `.claude-plugin/plugin.json` bumpado 1.16.2 → 1.18.0 estavam non-committed de sessoes anteriores. Edits orfaos por dias ate auditoria manual. JSONL `d4c26081` registrou 19 Edits + 6 Writes em `plugin-pique` — Grep no JSONL pegaria isso.
+> **Nota /inbox:** se o `/inbox` rodou em paralelo, arquivos de `inbox/contextos/` podem ter sido movidos pra `sessoes/`. O dry-run mostra as renomeacoes em `unclaimed_dirty` (com `renamed_from`). Garanta que suas edicoes seguiram o arquivo e que LINKS pra ele (em outros docs) apontam pro novo path. NAO arraste os moves do /inbox pro seu commit — eles nao sao desta conversa.
 
 ### 1.1 Decisoes tomadas
-Qualquer "vamos fazer X", "nao vamos fazer Y", "decidimos que Z".
-Inclua o MOTIVO se mencionado.
+Qualquer "vamos fazer X", "nao vamos fazer Y", "decidimos que Z". Inclua o MOTIVO se mencionado.
 
 ### 1.2 Informacao nova
-Fatos, contextos, dados que nao existiam antes no cerebro.
-Cruze com `_mapa.md` — ja existe arquivo sobre esse tema?
+Fatos, contextos, dados que nao existiam antes no cerebro. Cruze com `_mapa.md` — ja existe arquivo sobre esse tema?
 
 ### 1.3 Acoes identificadas (so registro — NAO cria task)
-Acoes concretas que apareceram na conversa. Liste pra o Henrique nao perder o fio — mas NAO crie nem proponha criar task no ClickUp. Pra cada uma:
-- O que (verbo no infinitivo)
-- Quem (Henrique, Marco, outro)
-- Prazo (se mencionado)
-
-Quem decide o que vira task e o Henrique, manualmente. Vai pra lista "Ficou em aberto" (Fase 4). Se ele pedir explicitamente, ai sim use `/plugin-pique:planejar-tasks` ou o agent `gestor-clickup`.
+Acoes concretas que apareceram. Liste pra o Henrique nao perder o fio — mas NAO crie nem proponha task. Pra cada uma: o que (verbo no infinitivo), quem (Henrique/Marco/outro), prazo (se mencionado). Quem decide o que vira task e o Henrique. Vai pra "Ficou em aberto" (Fase 4).
 
 ### 1.4 Eventos / compromissos (so registro — NAO cria evento)
-Reunioes agendadas, prazos combinados, datas mencionadas. Liste pra o Henrique nao perder — mas NAO crie evento no Calendar. Vai pra lista "Ficou em aberto" (Fase 4); quando precisar, ele pede na hora.
+Reunioes, prazos, datas. Liste — mas NAO crie evento. Vai pra "Ficou em aberto" (Fase 4).
 
 ### 1.5 Atualizacoes em arquivos existentes
-Algo que foi discutido muda ou complementa um arquivo que ja existe no cerebro?
-Cruze com `_mapa.md`.
+Algo discutido muda ou complementa um arquivo que ja existe? Cruze com `_mapa.md`.
 
 ### 1.6 Conteudo de sessao
 A conversa em si tem valor como registro? (brainstorm, reuniao, download mental, analise)
@@ -133,38 +97,33 @@ A conversa em si tem valor como registro? (brainstorm, reuniao, download mental,
 ### 1.7 Feedback ou preferencias do usuario — **regra-alavanca**
 O usuario corrigiu algo, pediu pra mudar abordagem, ou expressou preferencia sobre como trabalhar?
 
-Pra CADA feedback, aplique o **discriminador** (regra-alavanca — alinha com o CLAUDE.md do cerebro: "regra que descreve passo-de-skill vai pro `.md` da skill, nao pra memoria"):
+Pra CADA feedback, aplique o **discriminador**:
+- **(ii) Passo de uma skill/ritual** — descreve COMO um ritual/skill deve se comportar (ex: "no boa-noite puxe X primeiro", "no encerrar nao faca Z"). → **edita o `.md` da skill** (repo-fonte) + bump + reload. NAO vira memoria passiva. Aplica na Fase 3.4 e lista no resumo.
+- **(i) Calibracao de comportamento meu** — regra geral de como respondo/calibro/evito vies, sem nomear passo de skill (tom, quando perguntar, nao concordar reflexo). → memoria do agente. Salva na Fase 3.4.
 
-- **(ii) Passo de uma skill/ritual** — o feedback descreve COMO um ritual/skill especifico deve se comportar (ex: "no boa-noite, sempre puxe X primeiro", "o /iniciar devia carregar Y", "no encerrar nao faca Z"). → **edita o `.md` da skill** (repo-fonte do plugin) + bump + reload. **NAO vira memoria passiva.** Aplica na Fase 3.4 e e listado no resumo final (Fase 4).
-- **(i) Calibracao de comportamento meu** — regra geral de como respondo/calibro/evito vies, sem nomear um passo de skill (ex: tom, quando perguntar, nao concordar reflexo). → memoria do agente. Salva na Fase 3.4.
-
-**Teste:** "da pra apontar QUAL arquivo `.md` e QUAL passo mudaria?" Sim → skill (ii). Nao → memoria (i). Em duvida entre os dois, prefira (ii) — feedback acionavel num roteiro e mais durável editado do que guardado.
+**Teste:** "da pra apontar QUAL `.md` e QUAL passo mudaria?" Sim → skill (ii). Nao → memoria (i). Em duvida, prefira (ii).
 
 ### 1.8 Item do trilho trabalhado?
 Esta sessao trabalhou um item do `## HOJE` do `TAREFAS.md` (raiz do cerebro)?
-
-- Read o `## HOJE`. Houve um item `[~]` (iniciado por `/iniciar`) ou `[ ]` que casa com o tema desta conversa? → e o item a **fechar** (planejada = **P**).
-- A conversa produziu trabalho substantivo que NAO estava no HOJE (apareceu no dia)? → e **eventualidade** (**E**), tambem vai pro log.
-- Conversa puramente operacional (1-2 acoes simples, sem bloco de trabalho real)? → nao loga, pula o passo de trilho (Fase 3.3b).
+- Read o `## HOJE`. Item `[~]` (iniciado por `/iniciar`) ou `[ ]` que casa com o tema → item a **fechar** (planejada = **P**).
+- Trabalho substantivo que NAO estava no HOJE (apareceu no dia) → **eventualidade** (**E**), tambem loga.
+- Conversa puramente operacional (1-2 acoes simples) → nao loga, pula 3.3b.
 
 ---
 
 ## Fase 2: Decisoes de encerramento (interno — NAO pergunte, NAO mostre plano, NAO espere)
 
-NAO existe mais checkpoint. Esta skill so faz acoes locais e reversiveis por git (cerebro, sessao, memory, commit local, telemetria, log) — nada sai pra fora nem mexe com outra pessoa. Por isso voce NAO apresenta um plano nem pede "posso executar?". Resolva as decisoes abaixo SOZINHO, com default seguro, e va DIRETO pra Fase 3. O que ficou decidido aparece no resumo da Fase 4 — depois de feito, nao como pedido de aprovacao.
+NAO existe checkpoint. Resolva as decisoes abaixo SOZINHO, com default seguro, e va DIRETO pra Fase 3. O que ficou decidido aparece no resumo da Fase 4 — depois de feito, nao como pedido de aprovacao.
 
-**Regras de decisao (aplicar sozinho):**
-
-- **Sessao:** salva se a conversa foi brainstorm / reuniao / download mental / analise longa. NAO salva se foi operacional curto (ex: "muda status X", "cria task Y"). Sem perguntar.
-- **Criar vs atualizar:** NAO crie arquivo novo se ja existe um sobre o tema — atualize o existente (cruze com `_mapa.md`).
-- **Em duvida se algo vale salvar:** decida com o teste "isso eu descubro lendo o cerebro/codigo depois?". Sim → descarta. Nao, e e duravel → salva. NAO jogue a duvida pro Henrique.
-- **Split em 2+ notas:** se a conversa cobriu 2+ temas claramente separados E a nota unica passaria de ~100 linhas, salve N notas menores (tema coerente, nome de arquivo distinto) em vez de 1 doc denso. Alinha com a regra dos 150 linhas do CLAUDE.md do cerebro. Default e 1 nota.
-- **Brainstorm estrategico vs execucao de sprint:** se a conversa DESENHOU arquitetura nova (definindo projeto/plugin/area, nao fechando sprint), as acoes sao HIPOTESES FUTURAS — registre enxuto (1-2 essenciais) na lista "Ficou em aberto", nao despeje 5+ itens que viram ruido.
-- **Acoes / compromissos:** ficam SO como registro na lista "Ficou em aberto" (Fase 4). Nunca crie task no ClickUp nem evento no Calendar.
-- **Sessoes Claude paralelas (1.0b):** default seguro automatico — commite so os exclusivos, deixe os compartilhados pendentes, mencione no resumo (Fase 4).
-- **Repos paralelos (1.0c):** commit autonomo por repo, sem push. Push fica sempre manual — liste no resumo (Fase 4).
-- **Pausa por correcoes recorrentes:** se houve 2+ ciclos de correcao no MESMO artefato (dossie, plano, proposta, deck) — sinal de que o entendimento ainda nao fechou — salve o contexto bruto MAS nao trate como resolvido. Sinalize no topo do resumo (Fase 4): "⚠ N ciclos de correcao em [artefato] — salvei o contexto, mas isso merece aprofundar numa proxima sessao."
-- **Ja executado durante a conversa:** se outra skill (ex: `/pique:bom-dia`) ja salvou algo nesta sessao, NAO duplique. Sinalize no resumo: "Ja executado durante a conversa — nada pendente."
+- **Sessao:** salva se foi brainstorm / reuniao / download mental / analise longa. NAO salva se foi operacional curto. Sem perguntar.
+- **Criar vs atualizar:** NAO crie arquivo novo se ja existe um sobre o tema — atualize (cruze com `_mapa.md`).
+- **Em duvida se vale salvar:** teste "isso eu descubro lendo o cerebro/codigo depois?". Sim → descarta. Nao, e e duravel → salva. NAO jogue a duvida pro Henrique.
+- **Split em 2+ notas:** se cobriu 2+ temas separados E a nota unica passaria de ~100 linhas, salve N notas menores. Default e 1 nota.
+- **Brainstorm estrategico vs execucao:** se DESENHOU arquitetura nova, as acoes sao HIPOTESES FUTURAS — registre enxuto (1-2) em "Ficou em aberto", nao despeje 5+ itens que viram ruido.
+- **Acoes / compromissos:** SO registro em "Ficou em aberto". Nunca task no ClickUp nem evento no Calendar.
+- **Compartilhados bloqueados / unclaimed (1.0b):** siga o mapa do dry-run — o script ja protege os shared com sessao-irma; voce so julga os `unclaimed_dirty`.
+- **Pausa por correcoes recorrentes:** se houve 2+ ciclos de correcao no MESMO artefato, salve o contexto MAS sinalize no topo do resumo: "⚠ N ciclos de correcao em [artefato] — merece aprofundar numa proxima sessao."
+- **Ja executado durante a conversa:** se outra skill (ex: `/pique:bom-dia`) ja salvou algo, NAO duplique. Sinalize: "Ja executado durante a conversa — nada pendente."
 
 Va direto pra Fase 3.
 
@@ -172,135 +131,129 @@ Va direto pra Fase 3.
 
 ## Fase 3: Execucao
 
-Execute na ordem (sem pedir aprovacao — as decisoes ja foram tomadas na Fase 2):
+Execute na ordem. **Regra de ouro da ordem:** TODO write (conteudo, logs, insight, auto-avaliacao, memory, skill) acontece ANTES do commit (3.7), pra entrar no mesmo commit. O commit vem depois de tudo escrito; a telemetria (3.8) vem depois do commit (pra capturar os SHAs). Nao pergunte aprovacao — as decisoes ja foram tomadas na Fase 2.
 
 ### 3.1 Atualizar arquivos existentes
-- Edite os arquivos conforme as decisoes da Fase 2
-- Mantenha o formato e template padrao do cerebro
+Edite conforme a Fase 2. Mantenha formato e template padrao do cerebro.
 
 ### 3.2 Criar arquivos novos
-- Use o template padrao do CLAUDE.md
-- Atualize `_mapa.md` com a nova entrada
+Use o template padrao do CLAUDE.md. Atualize `_mapa.md` com a nova entrada.
+> `_mapa.md` usa **forward slash** (`/`) sempre nos paths. Antes de montar um `old_string` pra editar, grep o trecho no arquivo real — nao copie o separador `\` do output do Read.
 
 ### 3.3 Salvar sessao
-- Se a Fase 2 decidiu salvar, crie o arquivo de sessao com template padrao
-- Inclua: contexto, conteudo principal, decisoes, relacionados
+Se a Fase 2 decidiu salvar, crie o arquivo de sessao com template padrao (contexto, conteudo, decisoes, relacionados).
 
-### 3.3b Fechar item do trilho + log do feito (se Fase 1.8 detectou)
+### 3.3b Fechar item do trilho + log-do-feito (se Fase 1.8 detectou)
 
-**Fechar no `TAREFAS.md` (`## HOJE`):**
-- Item trabalhado: `[~]`/`[ ]` → `[x]`.
-- Capture a hora local de fim `HH:MM` (Windows: `powershell -NoProfile -Command "Get-Date -Format HH:mm"`).
-- Se a linha tinha `(iniciada: HH:MM)` (carimbo do `/iniciar`): calcule duracao = fim − inicio e **substitua o sufixo** por `(HH:MM → HH:MM · Nmin)` (mesma mecanica do `/inc` Fase 7.1).
-- Se NAO tinha carimbo (ad-hoc/eventualidade): use melhor-esforco pra o inicio (1ª acao da sessao no historico) ou registre so o fim.
+**Fechar no `TAREFAS.md` (`## HOJE`):** item trabalhado `[~]`/`[ ]` → `[x]`. Capture a hora local de fim `HH:MM` (`powershell -NoProfile -Command "Get-Date -Format HH:mm"`). Se a linha tinha `(iniciada: HH:MM)`: calcule duracao e substitua o sufixo por `(HH:MM → HH:MM · Nmin)`. Sem carimbo: melhor-esforco pro inicio ou so o fim.
 
-**Anexar 1 linha no log:** `conhecimento/produtividade/log-do-feito.md`.
-- A secao e `## YYYY-MM` da **data de INICIO** do item (a coluna Data), nao do relogio agora — chat que vira o dia (inicio 23:50, /encerrar 00:10) loga no mes do inicio. **Grep se `## YYYY-MM` ja existe** antes de criar (idempotente); se nao, criar no topo das secoes de mes (mais recente primeiro).
-- Anexe a linha na tabela do mes: `| DD/MM | titulo curto | HH:MM–HH:MM | Nmin | Modo | P/E |`.
-  - **Modo** = etiqueta do item (Pensar/Produzir/Afiar).
-  - **P** se o item estava no HOJE (planejada); **E** se foi eventualidade.
-- Se a unica linha do mes for o placeholder vazio `| | | | | | |`, substitua-o; senao, append.
+**Anexar a linha no log** via script (resolve a fragilidade de ancora — nao edite o md na mao):
+```
+python "${CLAUDE_PLUGIN_ROOT}/scripts/append-log.py" feito --session-id <sid> \
+  --payload '{"data":"DD/MM","mes":"YYYY-MM","tarefa":"titulo curto","inicio_fim":"HH:MM–HH:MM","dur":"Nmin","modo":"Pensar|Produzir|Afiar","pe":"P|E"}'
+```
+- `mes` = mes da **data de INICIO** do item (chat que vira o dia loga no mes do inicio). O script acha/cria a secao `## YYYY-MM` e faz dedup por (data, tarefa).
+- `modo` = etiqueta do item; `pe` = **P** se estava no HOJE, **E** se foi eventualidade.
+- `dedup_skip` = ja logado, segue.
 
-**Item nao-feito** (sessao parou no meio): deixa `[~]` no HOJE (o `/boa-noite` decide devolver ao RESTO). Nao loga incompleto.
+**Item nao-feito** (parou no meio): deixa `[~]` no HOJE. Nao loga incompleto.
 
 ### 3.4 Salvar memory / ajustar skill (regra-alavanca, Fase 1.7)
-- **Feedback (i) comportamento meu:** salve na memoria do agente (padrao auto-memory + linha no `MEMORY.md`).
-- **Feedback (ii) passo de skill:** NAO salva em memoria — aplique o **Edit no `.md`-fonte da skill** (repo do plugin) conforme a Fase 1.7, faca o **bump de versao** no `.claude-plugin/plugin.json` e registre na Fase 4 os comandos `/plugin marketplace update` + `/reload-plugins`. O commit desse repo segue pela Fase 3.5b (repos paralelos).
+- **Feedback (i) comportamento meu:** salve na memoria do agente (auto-memory + linha no `MEMORY.md`).
+- **Feedback (ii) passo de skill:** NAO salva memoria — faca o **Edit no `.md`-fonte** (repo do plugin) conforme 1.7, faca o **bump** no `.claude-plugin/plugin.json` e registre na Fase 4 os comandos `/plugin marketplace update` + `/reload-plugins`. O commit desse repo sai no 3.7 (o script classifica plugin-pique como paralelo).
 
-### 3.5 Commit do cerebro
-- Verifique se ha mudancas pendentes no git (arquivos modificados ou novos)
-- Se houver, faca commit com mensagem descritiva: `cerebro: [resumo curto do que mudou]`
-- Inclua TODOS os arquivos alterados/criados nesta conversa — MENOS os compartilhados com edits de terceiros (1.0b), que ficam pendentes
-- Se nao houver mudancas pendentes, pule este passo
+### 3.5 Insight de uso IA (sempre — mas so escreve se houver evidencia CONCRETA)
 
-### 3.5b Commits em repos paralelos (se Fase 1.0c detectou)
-- Para cada repo paralelo detectado na Fase 1.0c, rode `git -C "<path>" status` confirmando estado
-- Faca commit AUTONOMO em cada repo (nao agrupar com cerebro)
-- Mensagem segue convencao do repo de destino:
-  - `plugin-pique`/`plugin-social-media`/`plugin-whatsapp` → `feat: <resumo>` ou `vX.Y.Z: <resumo>` se bumpou `.claude-plugin/plugin.json`
-  - `pique-apresentacoes`/`pique-consultoria-hub` → seguir padrao do `git log` mais recente do repo
-- So comite o que ESTA conversa tocou. Arquivo M/?? de outra sessao fica pendente — nao arraste.
-- NAO faca push automatico — pode ter trabalho de outras sessoes ainda em curso. Liste o `git push` necessario na Fase 4 pro usuario decidir.
-- Se for plugin com bump de versao, lembre na Fase 4 dos comandos `/plugin marketplace update` + `/reload-plugins`.
+Detecte UM padrao de COMO a conversa foi conduzida (nao o conteudo). Evidencia concreta de: prompt repetido 2+ vezes; transformacao manual que MCP/skill ja resolveria; correcao por falta de contexto pre-carregavel; handoff manual automatizavel; dor recorrente.
 
-### 3.6 Registrar telemetria enriquecida
+**Regra dura:** so gere se houver evidencia EVIDENCIADA nesta conversa. Sem padrao claro = nao escreva nada. NAO invente. Nao repita insight ja registrado em chat recente.
 
-Registra 1 linha JSONL com metadata desta conversa em `~/.claude/telemetria/chats-enriquecidos.jsonl`. E o que alimenta `/pique:tempo` e a fase 1.5 do `/pique:review-semanal`.
-
-**Passo 1 — localizar JSONL da sessao atual:**
-- Derive o slug do `cwd` atual (regras em `/pique:tempo` secao "Como ler": `\`, `/`, espaco -> `-`; `:` -> `--`).
-- Rode `ls -t ~/.claude/projects/<slug>/*.jsonl | head -1` pra pegar o arquivo mais recente (e a sessao em andamento).
-- Se a pasta-projeto nao existir ou estiver vazia: **PULE silencioso, nao quebre o encerrar.** Primeiro uso do cwd nunca teve JSONL antes de hoje.
-
-**Passo 2 — extrair dados do JSONL nativo** (usar `Grep`, nao `Read` integral):
-- `session_id`: do nome do arquivo ou do campo `sessionId` de qualquer linha
-- `first_ts`: `timestamp` da primeira linha com `"type":"user"`
-- `last_ts`: `timestamp` da ultima linha do arquivo
-- `modelos`: `message.model` distintos de linhas `"type":"assistant"`
-- `primeiro_prompt`: primeira ocorrencia de `message.content[*].text` no primeiro `"type":"user"` (pular `<ide_opened_file>` e `<command-name>` se houver, pegar o texto real)
-- `wall_seconds`: `last_ts - first_ts` em segundos. Aceitar que subestima 2-5s (o proprio encerrar ainda nao escreveu a linha final).
-
-**Passo 2.5 — extrair contexto operacional da sessao** (alimenta `/pique:continuar`):
-
-- `arquivos_tocados`: `Grep` no `<sessionId>.jsonl` por `"name":"Edit"`, `"name":"Write"`, `"name":"NotebookEdit"`. Extrair `input.file_path` de cada match. Normalizar pra path relativo ao `cwd` (strip prefixo). Dedup. Maximo 20 (truncar silencioso).
-- `diretorios`: dirname distinto dos `arquivos_tocados`. Dedup. Maximo 10.
-- `commits`: se `cwd` e repo git, rode `git -C "<cwd>" log --since="<first_ts>" --pretty=%h`. Pegue ate 10 SHAs curtos. Se `git` falhar ou nao for repo, `[]`.
-- `tags`: 2-4 palavras-chave curtas sobre o tema (reusa a classificacao da Fase 3). Ex: `["telemetria","comando","continuar"]`.
-
-Falha silenciosa em qualquer um: o campo vai como `[]`. Nao bloqueia o encerrar.
-
-**Passo 3 — Claude classifica (sem perguntar ao usuario):**
-Claude tem TODO o contexto da conversa que acabou de encerrar. Classifique direto:
-- `tema`: 3-5 palavras descrevendo do que a conversa tratou
-- `resumo`: 1 linha <= 120 caracteres
-- `categoria`: uma das 3 letras
-  - **A** = mecanico (tasks operacionais, comandos, consultas rapidas)
-  - **B** = processamento (refactor medio, analise, brainstorm com saida concreta, reviews)
-  - **C** = estrategico (decisao de rumo, arquitetura, planejamento, mudanca de produto)
-- `projeto`: ultima componente do `cwd` normalizada (ex: `MEU-CEREBRO`, `plugin-pique`)
-
-**Passo 4 — escrever 1 linha JSONL append em `~/.claude/telemetria/chats-enriquecidos.jsonl`:**
-
-Schema:
-```json
-{"ts":"<ISO UTC fim>","session_id":"<uuid>","cwd":"<cwd>","projeto":"<nome>","tema":"...","resumo":"...","categoria":"B","wall_seconds":1234,"modelos":["claude-opus-4-6"],"primeiro_prompt":"...","arquivos_tocados":["projetos/x.md","pique/infra/y.md"],"diretorios":["projetos/","pique/infra/"],"commits":["a1b2c3d"],"tags":["telemetria","comando"]}
+Se identificar algo, mostre ao usuario:
 ```
+[INSIGHT DE USO IA]
+**Padrao:** [1 frase — o que aconteceu]
+**Sugestao:** [1 frase concreta — skill X, agent Y, MCP Z, mudanca de processo]
+**Categoria:** [automacao | skill | agent | contexto | workflow]
+```
+E anexe via script (ele **roteia pelo categoria** — skill/agent/automacao vao pro doc compartilhado H+M `insights-operacao-pique.md`; contexto/workflow vao pro `insights-uso-ia.md` local):
+```
+python "${CLAUDE_PLUGIN_ROOT}/scripts/append-log.py" insights --session-id <sid> \
+  --payload '{"tema":"tema curto","padrao":"1 frase","acao":"1 frase concreta","categoria":"skill|agent|automacao|contexto|workflow"}'
+```
+`dedup_skip` = ja registrado, segue. `exit 6`/`ancora nao encontrada` = o doc alvo nao existe ainda; crie-o com o cabecalho padrao (incluindo a secao `## Entradas`) e repita.
 
-Campos `arquivos_tocados`, `diretorios`, `commits`, `tags` foram introduzidos no plugin-pique 1.6.0. Entradas anteriores nao tem esses campos — leitores devem tratar como `[]` quando ausente.
+### 3.6 Auto-avaliacao (sempre — mas so escreve se houver melhoria CONCRETA)
 
-**Como escrever a linha (obrigatorio via Python, NAO via `echo`):**
+Avalie a execucao: (1) a classificacao acertou o que salvar vs descartar? (2) houve duplicacao com algo ja salvo por outra skill? (3) alguma acao relevante ficou de fora? (4) conversa operacional gerou processamento minimo (sem acoes inventadas)?
 
-Montar a linha JSON com `python -c "import json, io; io.open(path, 'a', encoding='utf-8').write(json.dumps(obj, ensure_ascii=False) + chr(10))"` usando um dict Python com os campos. `json.dumps` escapa backslashes do `cwd` Windows corretamente (`c:\Users\...` vira `"c:\\Users\\..."`). Echo manual quebra porque aspas simples do Bash preservam o texto cru, e `cwd` com 1 barra invertida vira JSON invalido pelo parser estrito (precedente: 86% das linhas legadas falham `json.loads` — parser tolerante em `/pique:dashboard` cobre as antigas, mas entradas novas DEVEM ser validas).
+Se identificar melhorias CONCRETAS e EVIDENCIADAS, mostre:
+```
+[AUTO-AVALIACAO]
+- [melhoria 1]
+- [melhoria 2]
+```
+E anexe via script (preserva o CRLF do `melhorias-plugin.md`, faz merge se ja houver bloco do mesmo dia):
+```
+python "${CLAUDE_PLUGIN_ROOT}/scripts/append-log.py" melhorias --session-id <sid> \
+  --payload '{"data":"YYYY-MM-DD","skill":"encerrar","autor":"usuario","itens":["melhoria 1","melhoria 2"]}'
+```
+Se nao identificar nada concreto, nao mostre nada. NAO melhore por melhorar.
 
-**Gotcha:** nao usar heredoc `python << 'PYEOF'` com regex contendo `\\` — Git Bash Windows engole uma das barras. Usar `python -c "..."` com aspas duplas externas e aspas simples internas (ou vice-versa), OU escrever script temp em `/tmp/` e chamar `python /tmp/script.py`.
+### 3.7 Commit + push do cerebro e repos paralelos (um script, tudo junto)
 
-Se o append falhar (permissao, disco), silenciar — nao bloqueia o encerrar. Apos escrever, validar `python -c "import json; json.loads(open(path).readlines()[-1])"` — se falhar, logar warning e seguir.
+Agora que TODOS os writes acima ja aconteceram, feche com um comando so:
+```
+python "${CLAUDE_PLUGIN_ROOT}/scripts/commit-cerebro.py" --session-id <sid> \
+  --message "cerebro: <resumo curto do que mudou>" \
+  [--files '["path/extra1.md","path/extra2.md"]'] \
+  [--message-for '{"plugin-pique":"vX.Y.Z: <resumo>"}'] \
+  --push
+```
+- O script classifica sozinho (submodule/super/paralelos), faz **stage seletivo** (nunca `git add -A`), commita na ordem paralelos → pique → super (com o bump do ponteiro), e **pusheia** (pique antes do super; se o pique nao sobe, o super nao sobe).
+- **`--files`**: os `unclaimed_dirty` que voce julgou serem desta conversa (Fase 1.0b), com path **forward-slash**. Rede extra contra o gap de compact.
+- **`--message-for`**: mensagem propria por repo. Use pra plugin-pique quando bumpou versao (`vX.Y.Z: ...`) ou pros hubs (segue o padrao do `git log` do repo). Fallback = `--message`.
+- **Ramifique pelo JSON de saida:**
+  - `status: committed` + `clean: true` → tudo comitado e pushado. 
+  - `status: partial` → comitou mas algo ficou; olhe `skip_reason` de cada repo.
+  - `shared_blocked[]` → arquivo compartilhado deixado pra outra sessao fechar (mencione na Fase 4, nao force).
+  - `skip_reason`: `rebase_conflict` (pull --rebase deu conflito, abortou — resolva manual depois) · `push_failed`/`no_upstream`/`skipped_submodule_unpushed` (commitou local, push pendente) · `git_locked` (repo travado por outra sessao, tente de novo ou deixe) · `third_party_remote`/`not_in_allowlist` (repo de terceiro, so reportado).
+  - Tudo que ficou pendente (push nao concluido, shared bloqueado) → lista na Fase 4.
+- Se `status: noop` (nada tocado) → sem commit, segue.
 
-**Regra critica:** categoria e classificacao subjetiva do proprio Claude. Nao pergunte ao usuario, nao mostre no resumo final da Fase 4. E metadado silencioso pra analise posterior.
+### 3.8 Registrar telemetria enriquecida (depois do commit, pra pegar os SHAs)
+
+```
+python "${CLAUDE_PLUGIN_ROOT}/scripts/telemetria-append.py" --session-id <sid> \
+  --payload '{"tema":"3-5 palavras","resumo":"1 linha <=120 chars","categoria":"A|B|C","tags":["t1","t2"],"projeto":"MEU-CEREBRO"}'
+```
+Voce so fornece o julgamento semantico; o script deriva do manifest/transcript/git o resto das 14 chaves (cwd, wall_seconds, modelos, primeiro_prompt, arquivos_tocados, diretorios, commits). Rode **enquanto a sessao esta viva** (o script le o manifest de `active/`).
+- `categoria`: **A** = mecanico (operacional, consulta rapida) · **B** = processamento (refactor medio, analise, brainstorm com saida, review) · **C** = estrategico (rumo, arquitetura, planejamento).
+- `tags`: 2-4 palavras-chave (reusa a classificacao da Fase 2).
+- **Regra critica:** categoria e classificacao subjetiva sua — NAO pergunte ao usuario, NAO mostre no resumo. Metadado silencioso. `status: appended` = ok; falha = warning no JSON, nao bloqueia.
 
 ---
 
 ## Fase 4: Confirmacao final (o fim — sem pergunta)
 
-Apresente o resumo do que FOI feito. Termina aqui — NAO faca nenhuma pergunta, NAO peca confirmacao. O Henrique nao precisa responder nada.
+Apresente o resumo do que FOI feito, montado a partir dos JSONs dos scripts. Termina aqui — NAO faca pergunta, NAO peca confirmacao.
 
 ```
 ## Encerrado
-[⚠ avisos do topo, se houver: /inbox em paralelo, sessoes paralelas, ciclos de correcao]
+[⚠ avisos do topo, se houver: /inbox em paralelo, sessoes-irmas, ciclos de correcao]
 
 **Salvei:**
 - Cerebro — atualizado: [lista] | criado: [lista]
 - Sessao: [salva como ... / nao necessario]
 - Memory: [regra salva / ajuste de skill aplicado / nada]
-- Git: [commit feito no cerebro / nada pendente]
-- Repos paralelos: [N commits em <repos> | nada]
+- Git: [committed+pushed em <repos> / commitado local (push pendente: <motivo>) / nada]
+- Compartilhados deixados pra outra sessao: [lista / nenhum]
 
 **Ficou em aberto** (eu nao crio — voce pede quando precisar):
 - Tasks: [acao → quem | prazo]  (ou "nenhuma")
 - Compromissos: [evento → data, participantes]  (ou "nenhum")
 
-**Pendencias manuais:**
-- Push em: <repo1> <repo2>  (rode se quiser sincronizar)
+**Pendencias manuais:** [so o que o script NAO resolveu]
+- Push pendente em <repo>: <skip_reason> — [ex: rode `git pull --rebase` e re-tente]  (ou "nenhuma — push automatico concluido")
 - Plugin bumpado: rodar `/plugin marketplace update <marketplace>` + `/reload-plugins`
 
 Tudo guardado. Pode fechar o chat.
@@ -308,96 +261,35 @@ Tudo guardado. Pode fechar o chat.
 
 Se uma secao nao tem nada, escreva "nenhum"/"nada" — nao omita (transparencia).
 
----
+### 4.1 Bloco de retomada (condicional — SO se houver continuacao real)
 
-## Fase 5: Insight de uso IA (executar sempre ao final)
+Se esta sessao deixou trabalho claramente em aberto — um ledger `_tasks-*.md` com tarefas pendentes, uma proxima fase nomeada, ou trabalho declarado incompleto — emita ao final um bloco colavel pra abrir o proximo chat ja com contexto:
 
-Objetivo: detectar UM padrao de uso desta conversa que o Henrique poderia melhorar no workflow com IA. Nao e sobre o CONTEUDO da conversa — e sobre COMO a conversa foi conduzida.
-
-Analise a conversa buscando evidencia concreta de:
-- Prompt ou pedido repetido 2+ vezes (candidato a skill/template/agent)
-- Tempo gasto em transformacao manual que MCP/agent/skill ja existente resolveria
-- Correcao de abordagem por falta de contexto que poderia ser pre-carregado (MCP, CLAUDE.md, memoria)
-- Handoff manual entre 2 ferramentas que poderia ser automatizado
-- Tarefa repetitiva que provavelmente reaparece em outros chats (dor recorrente)
-
-**Regra dura:** so gere insight se houver evidencia CONCRETA e EVIDENCIADA nesta conversa. Sem padrao claro = nao escreva nada, nao mostre nada, nao toque no doc. NAO invente pra preencher. Ruido mata o doc acumulativo.
-
-Sinais que NAO contam (evita generico):
-- "Voce poderia usar mais /comando X" — sem justificativa de volume ou dor real
-- "Vale criar um agent pra isso" — sem evidencia de repeticao
-- Reflexao filosofica sobre produtividade
-- Insight que ja foi registrado em chat recente (checar ultimas entradas do doc antes de escrever)
-
-Se identificar algo evidenciado:
-
-1. Mostre ao usuario:
 ```
-[INSIGHT DE USO IA]
-**Padrao:** [1 frase — o que aconteceu nesta conversa]
-**Sugestao:** [1 frase concreta — skill X, agent Y, MCP Z, shortcut, mudanca de processo]
-**Categoria:** [automacao | skill | agent | contexto | workflow]
+## Retomando — <tema>
+**Objetivo:** [1 frase]
+**Estado:** [onde parou]
+**Paths canonicos:** [arquivos/ledger a abrir]
+**Proxima acao:** [o primeiro passo concreto]
 ```
 
-2. Anexe a entrada (no final do arquivo alvo, apos `## Entradas`) neste formato:
-```
-### YYYY-MM-DD HH:MM — [tema curto da conversa]
-**Padrao observado:** [1 frase]
-**Acao sugerida:** [1 frase concreta]
-**Categoria:** [uma das 5]
-```
-
-**Roteamento por categoria — escolha o arquivo alvo:**
-
-- Se `Categoria ∈ {skill, agent, automacao}` (insight promovivel pro plugin-pique — vale pros dois socios): apende no **doc compartilhado da Pique**. Resolva o path pelo cwd (mesmo teste da Fase 0.3 do `/pique:sincronizar`):
-  - Se existe subpasta `pique/` no cwd (cerebro pessoal com submodule): `pique/conhecimento/produtividade/insights-operacao-pique.md`.
-  - Se o cwd JA e o cerebro-pique (nao ha `pique/` abaixo e `git remote` aponta pra `cerebro-pique`): `conhecimento/produtividade/insights-operacao-pique.md`.
-  - Esse arquivo viaja pros dois via `/pique:sincronizar` (esta dentro do submodule).
-- Se `Categoria ∈ {contexto, workflow}` (dor pessoal do teu proprio workflow, nao vira skill do plugin): apende no **doc pessoal local de sempre**: `conhecimento/produtividade/insights-uso-ia.md` (raiz do cerebro aberto). Sem mudanca de comportamento.
-
-Se o arquivo alvo nao existe ainda, crie com cabecalho padrao do cerebro (template em CLAUDE.md do cerebro) e adicione a entrada inicial.
-
-Categorias:
-- **automacao** — script, cron, RemoteTrigger
-- **skill** — novo command Claude Code (ou melhoria de skill existente)
-- **agent** — sub-Claude especializado
-- **contexto** — MCP, pre-load no CLAUDE.md, memoria persistente
-- **workflow** — mudanca de processo (sem codigo novo)
+Condicional, NUNCA "sempre". Conversa fechada/resolvida nao gera bloco.
 
 ---
 
 ## Regras
 
-- **Execute direto apos as decisoes da Fase 2** — sem mostrar plano, sem pedir aprovacao. Nada aqui sai pra fora nem mexe com terceiro; tudo e local e reversivel por git (push fica sempre manual).
-- Se a conversa foi puramente operacional (ex: "muda status da task"), o processamento vai ser minimo — e ta certo. Nao invente acoes desnecessarias.
-- Se a conversa ja executou tudo durante o fluxo (ex: usou `/pique:bom-dia` que ja salva diario), sinalize no resumo final: "Ja executado durante a conversa — nada pendente."
-- Quando em duvida se algo vale salvar, decida com o teste "isso eu descubro lendo o cerebro/codigo depois?" — NAO jogue a duvida pro Henrique.
-- NAO duplique informacao. Se algo ja foi salvo por outra skill na mesma conversa, nao salve de novo.
+- **Execute direto apos a Fase 2** — sem mostrar plano, sem pedir aprovacao.
+- Conversa puramente operacional → processamento minimo, e ta certo. Nao invente acoes.
+- Conversa que ja executou tudo no fluxo (ex: `/pique:bom-dia`) → "Ja executado durante a conversa — nada pendente."
+- Em duvida se algo vale salvar → teste "isso eu descubro lendo o cerebro/codigo depois?". NAO jogue a duvida pro Henrique.
+- NAO duplique. Se ja foi salvo por outra skill na conversa, nao salve de novo.
 - Comunique-se em portugues brasileiro, direto e sem formalidade.
 
-## Auto-avaliacao (executar sempre ao final)
+## Fallback (scripts ou hooks ausentes — ex: maquina do Marco sem burn-in)
 
-Avalie a execucao com base nestas perguntas:
-1. A classificacao da Fase 2 acertou o que salvar vs descartar?
-2. Houve duplicacao com algo ja salvo por outra skill na conversa?
-3. Alguma acao relevante da conversa ficou de fora do registro?
-4. Conversas puramente operacionais geraram processamento minimo (sem acoes inventadas)?
+Se `${CLAUDE_PLUGIN_ROOT}/scripts/commit-cerebro.py` nao existir, ou nao houver `[telemetria] session_id=` no contexto (hooks nao instalados):
 
-Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
-
-1. Mostre ao usuario:
-```
-[AUTO-AVALIACAO]
-- [descricao da melhoria 1]
-- [descricao da melhoria 2]
-```
-
-2. Anexe em `pique/infra/melhorias-plugin.md` no formato:
-```
-## YYYY-MM-DD — encerrar (usuario)
-- [melhoria 1]
-- [melhoria 2]
-```
-
-Se nao identificar nada concreto, nao mostre nada.
-NAO melhore por melhorar.
+- **Commit/push:** faca na mao — `git status` no cerebro + submodule `pique/` + repos paralelos de `Documents/PROGRAMAS/`; stage SELETIVO do que ESTA conversa tocou (nunca `git add -A`); commit `cerebro: ...`; push pique antes do super. Nao arraste arquivo de outra sessao.
+- **Telemetria/logs:** os scripts aceitam `--transcript-path <p> --cwd <p>` (telemetria) e rodam sem `--session-id` (append-log) — ou, sem Python, edite os 3 logs na mao seguindo o formato de cada um (`log-do-feito.md` tabela por mes; `insights-*` bloco apos `## Entradas`; `melhorias-plugin.md` bloco CRLF apos o `---`).
+- Registre na Fase 4 que rodou em modo degradado, pra o Henrique instalar os scripts/hooks nessa maquina.
