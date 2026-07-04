@@ -41,17 +41,18 @@ Faca DUAS buscas em paralelo:
 - Filtrar por assignee do usuario, em TODOS os Spaces ativos
 
 **Busca 2 — Tasks concluidas HOJE:**
-- Use `clickup_filter_tasks` com `date_done_from = hoje 00:00` e `date_done_to = hoje 23:59` + `include_closed: true`.
-- Filtrar por assignee do usuario, em TODOS os Spaces ativos.
-- Esse filtro e EXATO por data de conclusao — evita puxar tasks fechadas em outros dias que aparecem em `updated_at desc`.
-- Cruze com a Busca 1 pra identificar tasks que finalizaram hoje, as que continuam em andamento e as paradas.
+- ⚠ **Limitacao confirmada (03/07):** `list_tasks`/`clickup_filter_tasks` NAO tem parametro `date_done_from`/`date_done_to` e nao retorna campo de conclusao (so `due_date`/`start_date`/`due_relative`). Data de conclusao (`date_done`/`date_closed`, epoch) so existe via `get_task` **individual** — inviavel em lote (pode significar 100+ chamadas pra achar 0-3 tasks concluidas hoje).
+- **Default:** NAO rode o sweep exaustivo de `get_task`. O ClickUp e majoritariamente gestao da EQUIPE (a Carol gere) — o trabalho do proprio Henrique raramente vira task la; a fonte de verdade do que ele fez e telemetria + commits + log-do-feito (Fases 1.4-1.6). Use so a Busca 1 (ativas) pra saber o que esta parado/em andamento.
+- **Se o Henrique pedir explicitamente** a varredura completa (quer saber com certeza o que fechou hoje no board), ai sim rode `get_task` tasks a tasks — mas avise antes o custo (N chamadas).
+- Cruze a Busca 1 com telemetria/commits/log pra identificar o que ficou parado — nao dependa do ClickUp pra saber o que "finalizou hoje".
 
-Busque em TODOS os Spaces ativos:
+Busque em TODOS os Spaces ativos (reorg 26/06 — frente=Space; **Beto Carvalho e Pessoal nao existem mais como Spaces**, foram absorvidos):
 - Pique Digital (901313561086)
-- Conteudo (901313561098)
-- Yabadoo (901313567191)
-- Beto Carvalho (901313567164)
-- Pessoal (901313561154)
+- Marketing — era "Conteudo"/"Studio" (901313561098)
+- Produto — era "Yabadoo" (901313567191)
+- Clientes (901313869198)
+- Comercial (901313872609)
+- Adm/Fin (901313872623)
 
 **Ao consolidar:** cruzar as duas buscas e identificar TODAS as tasks que foram finalizadas hoje (comparar timestamps), as que estao em andamento, e as que ficaram paradas.
 
@@ -204,6 +205,7 @@ Fica pra amanha: [task / nada]
 
 Regras pra montar a mensagem:
 - **So profissional** (mesmo filtro da Fase 2)
+- **Excluir Afiar de ferramenta interna/pessoal de IA** (scripts do proprio Claude Code, ajustes de skill/plugin, automacao do fluxo de trabalho) — mesmo sendo Afiar profissional legitimo e mesmo que va pro diario/log normalmente, e "solto" pra quem le a mensagem (Marco): nao e o que a empresa precisa saber no check-in diario. Regra pratica: se o item so importa pro proprio Henrique operar melhor a IA, fica de fora.
 - **Destilar pros highlights** (3-7 bullets max — nao listar tudo, escolher o que importa)
 - **Linguagem oral, sem jargao** ("plano trimestral fechado", nao "etapa 1+2 do briefing-trimestre-jun-ago")
 - **Sem links, sem markdown rico** (vai pra WhatsApp puro)
