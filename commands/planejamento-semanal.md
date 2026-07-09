@@ -82,6 +82,16 @@ Cheque rapidamente:
 - Conteudo parou 2+ semanas? (flywheel travou)
 - Planilha financeira desatualizada 2+ semanas?
 
+#### 1.6 Estado de progresso do SEMANA que esta acabando (SEMANA-vivo)
+
+Faca **Read da secao `## SEMANA`** do `TAREFAS.md` (raiz do cerebro) — a que foi gerada na segunda passada. Como o boa-noite passou a refletir progresso ao longo da semana (`[ ]`→`[~]`→`[x]` + sufixo `_(↻ DD/MM: ...)_`), essa secao agora conta como a semana correu. Capture, por item:
+
+- **`[x]` fechados** — o que de fato saiu (com o texto do sufixo `_(↻ ...)_` como resumo do que foi entregue).
+- **`[~]` andando** — comecou e arrastou; ainda relevante? (candidato a voltar limpo pra nova semana).
+- **`[ ]` parados** — nunca comecou (candidato a voltar, cortar, ou virar decisao).
+
+Isso e insumo direto do balanco no briefing (Fase 2) e do `/review-semanal`. Se a secao `## SEMANA` nao existir ou estiver toda `[ ]` (semana que nao rodou o boa-noite), sinalizar no briefing "sem sinal de progresso registrado nesta semana" em vez de assumir que nada foi feito — cruzar com o `log-do-feito.md` e o ClickUp (1.2) pra nao subestimar.
+
 ---
 
 ### Fase 2: Briefing
@@ -93,7 +103,14 @@ Apresente o reconhecimento neste formato:
 
 ### Semana passada — Review rapido
 
-**Definido no ultimo planejamento:**
+**Foco do SEMANA (trilho do Henrique — de 1.6):**
+- [x] [foco fechado] — [o que saiu, do sufixo `_(↻ ...)_`]
+- [~] [foco que arrastou] — [ultimo progresso]
+- [ ] [foco que nunca comecou]
+
+**Balanco:** [X] focos fecharam | [Y] arrastaram (`[~]`/`[ ]`)
+
+**Definido no ultimo planejamento (ClickUp):**
 - [task 1] — Finalizado / Nao feito / Em andamento
 - [task 2] — ...
 
@@ -239,14 +256,22 @@ Apos confirmacao:
 
 #### 6.0 Escrever o `## SEMANA` do TAREFAS.md (a espinha que o bom-dia consome) — OBRIGATORIO
 
-Esta e a fonte primaria do dia: sem ela, o `/bom-dia` nao tem de onde puxar (brecha que existia ate o planejamento passar a manter a SEMANA). Edit minimo, **so na secao `## SEMANA`** do `TAREFAS.md` (raiz do cerebro):
+Esta e a fonte primaria do dia: sem ela, o `/bom-dia` nao tem de onde puxar (brecha que existia ate o planejamento passar a manter a SEMANA). A segunda **regenera** a `## SEMANA` do zero (o trilho e descartavel, um novo ciclo) — mas agora regenera **ciente** do que fechou na semana (lido na 1.6), nao mais cego. Edit minimo, **so na secao `## SEMANA`** do `TAREFAS.md` (raiz do cerebro):
+
+**Regra de regeneracao (usando o estado lido na 1.6):**
+- Focos `[x]` (fechados na semana) **saem** — ja foram entregues e ja aparecem no balanco do briefing / `/review-semanal`. NAO reaparecem na semana nova.
+- Focos `[~]`/`[ ]` ainda relevantes **voltam limpos**: `[ ]` sem sufixo `_(↻ ...)_` (o progresso da semana passada nao carrega pro novo ciclo). Se um `[~]`/`[ ]` deixou de fazer sentido, cortar (nao arrastar por inercia) — se virou decisao do Henrique, mandar pra `## DECISOES` em vez de repetir aqui.
+- O sufixo de progresso `_(↻ DD/MM: ...)_` **nunca** sobrevive a regeneracao: SEMANA nova entra toda `[ ]`, sem sufixo.
+
+Montagem:
 
 1. Cabecalho com o range da semana: `## SEMANA (DD/MM–DD/MM)`.
-2. Pra cada prioridade do **Henrique** confirmada (3-8 itens de foco), 1 linha:
+2. Pra cada prioridade do **Henrique** confirmada (3-8 itens de foco — inclui os `[~]`/`[ ]` que voltam limpos + os novos desta segunda), 1 linha:
    ```
    - [ ] `[Modo]` **titulo curto** — 1 linha de contexto
    ```
    - **Etiquetar o modo** de cada uma (Pensar=decidir/mapear · Produzir=entregar · Afiar=ferramenta). Se nao estiver claro, perguntar.
+   - **Manter o titulo-nucleo** de um foco que volta (ancora pro match de progresso do boa-noite ao longo da nova semana).
 3. **So o Henrique vai pro trilho.** As prioridades do **Marco** continuam indo pro ClickUp (6.1), NAO pro `## SEMANA` (o trilho e o que o Henrique executa).
 4. Nao mexer em HOJE/AGUARDANDO/DECISOES/FRENTES/RESTO. O bom-dia da semana puxa daqui.
 

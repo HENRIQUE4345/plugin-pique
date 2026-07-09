@@ -31,6 +31,7 @@ Como quer enviar a reuniao?
 
 1. **Automatico** — busco na agenda do Google e puxo as anotacoes do Gemini
 2. **Manual** — voce cola a transcricao aqui
+3. **Lote** — voce aponta uma PASTA (ex: inbox/yabadoo-desktop/) e eu processo todas as transcricoes de uma vez
 
 Qual?
 ```
@@ -91,6 +92,58 @@ Pule a Fase 1 e va direto pra Fase 2.
 
 Siga a Fase 1 normalmente.
 
+### Se modo lote:
+
+Processa N transcricoes de uma pasta de uma vez (ex: exports do TRANSCRIB/Gemini acumulados em `inbox/yabadoo-desktop/`). Rodou a mao em 06/07 com 8 transcricoes, 0 erro — agora e caminho de 1a classe.
+
+#### 0L.1 Inventariar a pasta
+
+Peca (ou receba) o caminho da pasta. `ls` os arquivos de transcricao (`.md`, `.txt`) — **ignore** `.gitkeep`, `desktop.ini`, `PLANO.md`. Liste o que achou:
+
+```
+Encontrei N transcricoes em <pasta>:
+1. arquivo-1.md
+2. arquivo-2.md
+...
+Vou processar todas em paralelo (1 agente por transcricao). Segue?
+```
+
+#### 0L.2 Fan-out — 1 agente por transcricao
+
+Dispare um sub-agente (Workflow/Task) por arquivo, EM PARALELO. Cada agente recebe no prompt: o caminho do arquivo + a instrucao de rodar o **Gate de dedup (Fase 2.1b)** e o **Gate anti-sobreposicao (Fase 3.1c)** contra o cerebro, e devolver um MINI-RELATORIO estruturado (nao executar escrita — so classificar e extrair o delta proposto):
+
+```
+Retorne pra cada transcricao:
+- arquivo
+- classificacao dedup: JA_ANALISADA | PARCIAL | NOVA | RUIDO (+ 1 linha de por que, apontando a sessao existente se houver)
+- resumo (2-3 linhas)
+- pontos acionaveis (decisoes/tasks/pendencias) — SO o delta que sobrevive ao gate anti-sobreposicao
+- sessao-alvo no cerebro (criar novo path OU atualizar existente OU nenhum)
+```
+
+O sub-agente NAO cria task, NAO escreve arquivo, NAO mexe em ClickUp — so le, classifica e propoe. A execucao e centralizada depois (Fases 4-5), com aprovacao unica do usuario.
+
+#### 0L.3 Painel consolidado
+
+Junte os mini-relatorios num painel unico, ordenado por classificacao (NOVA/PARCIAL primeiro, JA_ANALISADA/RUIDO no rodape pra transparencia):
+
+```
+## Lote pos-reuniao — <pasta> (N transcricoes)
+
+### NOVAS (processar)
+| # | Arquivo | Resumo | Acionaveis | Sessao-alvo |
+|---|---------|--------|-----------|-------------|
+| 1 | ... | ... | 2 decisoes, 1 task | criar sessoes/... |
+
+### PARCIAIS (ja tem doc derivado — anexar so o delta)
+| # | Arquivo | Ja existe | Delta a anexar |
+
+### JA_ANALISADAS / RUIDO (nao processar — so registro)
+| # | Arquivo | Motivo |
+```
+
+Depois do painel, o fluxo converge pra Fase 4 (apresentar acoes propostas consolidadas de TODO o lote) e Fase 5 (executar em bloco). A **Fase 5.6 (limpeza do inbox)** e obrigatoria no fim do lote.
+
 ---
 
 ## Fase 1: Contexto da reuniao
@@ -117,6 +170,23 @@ Consulte `_mapa.md` e busque:
 - Tem decisoes pendentes que podem ter sido resolvidas?
 
 **Nao-duplicar (gate):** antes de criar sessao nova, **grep em `pique/sessoes/` (e `sessoes/`) por (data + slug do titulo)**. Se ja existe sessao OU doc de prep dessa mesma reuniao → **ATUALIZAR o existente, nao criar duplicata** (registra so o delta). Critico quando o `/boa-noite` delega: a reuniao pode ja ter sido documentada manualmente.
+
+### 2.1b Gate de dedup por CONTEUDO (antes de extrair)
+
+O grep por titulo (2.1) e barato mas cego — pega colisao de nome, nao de conteudo. Antes de gastar extracao, classifique a transcricao comparando o **CONTEUDO** (nao o nome do arquivo) contra as sessoes existentes em `pique/sessoes/` **e** `sessoes/`:
+
+| Classe | Criterio | Acao |
+|--------|----------|------|
+| **JA_ANALISADA** | O conteudo desta transcricao ja foi destilado numa sessao/ata existente (as decisoes, tasks e pendencias ja estao la) | NAO extrair. So registrar "ja processada em [arquivo]". |
+| **PARCIAL** | Existe um doc DERIVADO da reuniao (download solo, ata-checklist de prep, resumo) mas ele nao cobre tudo — falta delta | ATUALIZAR o doc existente com o delta que falta. Nao criar sessao nova. |
+| **NOVA** | Nao ha sessao com esse conteudo | Processar do zero (Fase 3+). |
+| **RUIDO** | Transcricao sem conteudo acionavel (teste de mic, conversa fiada, audio solto) | Descartar. So arquivar o bruto (Fase 5.6). |
+
+**Armadilhas que este gate resolve (nao classificar pelo NOME):**
+- Arquivo `*-PAUTA.md` que **ja teve a ata anexada** no proprio arquivo (secao "O que rolou"/"O que foi decidido") = **JA_ANALISADA**, mesmo o nome dizendo "PAUTA". Ler o corpo, nao o titulo.
+- **Download solo derivado** (o Henrique reprocessou a reuniao sozinho num chat e salvou) ≠ ata real da reuniao. Se o solo cobre parte do que a transcricao traz, e **PARCIAL** (anexar o delta que o solo nao pegou), nao JA_ANALISADA.
+
+No modo lote, cada sub-agente roda este gate na sua transcricao e devolve a classe no mini-relatorio (Fase 0L.2). No modo single, rode aqui e sinalize a classe antes de seguir pra Fase 3. Se `JA_ANALISADA` ou `RUIDO`, PARE a extracao e reporte — nao gaste Fase 3-4 pra nada.
 
 ### 2.2 ClickUp
 
@@ -178,6 +248,23 @@ Responda no formato: 1=Henrique, 2=prospect, 3=ambiguo (descartar)
 **Especialmente critico em pitch comercial** — narrativas do apresentador costumam colar em dores do cliente sem essa validacao. Caso pitch Vitor Padarias: 4 blocos atribuidos errado, usuario corrigiu 3 rodadas.
 
 ESPERE resposta antes de prosseguir pra 3.2.
+
+### 3.1c Gate anti-sobreposicao (cruzar com o estado MAIS RECENTE)
+
+A Fase 3.1 cruza a transcricao com o estado do cerebro no MOMENTO da reuniao. Mas se a reuniao e ANTIGA (comum no modo lote, processando um backlog de transcricoes), uma decisao dela pode ter sido **sobreposta depois** — superada por reuniao posterior, ja virada task no ClickUp, ou ainda em conflito aberto. Anexar o delta cru sem checar isso reintroduz decisao morta.
+
+Antes de cravar cada Decisao/Task/Pendencia (Fase 3.2) como delta valido, cruze com o que veio DEPOIS da data desta transcricao:
+- **Sessoes/atas posteriores** em `pique/sessoes/` + `sessoes/` (mesma frente/participantes, data > data da transcricao)
+- **Trilho** (`TAREFAS.md`) e `log-do-feito.md` — o item ja foi feito/decidido/movido?
+- **ClickUp** (2.2) — a task ja existe? Ja foi criada/fechada?
+
+Para cada item, marque:
+- **VALIDO** — ainda de pe, vira delta.
+- **SUPERADO** — decisao mais recente sobrepos. NAO anexar como decisao atual; no maximo registrar no historico da sessao "(superado por [fonte] em [data])".
+- **JA_EXECUTADO** — ja virou task/entrega. NAO recriar. Se muito, so anotar o ID.
+- **CONFLITO_ABERTO** — o tema ainda esta em disputa noutro doc. NAO cravar como decisao — sinalizar o conflito, nao escolher lado.
+
+Exemplos reais (06/07, que motivaram este gate): standup 09:24 superado pelo Sync 14:30 do mesmo dia (SUPERADO); bugs do Gabriel ja pautados E ja virados Tasks ClickUp 479/480/481 (JA_EXECUTADO); "processo por setor" ainda em CONFLITO ABERTO noutro map (CONFLITO_ABERTO — cravar seria erro). Esse gate reduziu "processar 5 atas" pra "2 atas + mover 1 + ZERO task nova". No modo lote e passo OBRIGATORIO de cada sub-agente.
 
 ### 3.2 Extrair categorias
 
@@ -352,6 +439,14 @@ Das **Decisões** + **Pendências** (Fase 3.2), separe o **resíduo do Henrique*
 
 Se criou arquivo novo, adicione ao mapa.
 
+### 5.6 Limpeza do inbox (pos-processamento)
+
+Obrigatoria quando as transcricoes vieram de uma pasta de inbox (modo lote, ou single a partir de um export do inbox). O inbox e area de transito — nao deve acumular brutos ja processados. NAO apagar os brutos: **arquivar**, seguindo o padrao ja existente de junho.
+
+1. **Arquivar os brutos** em `arquivo/sessoes-brutas/YYYY-MM/` (mes da reuniao). `mv`, nao `cp` — mover, nao copiar. Vale pra TODAS as classes do gate de dedup (2.1b), incluindo `RUIDO` e `JA_ANALISADA`: o bruto sai do inbox mas fica preservado no arquivo. Criar a pasta do mes se nao existir.
+2. **Corrigir os links que apontavam pros brutos movidos.** Antes de mover, `grep` pelos nomes dos brutos nos docs do cerebro (sessoes que referenciam a transcricao, `_mapa.md`, etc). Todo doc que linkava `inbox/<pasta>/<bruto>` precisa ser reapontado pro novo path `arquivo/sessoes-brutas/YYYY-MM/<bruto>` — senao a referencia quebra silenciosamente (aconteceu em 06/07 ao mover um brainstorm que 3 docs — 1242/hipotese/visao — referenciavam).
+3. **Grep de sanidade no fim.** Confirme que a pasta de origem (ex: `inbox/yabadoo-desktop/`) nao tem mais transcricao pendente (`ls` deve sobrar so `.gitkeep`/`desktop.ini`) E que nenhum doc do cerebro ainda aponta pro path antigo dos brutos (`grep -r "inbox/<pasta>/" pique/ sessoes/` deve vir vazio pros arquivos movidos). Reporte o resultado do grep.
+
 ---
 
 ## Fase 6: Resumo final
@@ -365,6 +460,20 @@ Se criou arquivo novo, adicione ao mapa.
 **Calendar:** [X eventos / nenhum]
 
 Reuniao processada. Nada ficou pra tras.
+```
+
+**No modo lote,** acrescente a contagem por classe do gate de dedup e a limpeza:
+
+```
+## Lote processado — N transcricoes
+
+**Classificacao:** [A NOVAS · B PARCIAIS · C JA_ANALISADAS · D RUIDO]
+**Sessoes criadas:** [lista]
+**Sessoes atualizadas (delta):** [lista]
+**ClickUp:** [X tasks criadas, Y atualizadas]
+**Limpeza inbox:** [N brutos arquivados em arquivo/sessoes-brutas/YYYY-MM/ · L links reapontados · grep de sanidade: OK/pendencias]
+
+Lote processado. Inbox limpo, nada ficou pra tras.
 ```
 
 ---
@@ -387,6 +496,9 @@ Avalie a execucao com base nestas perguntas:
 2. Tasks geradas ficaram claras o suficiente pra executar sem perguntar?
 3. Focou no delta (novidades) ou repetiu o que o cerebro ja sabia?
 4. Trechos confusos foram sinalizados com [?]?
+5. O gate de dedup (2.1b) classificou por CONTEUDO, nao pelo nome do arquivo (pegou `-PAUTA.md` com ata anexada, distinguiu download solo de ata real)?
+6. O gate anti-sobreposicao (3.1c) cruzou com o estado POSTERIOR — nenhuma decisao SUPERADA/JA_EXECUTADA/CONFLITO_ABERTO foi cravada como delta atual?
+7. (Modo lote) A limpeza do inbox (5.6) rodou: brutos arquivados sem apagar, links reapontados, grep de sanidade limpo?
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 

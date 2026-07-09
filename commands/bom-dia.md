@@ -5,14 +5,18 @@ model: sonnet
 
 Ritual de stand-up da manha. Execute este fluxo EXATAMENTE, sem pular etapas.
 
-**Filosofia do ritual (hibrido — sistema sugere, humano confirma):**
+**Filosofia do ritual (coach hibrido — sistema sugere, humano confirma):**
 
-Esta skill **monta o HOJE do trilho** (`TAREFAS.md`) a partir de 3 fontes, nesta ordem de autoridade — a pessoa so **CONFIRMA ou AJUSTA** em 30 segundos:
+O bom-dia nao e so um planejador de execucao — e um **coach**. Alem de montar o dia, ele passa **4 lentes na ordem fixa `DECIDIR → SUPERVISIONAR/COBRAR → LEMBRAR → FAZER`** (detalhe na Fase 2). A ordem reflete onde o Henrique e gargalo (decisao, supervisao) — nao onde ja e forte (execucao). Por dias seguidos o ritual so trazia a lente FAZER; as camadas de **decidir**, **cobrar quem ele delegou** e **lembrar o que ele mesmo prometeu** ficavam pro "depois" que nao vinha. As 4 lentes corrigem isso — sem fonte nova, so lendo o que ja existe (trilho, `_delegacao-equipe.md`, atas, diarios/log).
+
+Esta skill **monta o HOJE do trilho** (`TAREFAS.md`). Para a lente FAZER, os candidatos saem de 3 fontes nesta ordem de autoridade — a pessoa so **CONFIRMA ou AJUSTA** em 30 segundos:
 
 1. **Agenda (Calendar)** = esqueleto e TETO de tempo. Define quantas horas sobram. Nao e fonte de itens, e restricao.
-2. **SEMANA do `TAREFAS.md`** = ESPINHA. Os candidatos do dia saem daqui (ja vem etiquetados por modo Pensar/Produzir/Afiar). Selecionar os que cabem no teto, ordenar por execucao.
+2. **SEMANA do `TAREFAS.md`** = ESPINHA da lente FAZER. Os candidatos de execucao saem daqui (ja vem etiquetados por modo Pensar/Produzir/Afiar). Selecionar os que cabem no teto, ordenar por execucao.
 3. **ClickUp** = OVERLAY, **so leitura**: prazo duro (atrasadas/vence-hoje via due_date) + cobranca (aguardando terceiro). NAO e a fonte do dia.
 4. **Chat** = o que o Henrique mencionar ao vivo entra como ad-hoc.
+
+Mas o **foco do dia pode nascer de outra lente** — uma decisao madura (`[Pensar]`) ou um "Eu travo eles" (destravar alguem) as vezes vale mais que mais uma tarefa de execucao (ver Fase 3.2).
 
 **READ-ONLY de manha:** o bom-dia NAO move status, NAO muta due_date por conta propria, NAO cria task. A unica escrita ClickUp permitida e condicional e confirmada (Fase 5.1). Tudo que ele escreve e no lado do Henrique: `## HOJE` do trilho + check-in no diario + msg WhatsApp.
 
@@ -97,17 +101,36 @@ Para **atrasadas** e **vence hoje** (sao poucas): apos `list_tasks`, chame `get_
 - Leia `inbox/DIARIO.md` — tem algo registrado que afeta o dia?
 - NAO processe o inbox, apenas escaneie por itens urgentes ou contexto relevante.
 
-### 1.4 SEMANA do trilho (a espinha do dia)
+### 1.4 Trilho (`TAREFAS.md`) — espinha do dia + as 4 lentes
 
-Read no `TAREFAS.md` (raiz do cerebro). Capture:
-- `## SEMANA` — os itens `[ ]` com etiqueta de modo. **Esta e a fonte primaria dos candidatos do dia.**
-- `## AGUARDANDO` — o que o Henrique espera dos outros (cruza com a cobranca da Fase 1.2 → visao unica de cobranca).
+Read no `TAREFAS.md` (raiz do cerebro). Capture as secoes que alimentam as 4 lentes (Fase 2):
+- `## SEMANA` — os itens com etiqueta de modo e estado (`[ ]`/`[~]`/`[x]`). **Fonte primaria da lente FAZER** (e da proposta). **Pule os `[x]`; priorize os `[~]`** (ver Fase 3.2).
+- `## DECISÕES` — as decisoes `[Pensar]` que so o Henrique bate. **Fonte da lente DECIDIR.** Capture cada decisao + ha quanto tempo esta parada (se o item tiver data) + o que ela trava.
+- `## AGUARDANDO` — o que o Henrique espera dos outros. **Fonte da lente SUPERVISIONAR (bloco "Eles me devem")** — cruza com a cobranca da Fase 1.2 e com o `_delegacao-equipe.md` (Fase 1.5) → visao unica de cobranca.
 
 Se o `## SEMANA` estiver vazio ou com data de semana antiga (ex: segunda antes do `/planejamento-semanal`): avise *"SEMANA nao montada/desatualizada — rode /planejamento-semanal primeiro, ou me diga o foco da semana."* Sem espinha, o dia so tem o prazo duro do ClickUp + o que voce mencionar.
 
+### 1.5 Delegacao + atas recentes (lentes SUPERVISIONAR e LEMBRAR)
+
+Duas fontes que o bom-dia ignorava — sao o que faltava pra ele virar coach:
+
+1. **`pique/operacao/_delegacao-equipe.md`** (ledger de delegacao por pessoa — Arthur, Carolina, Marco, etc). Read inteiro. Capture, por pessoa:
+   - Itens marcados `[TRAVADO]` ou cujo texto diz que **dependem do Henrique** (ex: "espera o Henrique fazer o download mental", "aguarda o Henrique enviar os insumos") → alimentam o bloco **"Eu travo eles"** da lente SUPERVISIONAR (resolver primeiro — destrava varias pessoas).
+   - Itens `[ ]` que o Henrique cobra dos outros → bloco **"Eles me devem"** (cruzar com `## AGUARDANDO` e com ClickUp "aguardando terceiro" da Fase 1.2; **nao duplicar** — visao unica de cobranca).
+   - Marcacoes `[novo]`/`[confirmar]`: contexto, nao acao. Nao inflar.
+
+2. **Atas de reuniao dos ultimos ~3 dias em `pique/sessoes/`.** As sessoes tem prefixo de data no nome (`YYYY-MM-DD-HHMM-tipo-descricao.md`) — filtre por prefixo de data (hoje e os 2-3 dias anteriores; pule fins de semana se nao houver ata). Pra cada ata recente, Read e extraia:
+   - **Tabela/lista de Acoes com dono + prazo** → cruza com a lente SUPERVISIONAR (quem deve o que).
+   - **Decisoes novas** que so o Henrique bate e ainda nao estao no `## DECISÕES` do trilho → alimentam a lente DECIDIR.
+   - **Acoes com o nome do Henrique** que nao viraram nada (vai cruzar na Fase 2, lente LEMBRAR, contra diario/log/trilho).
+
+   Se nao houver ata nos ultimos 3 dias, seguir sem — normal. NAO processar as atas (isso e do `/pos-reuniao`), so ler o que ja esta extraido.
+
 ---
 
-## Fase 2: Briefing + Extracao de contexto
+## Fase 2: Briefing + Extracao de contexto (as 4 lentes)
+
+O bom-dia nao e so planejador de execucao — e **coach**. O briefing tem duas partes: (A) o **cenario** (contexto + teto de tempo) e (B) as **4 lentes na ordem fixa** `DECIDIR → SUPERVISIONAR/COBRAR → LEMBRAR → FAZER`. A ordem NAO e acidental: reflete onde o Henrique e gargalo (decisao, supervisao) — nao onde ja e forte (execucao). Por isso DECIDIR vem primeiro e FAZER por ultimo.
 
 Apresente um resumo CURTO e visual:
 
@@ -128,22 +151,41 @@ Apresente um resumo CURTO e visual:
 - [DATA HH:MM] Evento Y
 - (ou: proximos 3 dias livres)
 
-**SEMANA do trilho (espinha do dia):**
-- `[Modo]` Item 1 — [foco da semana]
-- `[Modo]` Item 2
-- (ou: SEMANA nao montada — rodar /planejamento-semanal)
-
-**Prazo duro (ClickUp — overlay):**
-- Atrasadas: Task 1 [Space] (vencida ha N dias) — (ou: nada atrasado)
-- Vence hoje: Task 2 [Space] — (ou: nada vence hoje)
-
-**Cobranca (aguardando terceiro + AGUARDANDO do trilho):**
-- [quem] — [o que trava] — (ou: nada travando)
-
 **Inbox:** [nada relevante / resumo de 1 linha]
+
+---
+
+### 1. DECIDIR — o que so voce bate o martelo `[Pensar]`
+- [Decisao] — parada ha [N dias/desde DATA] — trava [frente/pessoa] — (essa da pra bater hoje?)
+- (fonte: `## DECISÕES` do trilho + decisoes novas das atas recentes)
+- (ou: nada esperando decisao sua)
+
+### 2. SUPERVISIONAR / COBRAR — o que esta na mao de outro
+**Eles me devem (cobrar):**
+- [quem] — [o que trava] — (ou: nada travando)
+**Eu travo eles (resolver primeiro — destrava varias pessoas):**
+- [quem espera] — [o que voce deve entregar pra destravar] — (ou: nao estou travando ninguem)
+- (fonte: `_delegacao-equipe.md` + `## AGUARDANDO` do trilho + Acoes das atas + "aguardando terceiro" do ClickUp — visao unica, sem duplicar)
+
+### 3. LEMBRAR — o que voce disse que ia fazer e nao fez
+- [Acao sua da ata de DD/MM] — sem sinal de que saiu — (fez?)
+- [Nota pra amanha do diario de ontem]
+- (fonte: acoes com seu nome nas atas recentes cruzadas com diario/log/trilho + "Notas pra amanha")
+- (ou: nada solto — constatacao, nao cobranca)
+
+### 4. FAZER — o que sobrou da SEMANA (ja descontando o feito)
+- `[Modo]` **Item** — [foco] — (ou: SEMANA nao montada — rodar /planejamento-semanal)
+- **Prazo duro (ClickUp — overlay):** Atrasadas: Task [Space] (ha N dias) · Vence hoje: Task [Space] — (ou: nada de prazo)
+- (fonte: `## SEMANA` MENOS o feito dos ultimos diarios/log — ver Fase 3.2; overlay de prazo por cima)
 ```
 
-**Bloco condicional — quarta-feira:** se hoje for quarta, INCLUA no template do briefing acima (logo apos a linha de Inbox) o bloco abaixo. Em qualquer outro dia da semana, OMITA esse bloco.
+**Regras das lentes:**
+- **Lente vazia = 1 linha "nada aqui hoje".** Nao inventar item pra encher lente (nao investigado ≠ existe; nao inflar carga sem dado).
+- **Lente LEMBRAR e constatacao, nao punicao** — "voce disse que ia fazer X, fez?", nunca "voce falhou em X" (linguagem nao-punitiva). Separar pessoal de profissional (ex: CNH e pessoal).
+- **Nao duplicar entre lente 2 e ClickUp/AGUARDANDO** — mesma cobranca aparece 1x. Cruzar as 3 fontes antes de listar.
+- **Nao cravar decisao/estado de terceiro da memoria** — o que esta no ledger/ata e o que vale; em duvida, listar como "confirmar", nao afirmar.
+
+**Bloco condicional — quarta-feira:** se hoje for quarta, INCLUA no template do briefing acima (logo apos o Inbox, antes da lente DECIDIR) o bloco abaixo. Em qualquer outro dia da semana, OMITA esse bloco.
 
 ```
 **Alimentar cerebro (quarta):**
@@ -152,10 +194,10 @@ Apresente um resumo CURTO e visual:
 - Os 30min entram como bloco proprio na Fase 3 (nao como task ClickUp) — desconte do tempo livre antes de propor tasks
 ```
 
-Depois pergunte (MAXIMO 3 perguntas, diretas):
+Depois pergunte (MAXIMO 3 perguntas, diretas — calibradas nas lentes, nao generico):
 
-1. Mudou alguma prioridade ou surgiu algo novo?
-2. Ta travado em alguma coisa?
+1. Das decisoes acima (lente DECIDIR), alguma da pra bater hoje — ou mudou prioridade / surgiu algo novo?
+2. Ta travado em alguma coisa (ou travando alguem)?
 3. (Se tiver reuniao amanha/proximos dias) Precisa preparar algo pra [reuniao X]?
 
 **Se o stand-up esta rodando depois das 10h** (sinal de que o usuario provavelmente ja avancou no dia), adicione tambem:
@@ -188,16 +230,24 @@ Antes de propor, listar TUDO que o usuario falou na conversa:
 
 Incluir TODOS na proposta — separando o que e pra hoje vs o que e pra criar como task futura. NAO omitir nada que o usuario falou.
 
-### 3.2 Montar os candidatos do dia — SEMANA = espinha, ClickUp = overlay
+### 3.2 Montar os candidatos do dia — puxando das 4 lentes
 
-A fonte dos candidatos e o `## SEMANA` do trilho (Fase 1.4), NAO o ClickUp. Ordem:
+Os candidatos NAO saem so do `## SEMANA` (lente FAZER). O bom-dia e coach: um item de **DECIDIR** (bloco de `[Pensar]`) ou um "**Eu travo eles**" da lente SUPERVISIONAR pode ser o FOCO do dia — muitas vezes destrava mais valor que mais uma tarefa de execucao. Monte os candidatos cruzando as 4 lentes, nesta ordem:
 
-1. **Espinha = itens da SEMANA** (`[ ]`, ja com modo) — ordenar por execucao (a ordem em que faz sentido fazer hoje). Esta e a base do dia.
-2. **Overlay de prazo duro (ClickUp, Fase 1.2):** atrasada ou vence-hoje que **forca** o dia →
+1. **DECIDIR (lente 1):** decisao madura que da pra bater hoje → candidato `[Pensar]`. Priorizar decisao que **trava frente/pessoa** (custo invisivel) e que ja apodreceu (parada ha varios dias).
+2. **Eu travo eles (lente 2):** o que o Henrique deve entregar que destrava outra pessoa (ex: download mental que o Arthur espera pra mexer no painel) → candidato de alta prioridade, porque destrava varios. Etiquetar modo pelo tipo (download/decisao→`[Pensar]`; entrega→`[Produzir]`).
+3. **Espinha = itens da SEMANA (lente 4 / FAZER)** (ja com modo) — ordenar por execucao. Base do dia.
+   - **PULAR os `[x]`** — item ja fechado nao volta pra proposta (mata o bug de re-propor feito). O boa-noite marca `[x]` no SEMANA via SEMANA-vivo; se ainda nao houver esse sinal, cruzar na marra (ver ponto de cruzamento abaixo).
+   - **PRIORIZAR os `[~]`** — item que ja andou vem PRIMEIRO na ordenacao (terminar o que esta em curso antes de abrir frente nova). Depois os `[ ]` nao-tocados.
+   - **Cruzar com os ultimos 2-3 diarios ANTES de propor (na marra, ate o SEMANA-vivo estabilizar):** confrontar cada candidato do SEMANA com o feito recente (Check-out dos diarios dos ultimos dias + `log-do-feito.md`) por titulo-nucleo/tema. Se o item ja saiu (mesmo que o SEMANA ainda mostre `[ ]`/`[~]` por atraso do boa-noite), NAO re-propor — riscar/sinalizar como fechado ANTES de montar a proposta. Vale tambem pra itens compostos parcialmente feitos: propor so a cauda que sobrou, nao o item inteiro.
+4. **Overlay de prazo duro (ClickUp, Fase 1.2):** atrasada ou vence-hoje que **forca** o dia →
    - se ja casa com um item da SEMANA, **anotar a urgencia** nele (nao duplicar);
    - se NAO esta na SEMANA, **adicionar** como item de prazo (etiquetar modo: execucao→`[Produzir]`, decisao→`[Pensar]`).
-3. **Prep de ontem (B3):** se a Fase 0 trouxe "prep pra hoje/amanha" do diario, **oferecer** como candidato (sugere, nao entra sozinho).
-4. **Ad-hoc:** o que o usuario mencionou no chat (Fase 3.1).
+5. **LEMBRAR (lente 3):** fio solto (acao sua de ata que nao saiu, "Nota pra amanha") que faz sentido resolver hoje → oferecer como candidato (sugere, nao entra sozinho).
+6. **Prep de ontem (B3):** se a Fase 0 trouxe "prep pra hoje/amanha" do diario, **oferecer** como candidato (sugere, nao entra sozinho).
+7. **Ad-hoc:** o que o usuario mencionou no chat (Fase 3.1).
+
+> **Cobrar (bloco "Eles me devem" da lente 2) NAO vira task de execucao do Henrique** — vira linha na msg do WhatsApp / lembrete de cobranca, nao candidato do dia. Nunca criar task pra terceiro (gerar mensagem pro Henrique enviar).
 
 Mostrar a **estimativa de tempo** ao lado de cada um. **Filtrar bloqueados** (Fase 3.2.1).
 
@@ -302,7 +352,10 @@ Hoje:
 - [task 2]
 - [task 3]
 Travado em: [nada / o que for]
+Cobrar: [quem — o que / ou omitir a linha se nao houver]
 ```
+
+A linha **Cobrar** vem do bloco "Eles me devem" da lente SUPERVISIONAR (Fase 2) — a cobranca nao vira task do Henrique, vira lembrete pra ele acionar a pessoa. Se nao houver cobranca do dia, OMITA a linha (nao deixar "Cobrar: nada").
 
 ### 5.3 Salvar check-in no diario
 
@@ -334,7 +387,7 @@ O `TAREFAS.md` (raiz do cerebro) e o **trilho pessoal de execucao** — o que o 
    - Se o HOJE tem item `[~]` com `(iniciada:)` → **sessao viva em outra janela. Preservar** (nao sobrescrever). Em duvida, preservar e avisar.
    - So substituir: placeholder, `[ ]` nao-tocados, e itens ja logados.
 3. Pra cada item confirmado na proposta (Fase 3.4), **mapeie ao modo**:
-   - Se ja existe no `## SEMANA`, herde a etiqueta de modo dele (`` `[Pensar]` `` / `` `[Produzir]` `` / `` `[Afiar]` ``).
+   - Se ja existe no `## SEMANA`, herde a etiqueta de modo dele (`` `[Pensar]` `` / `` `[Produzir]` `` / `` `[Afiar]` ``) **e MANTENHA o titulo-nucleo identico ao do SEMANA** (mesmo **Titulo curto** em negrito). Esse titulo e a **ancora do match de volta** — o boa-noite cruza o feito de hoje com o SEMANA por titulo-nucleo; se voce reescrever o titulo aqui, o SEMANA-vivo perde o item e o feito nao reflete. So a linha de "1 linha do que fazer" pode ser especifica do dia.
    - Se for prazo de ClickUp fora do SEMANA, infira: execucao→`[Produzir]`; decisao→`[Pensar]`; ferramenta→`[Afiar]`.
 4. Escreva a secao `## HOJE` com o **carimbo de estado** na 1a linha (logo apos `## HOJE`):
    ```
@@ -375,6 +428,9 @@ Avalie a execucao com base nestas perguntas:
 4. As reunioes do calendario foram integradas corretamente no planejamento?
 5. A proposta final respeitou o limite de max 5 tasks/dia?
 6. Dependencias bloqueadas foram filtradas antes de sugerir?
+7. As 4 lentes apareceram na ordem fixa (DECIDIR → SUPERVISIONAR → LEMBRAR → FAZER), cada uma com fonte real (nao lente inventada pra encher)?
+8. Nenhum item `[x]` do SEMANA foi re-proposto, e o feito dos ultimos diarios/log foi cruzado antes de propor (nada entregue voltou como candidato)?
+9. A cobranca (lente 2) apareceu como cobranca — msg pro Henrique acionar — e NAO virou task de execucao dele nem task criada pra terceiro?
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 

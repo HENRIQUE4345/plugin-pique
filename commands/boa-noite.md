@@ -90,12 +90,13 @@ Agrupar commits por repo. Limitar output a 20 linhas por repo (mais que isso = d
 
 **git status (nao so log):** nos MESMOS repos, rodar tambem `git -C "<repo>" status --short` pra flagar **trabalho nao-commitado** (modificado/novo mas ainda fora de commit). E uma ponta que escapa — sinaliza no review ("repo X com N arquivos sujos — commitar?") pra nao perder.
 
-### 1.6 Ler o log do feito de hoje + o HOJE do trilho
+### 1.6 Ler o log do feito de hoje + o HOJE + o SEMANA do trilho
 
 1. Read `conhecimento/produtividade/log-do-feito.md`. Capture as linhas cuja Data = hoje (DD/MM) — sao as tarefas ja fechadas pelo `/encerrar` com modo + P/E + duracao.
 2. Read `TAREFAS.md` (raiz do cerebro), secao `## HOJE`. Capture o estado de cada item: `[x]` (feito), `[~]` (iniciado e nao fechado), `[ ]` (nem comecou).
+3. Read a secao `## SEMANA` do MESMO `TAREFAS.md`. Capture o estado atual de cada foco: `[ ]`/`[~]`/`[x]` + o titulo-nucleo + o **sufixo de progresso existente** (`_(↻ DD/MM: ...)_`, se houver). Serve pro passo 3.5 da Fase 5.2b (devolver progresso pro SEMANA).
 
-**Use isso pra:** (a) montar o **Balanco de modos** na Fase 2; (b) saber o que precisa de backfill/devolucao na Fase 5.2b. Cruze com a telemetria (1.4) e commits (1.5): item `[x]` no HOJE mas ausente do log = feito sem `/encerrar`, vai precisar de backfill.
+**Use isso pra:** (a) montar o **Balanco de modos** na Fase 2; (b) saber o que precisa de backfill/devolucao na Fase 5.2b; (c) cruzar o feito de hoje com os focos do SEMANA (passo 3.5 da 5.2b). Cruze com a telemetria (1.4) e commits (1.5): item `[x]` no HOJE mas ausente do log = feito sem `/encerrar`, vai precisar de backfill.
 
 > **Principio da varredura:** as fontes 1.1–1.6 sao **lentes que se sobrepoem, nao somam**. O mesmo trabalho aparece em 3-4 delas (uma sessao de codigo = chat enriquecido + commit + linha de log + task ClickUp). O boa-noite **cruza e deduplica na narrativa**, mas **nunca soma os relogios num numero unico** (ver Fase 5.4). As fontes 1.7–1.9 (TRANSCRIB, Meet, WhatsApp) sao **sinais de "tem coisa pra documentar/cobrar"**, nao tempo — entram no review e na proposta, nunca viram 4a lente de relogio.
 
@@ -172,6 +173,10 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 - Parciais (iniciados, nao fechados): [n] · [Xmin logado] — devolvidos pro radar (ver 5.2b)
 - Cobertura do trilho: o log cobriu ~[X]% do dia; ~[Y]% rodou FORA do trilho (chats sem /iniciar, micro-operacao) — a telemetria ve como atividade (cat. A/B/C) mas SEM modo confiavel. Nao inventar modo pra esse pedaco.
 - (so CONSTATAR — sem julgar. % e aproximacao: `Y ≈ max(0,(wall_telemetria − min_trilho)/wall_telemetria)`, e wall-clock infla com janela paralela. Se o log esta vazio mas houve trabalho: "dia rodou sem /iniciar→/encerrar — log nao capturou".)
+
+**Leitura do dia** (constatacao factual — NAO e nota, NAO compara com ontem):
+- [1 frase: forma do dia = mix de modos + tipo gestao/producao/afiar] · [1 frase: aderencia = planejado vs eventualidade] · [1 frase: o que materializou = commits/entregas + deep-work de produto sim/nao] · [se aplicavel: "nada travou por voce" / o que travou e por que]
+- Regras CRAVADAS deste bloco: **constatacao, nao julgamento; sem "voce devia"; NAO comparar com ontem** (comparacao temporal so no /review-semanal, que tem serie); **wall-clock NAO entra** (usa modos + P/E + commits — sinais honestos). **Deep-work de produto = binario**, pela ORIGEM dos commits (repo de PRODUTO — yabadoo-brain, TRANSCRIB, painel Beco, etc. — vs so cerebro/gestao/doc; se so cerebro → "deep-work de produto: zero hoje").
 
 **Amanha:**
 - [HH:MM] Evento 1
@@ -324,7 +329,12 @@ Crie ou atualize `diarios/YYYY-MM-DD.md`:
 - [contexto que o bom-dia precisa saber]
 - [prep necessario pra reunioes]
 - [decisoes pendentes]
+
+**Leitura do dia:**
+- [forma · aderencia · materializou + deep-work de produto sim/nao · travou?]
 ```
+
+> O campo **Leitura do dia** e o mesmo texto mostrado na Fase 2 (bloco "Leitura do dia"). A escrita dele no diario e feita na sub-fase 5.4b (nao aqui) — aqui so fica documentado no template. Regras: factual, sem comparacao temporal, sem cobranca, sem wall-clock.
 
 ### 5.2b Consolidar trilho → log (camada Log do feito)
 
@@ -338,6 +348,17 @@ Fecha o ciclo do dia no `TAREFAS.md` + `log-do-feito.md`. **Re-Read o `## HOJE` 
    - **(b) Devolver:** `[~]`→`[ ]` **removendo o sufixo `(iniciada:)`** (o tempo ja foi pro log; manter calcularia duracao errada amanha). Esta no SEMANA → sobrevive la; ad-hoc → `## RESTO` como `[ ]`.
    - **(c) Sinalizar** no review: "N itens ficaram pela metade — devolvidos pro radar, tempo parcial logado."
 3. **Outros `[ ]` (nunca comecaram):** do SEMANA → sobrevivem la (so saem do HOJE); ad-hoc fora do SEMANA → `## RESTO`. Seguir a Fase 2.2 (se "fica pra amanha", manter no HOJE).
+3.5. **Refletir progresso no SEMANA (devolver o feito pro trilho vivo):** roda AGORA — com o `## HOJE` ainda populado (antes do passo 4 limpar) — pra devolver o progresso do dia aos focos macro do `## SEMANA`. NAO confundir com a "Leitura do dia" (Fase 2): aquilo e texto de review; isto MARCA estado no SEMANA.
+   - **(a) Re-Read o `## SEMANA`** (pode ter mudado desde a 1.6 — outra janela).
+   - **(b) Cruzar por titulo-nucleo/tema:** pra cada foco do SEMANA, procurar rastro no **feito de hoje** = itens `[x]`/`[~]` do `## HOJE` + linhas do `log-do-feito.md` com Data=hoje. O bom-dia mantem o mesmo titulo-nucleo ao puxar do SEMANA pro HOJE → o match de volta e direto.
+   - **(c) Aplicar estado MONOTONICO** (so avanca `[ ]`→`[~]`→`[x]`, nunca regride; a regeneracao de segunda e novo ciclo, nao regressao):
+     - progrediu e estava `[ ]` → `[~]`;
+     - **`[x]` so pela heuristica CONSERVADORA de conclusao:** o item do HOJE mapeado fechou (`[x]`) **E** o texto do foco do SEMANA nao tem cauda pendente obvia (ex.: "garantir 1a entrega no painel" ainda aberta → fica `[~]`). **Qualquer ambiguidade → `[~]`. NUNCA adivinhar `[x]`.**
+     - sem progresso → **nao toca** o item.
+   - **(d) Escrever/sobrescrever o sufixo** `_(↻ DD/MM: <=8 palavras do que saiu>)_` (italico) SO no foco que avancou. Sobrescreve o sufixo da noite anterior (nao acumula). Removido na regeneracao de segunda (pelo /planejamento-semanal).
+   - **(e) Nao mapeou com confianca → NAO marca** (deixa como esta) e acumula pro balanco. Regra: validar fonte, nao inventar.
+   - **(f) Reportar no review (§2):** "SEMANA: N focos andando, M fechados, K sem mapear".
+   - **(g) Edit MINIMO — so `## HOJE` + `## SEMANA`.** NAO tocar AGUARDANDO/DECISOES/FRENTES/RESTO. Preservar a ordem fisica (`## HOJE` vem ANTES de `## SEMANA` no TAREFAS.md — nao reordenar).
 4. **Limpar e carimbar o HOJE:** resetar pro placeholder COM o carimbo de estado:
    ```
    ## HOJE
@@ -346,7 +367,9 @@ Fecha o ciclo do dia no `TAREFAS.md` + `log-do-feito.md`. **Re-Read o `## HOJE` 
    ```
    (`consolidado` distingue "boa-noite fechou" de "nunca montado" — o gate do bom-dia Fase 0.2 le isso.) **Excecao:** se ficou item "pra amanha" no HOJE, ele NAO esta limpo → **nao** carimbar `consolidado`.
 5. **Regra de mes do log (N5):** a secao e `## YYYY-MM` da **data de inicio** do item (coluna Data), nao do relogio do ritual. Usar o **dia BRT sendo fechado** (janela `T03:00Z`, igual telemetria) — apos meia-noite fecha o dia anterior, nao o civil. **Grep se `## YYYY-MM` ja existe** antes de criar (idempotente) e dar append.
-6. **Commit do cerebro:** diario + TAREFAS.md + log-do-feito.md em 1 commit `cerebro: boa-noite YYYY-MM-DD` (submodule `pique/` separado se tocado). Sem push.
+6. **Commit do cerebro:** diario + TAREFAS.md + log-do-feito.md em 1 commit `cerebro: boa-noite YYYY-MM-DD` (submodule `pique/` separado se tocado). Sem push. O TAREFAS.md agora tambem carrega a mudanca do `## SEMANA` (passo 3.5) alem do `## HOJE`.
+
+> **Decisao de design (SEMANA-vivo):** a marcacao de progresso no `## SEMANA` fica **centralizada aqui no boa-noite** (passo 3.5) — o `/encerrar` NAO muda. Razao: /encerrar roda varias vezes ao dia (1 por item); deixar o SEMANA pra ele espalharia a responsabilidade e arriscaria sobrescritas concorrentes do sufixo `_(↻ ...)_`. O boa-noite consolida tudo 1x no fim do dia. Nao reabrir isso.
 
 ### 5.2c Zerar o TRANSCRIB (delegar o Export) — atras da flag
 
@@ -418,6 +441,19 @@ Lente 3 — COMMITS (output/prova): [N] commits em [M] repos ([repo:n], [repo:n]
 Se nao houver nenhum chat de hoje alem do proprio: `Telemetria hoje: so este chat ([Xm]m ate agora).`
 
 **Regra critica:** zero interpretacao, zero soma, zero "voce passou muito tempo em X". As 3 lentes ficam abertas, divergentes, honestas — cada uma mente sozinha, por isso ficam lado a lado. A reconciliacao real (dedup cross-lente) e trabalho futuro (Bloco 4) — nao force aqui. Nao compare com ontem.
+
+### 5.4b Persistir a Leitura do dia no diario
+
+Faz um `Edit` no `diarios/YYYY-MM-DD.md` (o mesmo do 5.2) adicionando o campo **"Leitura do dia"** ao FIM do check-out — o MESMO texto mostrado no bloco "Leitura do dia" da Fase 2. E o passo que forma a serie que o `/review-semanal` colhe depois (ele ja le os diarios da semana na §1.3).
+
+```markdown
+**Leitura do dia:**
+- [forma · aderencia · materializou + deep-work de produto sim/nao · travou?]
+```
+
+- **Idempotente:** se o campo `**Leitura do dia:**` ja existe no check-out (re-consolidacao — ver guarda N6 da 5.2b), **sobrescrever** o valor, NAO duplicar o campo.
+- Mesmas regras cravadas: constatacao factual, sem comparacao temporal, sem cobranca, sem wall-clock.
+- Vai no mesmo commit do cerebro (5.2b passo 6) — nao e commit separado.
 
 ### 5.5 Encerrar
 Diga: "Dia fechado. Descansa que amanha o /pique:bom-dia puxa esse contexto automatico."

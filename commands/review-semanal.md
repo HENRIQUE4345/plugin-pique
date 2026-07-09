@@ -67,6 +67,7 @@ Extraia:
 - Tasks extras que surgiram
 - Padroes (ex: "3 dias travou no mesmo tema", "nenhum check-out")
 - Notas relevantes
+- **Leitura do dia** — capture explicitamente o campo `**Leitura do dia:**` do check-out de cada diario (gravado pelo boa-noite). Sao as constatacoes factuais do dia (forma do dia · aderencia · o que materializou + deep-work de produto · travou?). Junte as 5 leituras da semana — elas alimentam a "Leitura da semana" na Fase 2. Se um diario nao tiver o campo, marque "sem leitura" pra esse dia.
 
 ### 1.4 Google Calendar — semana que passou
 
@@ -184,6 +185,13 @@ Apresente neste formato (UMA tabela, SO do usuario atual):
 ### Blockers / padroes pessoais
 - [blocker recorrente]
 - [padrao nos diarios]
+
+### Leitura da semana
+- [tipo de semana: X dias gestao / Y producao / Z afiar]
+- [aderencia: onde caiu/subiu na semana]
+- [deep-work de produto: em N de 5 dias]
+- [vs semana passada: o que mudou]  ← comparacao PERMITIDA aqui (ha serie)
+- **Experimento pra testar:** [1 ajuste concreto, opt-in] _(ignora se nao fizer sentido)_
 
 ### Alertas
 - Stand-ups: [X/5 check-in, Y/5 check-out]
