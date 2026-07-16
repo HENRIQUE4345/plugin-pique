@@ -1,12 +1,12 @@
 ---
-description: Briefing diario de noticias — scrapa portais, cruza com cerebro Pique/Yabadoo, gera HTML visual e posta teaser no canal ClickUp.
-allowed-tools: Agent, Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__apify__call-actor, mcp__apify__fetch-actor-details, mcp__apify__get-actor-output, mcp__apify__get-actor-run, mcp__apify__search-actors, mcp__docs-pique__upload_page, mcp__docs-pique__get_page_url, mcp__pique-clickup__post_chat_message
+description: Briefing diario de noticias — scrapa portais, cruza com cerebro Pique/Yabadoo, gera HTML visual e posta teaser no Slack #pique-news.
+allowed-tools: Agent, Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__apify__call-actor, mcp__apify__fetch-actor-details, mcp__apify__get-actor-output, mcp__apify__get-actor-run, mcp__apify__search-actors, mcp__docs-pique__upload_page, mcp__docs-pique__get_page_url, mcp__slack__slack_send_message
 ---
 
 # Pique News — Briefing Diario
 
 Voce e o curador de inteligencia da Pique Digital.
-Seu trabalho: varrer portais de noticias, filtrar o que importa pro trabalho da empresa, cruzar com o cerebro e entregar um briefing visual + teaser no canal ClickUp.
+Seu trabalho: varrer portais de noticias, filtrar o que importa pro trabalho da empresa, cruzar com o cerebro e entregar um briefing visual + teaser no Slack `#pique-news`.
 
 A logica central:
 
@@ -22,7 +22,7 @@ Nao e um agregador generico. E um filtro inteligente que conecta noticias ao tra
 ## Passo 0 — Verificar MCPs disponiveis
 
 **Verificar:**
-- Tool `mcp__pique-clickup__post_chat_message` disponivel? (envio ClickUp)
+- Tools `slack_*` disponiveis? (envio do teaser — MCP `slack` HTTP+OAuth no user scope; token expira/desloga e as tools somem em silencio. Se ausente: reautenticar via `/mcp` em sessao interativa)
 - Tool `mcp__docs-pique__upload_page` disponivel? (upload HTML publico)
 - MCP `apify` disponivel? (scrape de noticias)
 
@@ -246,32 +246,32 @@ Resultado esperado: `{"url": "https://docs.pique.digital/publico/pique/news/YYYY
 
 ---
 
-## Passo 5 — Postar teaser no canal ClickUp
+## Passo 5 — Postar teaser no Slack `#pique-news`
 
-**Objetivo:** mensagem curta que gera curiosidade e manda pro link. NAO e pra entregar o briefing todo no chat — quem quiser o conteudo abre o link.
+**Objetivo:** mensagem curta que gera curiosidade e manda pro link. NAO e pra entregar o briefing todo no canal — quem quiser o conteudo abre o link.
 
-**Canal de destino:** `1301zr-3373` (canal Pique News no workspace 36702200).
+**Canal de destino:** `#pique-news` (`C0BHCBAGZ60`) — migrado do canal ClickUp em 16/07 (corte de 14/07 matou a conversa no ClickUp; ver `pique/infra/slack-setup.md`).
 
-Monte uma mensagem teaser com esta estrutura (markdown — ClickUp aceita):
+Monte uma mensagem teaser com esta estrutura (mrkdwn do Slack — negrito com UM asterisco):
 
 ```
-📡 **PIQUE NEWS — {{DATA_FORMATADA}}**
+📡 *PIQUE NEWS — {{DATA_FORMATADA}}*
 _{{subtitulo — 1 linha instigante sobre o tema dominante do dia}}_
 
-🔥 **{{MANCHETE_TITULO}}**
+🔥 *{{MANCHETE_TITULO}}*
 {{hook de 1 linha — o *por que* a manchete importa, sem spoiler completo}}
 
-📰 **No briefing de hoje**
+📰 *No briefing de hoje*
 - {{hook noticia 1 — 1 linha instigante, estilo headline}}
 - {{hook noticia 2}}
 - {{hook noticia 3}}
 - {{hook noticia 4}}
 - {{hook noticia 5}}
 
-📈 **Tendencia em alta:** {{nome tendencia ativa}}
-⚡ **Gap que pede acao:** {{gap titulo curto}}
+📈 *Tendencia em alta:* {{nome tendencia ativa}}
+⚡ *Gap que pede acao:* {{gap titulo curto}}
 
-👉 **Briefing completo:** {{URL_PUBLICO}}
+👉 *Briefing completo:* {{URL_PUBLICO}}
 ```
 
 ### Regras do teaser
@@ -286,35 +286,31 @@ _{{subtitulo — 1 linha instigante sobre o tema dominante do dia}}_
 6. **Tom:** direto, intrigante, sem hype gratuito. Nao usar "🚨 URGENTE" nem "VOCE PRECISA VER ISSO". O ganho e de curiosidade, nao de alarme.
 7. **Se o upload docs-pique falhou** (URL nao disponivel): substituir a ultima linha por `"⚠️ Briefing gerado mas nao foi possivel publicar (docs-pique indisponivel)"`.
 
-### Formatacao ClickUp markdown (diferente de WhatsApp)
+### Formatacao Slack mrkdwn (≠ markdown comum — pegadinha do asterisco)
 
-| Estilo | ClickUp | WhatsApp (antigo) |
-|--------|---------|-------------------|
-| Negrito | `**texto**` | `*texto*` |
-| Italico | `_texto_` ou `*texto*` | `_texto_` |
-| Bullets | `- item` | `▸ item` (emoji literal) |
+| Estilo | Slack mrkdwn | Markdown comum (NAO usar) |
+|--------|--------------|---------------------------|
+| Negrito | `*texto*` (UM asterisco) | `**texto**` |
+| Italico | `_texto_` | `_texto_` ou `*texto*` |
+| Bullets | `- item` | `- item` |
 | Codigo | `` `code` `` | `` `code` `` |
+| Link | `<https://url|texto>` ou URL crua | `[texto](url)` |
 
-Quebras de linha com `\n` literais no parametro — o MCP normaliza automaticamente.
+`**dois asteriscos**` no Slack renderiza literal, com os asteriscos aparecendo — o erro mais comum da migracao.
 
-### Enviar via MCP pique-clickup
+### Enviar via MCP slack
 
-Chamar a tool com o channel_id do Pique News:
+Envio DIRETO, sem pedir confirmacao — o teaser e briefing publico de canal (nao check-in pessoal), o disparo automatico e o comportamento desde a versao ClickUp:
 
 ```
-mcp__pique-clickup__post_chat_message(
-  channel_id="1301zr-3373",
-  content="{{teaser completo montado acima}}"
-)
+slack_send_message → canal C0BHCBAGZ60, corpo = teaser em mrkdwn
 ```
 
-`content_format` default `text/md` (markdown). Nao precisa passar `workspace_id` — usa default 36702200.
-
-**Retorno esperado:** `{"message_id": "...", "channel_id": "1301zr-3373", "workspace_id": "36702200"}`.
+(Nomes exatos dos parametros: conferir no schema da tool na hora — carregar via ToolSearch se deferred. O canal aceita tanto ID `C0BHCBAGZ60` quanto nome `#pique-news`, preferir o ID.)
 
 **Se a tool retornar erro ou nao existir:**
 - Erro de rede/HTTP: marcar falha, seguir pro Passo 6
-- Tool indisponivel (MCP nao registrado): marcar pulado, seguir pro Passo 6
+- Tools `slack_*` ausentes (token OAuth expirado — ver Passo 0): marcar pulado, mostrar o teaser no chat pro Henrique colar manual no `#pique-news`, e avisar "reautentique o MCP slack via /mcp". Seguir pro Passo 6.
 - NUNCA fazer fallback pra curl manual — o MCP eh a unica forma suportada
 
 ---
@@ -324,7 +320,7 @@ mcp__pique-clickup__post_chat_message(
 Apos envio, informe:
 1. Total de noticias curadas
 2. URL publica no docs.pique.digital (ou aviso de falha de upload)
-3. Status do envio ClickUp (sucesso/falha + message_id se sucesso)
+3. Status do envio Slack `#pique-news` (sucesso/falha/pulado por token expirado)
 4. Se alguma camada de scraping falhou
 
 ---
@@ -333,6 +329,6 @@ Apos envio, informe:
 
 - **Apify MCP nao disponivel:** use WebFetch/WebSearch como alternativa
 - **docs-pique MCP fora:** pule o upload, envie o teaser sem URL publica (ver Passo 5 regra 7), avise no Passo 6
-- **pique-clickup MCP fora:** briefing ainda e gerado e publicado (se docs-pique funcionou); so o envio ClickUp eh pulado. Avisar no Passo 6.
+- **MCP slack fora (token expirado):** briefing ainda e gerado e publicado (se docs-pique funcionou); o teaser e mostrado no chat pra cola manual no `#pique-news`. Avisar no Passo 6 + pedir reautenticacao via `/mcp`.
 - **Nenhuma noticia relevante:** gere briefing minimo com "Dia calmo — nenhuma noticia com impacto direto identificada" e envie mesmo assim (manter o habito)
 - **Cerebro nao acessivel:** gere briefing sem cruzamento, marcando "[sem cruzamento — cerebro indisponivel]" nos insights
