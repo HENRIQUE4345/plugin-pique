@@ -98,7 +98,9 @@ Agrupar commits por repo. Limitar output a 20 linhas por repo (mais que isso = d
 
 **Use isso pra:** (a) montar o **Balanco de modos** na Fase 2; (b) saber o que precisa de backfill/devolucao na Fase 5.2b; (c) cruzar o feito de hoje com os focos do SEMANA (passo 3.5 da 5.2b). Cruze com a telemetria (1.4) e commits (1.5): item `[x]` no HOJE mas ausente do log = feito sem `/encerrar`, vai precisar de backfill.
 
-> **Principio da varredura:** as fontes 1.1–1.6 sao **lentes que se sobrepoem, nao somam**. O mesmo trabalho aparece em 3-4 delas (uma sessao de codigo = chat enriquecido + commit + linha de log + task ClickUp). O boa-noite **cruza e deduplica na narrativa**, mas **nunca soma os relogios num numero unico** (ver Fase 5.4). As fontes 1.7–1.9 (TRANSCRIB, Meet, WhatsApp) sao **sinais de "tem coisa pra documentar/cobrar"**, nao tempo — entram no review e na proposta, nunca viram 4a lente de relogio.
+> **Principio da varredura:** as fontes 1.1–1.6 sao **lentes que se sobrepoem, nao somam**. O mesmo trabalho aparece em 3-4 delas (uma sessao de codigo = chat enriquecido + commit + linha de log + task ClickUp). O boa-noite **cruza e deduplica na narrativa**, mas **nunca soma os relogios num numero unico** (ver Fase 5.4). As fontes 1.7–1.8 (TRANSCRIB, Meet) sao **sinais de "tem coisa pra documentar"**, nao tempo — entram no review e na proposta, nunca viram 4a lente de relogio.
+>
+> **WhatsApp NAO entra no boa-noite** (cortado 16/07 — pedido do Henrique desde 09/07): poluia o fechamento com ruido de caixa de entrada. Cobranca de mensagem e trabalho do `/plugin-whatsapp:triage`, sob demanda.
 
 ### 1.7 Timeline do dia (TRANSCRIB) — atras da flag `transcrib_conectado`
 
@@ -124,12 +126,6 @@ NAO processar aqui — so detectar (radar) e sinalizar: "N exports manuais no in
 **Edge — Drive OFF:** se o `ls` falhar/timeout (conector Drive desligado), imprimir 1 linha e seguir — nunca travar:
 `> Meet Recordings: Drive inacessivel agora — pulei a deteccao (rode /pos-reuniao manual depois).`
 
-### 1.9 WhatsApp — cobranca (deteccao read-only — sempre roda)
-
-Invocar `/plugin-whatsapp:inbox` (ja existe, read-only: status → list_chats nao-lidos → read_messages, retorna resumo). Capturar os contatos com nao-lidas. **Cruzar com `TAREFAS.md §AGUARDANDO`** (lido na 1.6): pra cada item de AGUARDANDO, se o contato aparece nas nao-lidas → "respondeu, da pra destravar"; se NAO aparece e aguarda ha tempo → "cobrar". Montar `whatsapp_sinal[]` = `{contato, n_unread, cruzamento}`. **NUNCA responder/arquivar mensagem** — read-only puro, so sinaliza.
-
-**Edge — WhatsApp desconectado:** o proprio `/inbox` para e avisa; capturar, imprimir 1 linha e seguir sem cobranca.
-
 ---
 
 ## Fase 2: Review do dia
@@ -138,7 +134,7 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 
 **FILTRO OBRIGATORIO — apenas profissional.** Cortar tudo que e pessoal: academia, conta de luz, familia, saude pessoal, lazer, compras domesticas, etc. Itens pessoais nao entram no review nem no diario do boa-noite. Se o usuario quiser registrar pessoal, ele faz separadamente em outro lugar.
 
-**ESTRUTURA OBRIGATORIA — 3 blocos separados**, mesmo que algum esteja vazio (escrever "Nenhum" em vez de omitir). **Excecao:** os blocos condicionais **Reunioes de hoje (Meet)** e **WhatsApp — cobranca** so aparecem se houver itens — omitir inteiros se vazios (nao escrever "Nenhum"), pra nao inflar o ritual.
+**ESTRUTURA OBRIGATORIA — 3 blocos separados**, mesmo que algum esteja vazio (escrever "Nenhum" em vez de omitir). **Excecao:** o bloco condicional **Reunioes de hoje (Meet)** so aparece se houver itens — omitir inteiro se vazio (nao escrever "Nenhum"), pra nao inflar o ritual.
 
 ```
 ## Fechamento do dia (apenas profissional):
@@ -162,10 +158,6 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 
 **Reunioes de hoje (Meet)** (so se houver novas — senao OMITIR o bloco):
 - [titulo] [HH:MM] — [✓ voce participou / ○ voce NAO estava (registro Pique)] — [tem gravacao / so anotacao] → documentar via /pos-reuniao?
-
-**WhatsApp — cobranca** (read-only, so se houver — senao OMITIR o bloco):
-- [contato] (N nao-lidas) — cruza com AGUARDANDO "[item]" → cobrar / destravar
-- _(so sinalizei — nao respondi nem arquivei nada)_
 
 **Balanco de modos** (lente do TRILHO — so o que passou por /iniciar→/encerrar, do log da Fase 1.6):
 - Pensar: [n] · [Xmin] | Produzir: [n] · [Xmin] | Afiar: [n] · [Xmin]
@@ -193,11 +185,11 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 - Pessoal = academia, casa, familia, saude pessoal, compras pessoais, lazer, financeiro familia/casa, relacionamentos
 - Em duvida: pergunta se conta como profissional. NAO assume.
 
-### 2.1 Mensagem WhatsApp — PRIORIDADE MAXIMA, sai LOGO APOS o review
+### 2.1 Mensagem de stand-up (Slack `#standup`) — PRIORIDADE MAXIMA, sai LOGO APOS o review
 
-**REGRA CRITICA:** assim que terminar o review do fechamento (3 blocos + amanha), gerar IMEDIATAMENTE a mensagem WhatsApp pronta pra copiar/colar. Antes de qualquer pergunta, antes da proposta consolidada, antes de executar qualquer coisa. O usuario quer copiar e mandar logo — nao deixar isso em fila.
+**REGRA CRITICA:** assim que terminar o review do fechamento (3 blocos + amanha), gerar IMEDIATAMENTE a mensagem de stand-up e mostrar no chat. Antes de qualquer pergunta, antes da proposta consolidada, antes de executar qualquer coisa.
 
-Formato EXATO (pronto pra copiar):
+Formato EXATO:
 
 ```
 Feito:
@@ -210,13 +202,20 @@ Fica pra amanha: [task / nada]
 
 Regras pra montar a mensagem:
 - **So profissional** (mesmo filtro da Fase 2)
-- **Excluir Afiar de ferramenta interna/pessoal de IA** (scripts do proprio Claude Code, ajustes de skill/plugin, automacao do fluxo de trabalho) — mesmo sendo Afiar profissional legitimo e mesmo que va pro diario/log normalmente, e "solto" pra quem le a mensagem (Marco): nao e o que a empresa precisa saber no check-in diario. Regra pratica: se o item so importa pro proprio Henrique operar melhor a IA, fica de fora.
+- **Excluir Afiar de ferramenta interna/pessoal de IA** (scripts do proprio Claude Code, ajustes de skill/plugin, automacao do fluxo de trabalho) — mesmo sendo Afiar profissional legitimo e mesmo que va pro diario/log normalmente, e "solto" pra quem le o canal (Marco/equipe): nao e o que a empresa precisa saber no check-in diario. Regra pratica: se o item so importa pro proprio Henrique operar melhor a IA, fica de fora.
 - **Destilar pros highlights** (3-7 bullets max — nao listar tudo, escolher o que importa)
 - **Linguagem oral, sem jargao** ("plano trimestral fechado", nao "etapa 1+2 do briefing-trimestre-jun-ago")
-- **Sem links, sem markdown rico** (vai pra WhatsApp puro)
+- **Corpo em 1a pessoa** ("fechei", "mandei"); 3a pessoa so pra citar terceiros
+- **Sem links, sem markdown rico** (texto puro)
 - **"Fica pra amanha"** = 1 linha curta. Se nao tem nada, escrever "nada"
 
-Apos enviar a mensagem, ENTAO continue pra Fase 2.2.
+**Envio (regra revista 15/07 — direto, SEM draft):**
+1. Mostrar a mensagem no chat e perguntar: "Mando pro #standup?"
+2. Apos o **OK explicito do Henrique**, enviar DIRETO via `slack_send_message` no canal **`#standup` (`C0BGNGDMHC7`)** — NAO usar `slack_send_message_draft` (o draft virou passo burocratico: o Henrique ja revisou o dia inteiro no chat). Se existir um `draft_id` de rascunho anterior, passa-lo no envio pra limpar o rascunho junto.
+3. **Excecao — conteudo sensivel** (numero de dinheiro, nome em cobranca dura, assunto de socio): destacar o trecho sensivel ao mostrar a mensagem e so enviar apos OK mesmo assim.
+4. **Fallback — Slack indisponivel nesta sessao** (o MCP `slack` e HTTP+OAuth no user scope — `https://mcp.slack.com/mcp` — e o token expira/desloga; quando isso acontece as tools `slack_*` somem da sessao): NAO travar. Entregar a mensagem como texto pro Henrique colar no `#standup`, sinalizar 1 linha ("Slack des-autenticado — cola manual e reautentique via `/mcp` numa sessao interativa") e seguir o ritual.
+
+Apos o envio (ou o fallback), ENTAO continue pra Fase 2.2.
 
 ### 2.2 Perguntas finais do review (MAXIMO 3, diretas)
 
@@ -273,11 +272,11 @@ ANTES de executar qualquer coisa, apresente a proposta completa em UM bloco:
 **Diario (diarios/YYYY-MM-DD.md):**
 [preview do conteudo completo do diario]
 
-**Mensagem WhatsApp:**
-[preview da mensagem]
+**Stand-up (#standup):**
+[ja enviada na 2.1 / pendente de OK / fallback cola-manual]
 ```
 
-> As secoes **Reunioes** e **TRANSCRIB** so aparecem se houver itens (omitir se vazias). A **cobranca WhatsApp NAO entra na execucao** — e read-only, fica so no review (Fase 2).
+> As secoes **Reunioes** e **TRANSCRIB** so aparecem se houver itens (omitir se vazias).
 
 Pergunte: "Ta certo? Mando executar?"
 
@@ -405,9 +404,9 @@ Se a flag esta off E **nao ha** export manual: 1 linha e seguir (ver 1.7). Nao t
 
 **Muitas (>3 reunioes):** documentar inline so as que o Henrique participou; as "NAO presente" → oferecer `/pos-reuniao` em lote depois (guarda de tempo).
 
-### 5.3 Mensagem WhatsApp — JA FOI GERADA na Fase 2.1
+### 5.3 Stand-up no Slack — JA FOI TRATADA na Fase 2.1
 
-A mensagem WhatsApp ja saiu imediatamente apos o review (Fase 2.1) — usuario ja copiou e mandou. NAO regerar aqui. Se por algum motivo nao foi gerada antes (skip incorreto), gerar agora seguindo o formato da Fase 2.1.
+A mensagem de stand-up ja saiu imediatamente apos o review (Fase 2.1) — enviada no `#standup` apos o OK, ou entregue como texto no fallback. NAO regerar aqui. Se por algum motivo nao foi gerada antes (skip incorreto), gerar agora seguindo o formato + regra de envio da Fase 2.1.
 
 ### 5.4 Bloco telemetria do dia
 
@@ -421,7 +420,7 @@ Para enriquecer cada sessao, use `Grep` pontual (NUNCA `Read` integral — estou
 
 Regras completas de parsing (slug cwd, wall time, primeiro prompt, modelos) em `/pique:tempo` secao "Como ler". Siga elas.
 
-Formato do bloco — **3 lentes** que medem coisas diferentes e **NAO somam entre si** (adicionar apos a mensagem WhatsApp, antes do Encerrar):
+Formato do bloco — **3 lentes** que medem coisas diferentes e **NAO somam entre si** (adicionar apos a mensagem de stand-up, antes do Encerrar):
 
 ```
 As 3 lentes do dia (medem coisas diferentes — NAO somar entre si):
@@ -470,7 +469,8 @@ Diga: "Dia fechado. Descansa que amanha o /pique:bom-dia puxa esse contexto auto
 - O fechamento inteiro deve levar no maximo 5-10 minutos.
 - SEMPRE apresente a proposta completa e espere aprovacao antes de executar.
 - O boa-noite e RADAR: DETECTA tudo (Fase 1, barato) e DELEGA o processamento pesado aos comandos donos (Meet→/pos-reuniao; TRANSCRIB→Export do app). NAO processa reuniao/inbox/sessao inline — isso quebra o tempo e duplica os comandos donos.
-- WhatsApp (1.9) e read-only: NUNCA responder/arquivar mensagem, so sinalizar cobranca.
+- WhatsApp NAO faz parte do boa-noite (cortado 16/07) — cobranca de mensagem e do `/plugin-whatsapp:triage`, sob demanda.
+- O envio da stand-up no `#standup` e DIRETO (`slack_send_message`) mas SEMPRE apos OK explicito do Henrique no chat. Nunca enviar sem mostrar antes.
 - Meet e TRANSCRIB sao DOIS-PASSOS: escrever o destino PRIMEIRO, marcar/arquivar SO depois. Nunca inverter (perde rastro / apaga audio).
 
 ## Auto-avaliacao (executar sempre ao final)
@@ -481,7 +481,7 @@ Avalie a execucao com base nestas perguntas:
 3. Tasks que nao foram feitas foram registradas sem julgamento?
 4. O fechamento levou menos de 10 minutos? (a deteccao dos 4 pontos e barata; se estourou, foi processamento pesado que devia ter sido delegado/opt-in)
 5. As reunioes novas do Meet foram detectadas e documentadas (ou registrado por que nao)? Arquivou pra `.arq` SO o que foi documentado (dois-passos)?
-6. A cobranca WhatsApp foi cruzada com AGUARDANDO SEM responder/arquivar mensagem nenhuma?
+6. A stand-up foi mostrada no chat ANTES do envio, e so foi pro `#standup` apos o OK explicito (ou caiu no fallback cola-manual sem travar)?
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
