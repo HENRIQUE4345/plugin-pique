@@ -18,7 +18,7 @@ Esta skill **monta o HOJE do trilho** (`TAREFAS.md`). Para a lente FAZER, os can
 
 Mas o **foco do dia pode nascer de outra lente** — uma decisao madura (`[Pensar]`) ou um "Eu travo eles" (destravar alguem) as vezes vale mais que mais uma tarefa de execucao (ver Fase 3.2).
 
-**READ-ONLY de manha:** o bom-dia NAO move status, NAO muta due_date por conta propria, NAO cria task. A unica escrita ClickUp permitida e condicional e confirmada (Fase 5.1). Tudo que ele escreve e no lado do Henrique: `## HOJE` do trilho + check-in no diario + msg WhatsApp.
+**READ-ONLY de manha:** o bom-dia NAO move status, NAO muta due_date por conta propria, NAO cria task. A unica escrita ClickUp permitida e condicional e confirmada (Fase 5.1). Tudo que ele escreve e no lado do Henrique: `## HOJE` do trilho + check-in no diario + stand-up no Slack `#standup` (pos-OK, Fase 5.2).
 
 Por que hibrido: 100% automatico ignora capacidade mental do dia (cansaco, reuniao surpresa). 100% manual cria fadiga cognitiva diaria. O ponto doce e: sistema filtra o obvio, humano decide o contexto.
 
@@ -247,7 +247,7 @@ Os candidatos NAO saem so do `## SEMANA` (lente FAZER). O bom-dia e coach: um it
 6. **Prep de ontem (B3):** se a Fase 0 trouxe "prep pra hoje/amanha" do diario, **oferecer** como candidato (sugere, nao entra sozinho).
 7. **Ad-hoc:** o que o usuario mencionou no chat (Fase 3.1).
 
-> **Cobrar (bloco "Eles me devem" da lente 2) NAO vira task de execucao do Henrique** — vira linha na msg do WhatsApp / lembrete de cobranca, nao candidato do dia. Nunca criar task pra terceiro (gerar mensagem pro Henrique enviar).
+> **Cobrar (bloco "Eles me devem" da lente 2) NAO vira task de execucao do Henrique** — vira linha na mensagem de stand-up / lembrete de cobranca, nao candidato do dia. Nunca criar task pra terceiro (gerar mensagem pro Henrique enviar).
 
 Mostrar a **estimativa de tempo** ao lado de cada um. **Filtrar bloqueados** (Fase 3.2.1).
 
@@ -343,8 +343,9 @@ bom-dia **nao muta ClickUp por padrao**. Itens puros de trilho (sem task ClickUp
 - NAO mover status, NAO mover pra "Hoje" (status morto), NAO criar task de manha.
 - Atrasadas/vencendo que ficam de fora: deixar como estao.
 
-### 5.2 Gerar mensagem do WhatsApp
-Gere a mensagem EXATAMENTE neste formato (pronta pra copiar e colar):
+### 5.2 Mensagem de stand-up (Slack `#standup`)
+
+Gere a mensagem EXATAMENTE neste formato:
 
 ```
 Hoje:
@@ -355,7 +356,13 @@ Travado em: [nada / o que for]
 Cobrar: [quem — o que / ou omitir a linha se nao houver]
 ```
 
-A linha **Cobrar** vem do bloco "Eles me devem" da lente SUPERVISIONAR (Fase 2) — a cobranca nao vira task do Henrique, vira lembrete pra ele acionar a pessoa. Se nao houver cobranca do dia, OMITA a linha (nao deixar "Cobrar: nada").
+A linha **Cobrar** vem do bloco "Eles me devem" da lente SUPERVISIONAR (Fase 2) — a cobranca nao vira task do Henrique, vira lembrete pra ele acionar a pessoa. Se nao houver cobranca do dia, OMITA a linha (nao deixar "Cobrar: nada"). Corpo em **1a pessoa**; 3a pessoa so pra citar terceiros. Texto puro, sem links/markdown rico.
+
+**Envio (regra revista 15/07 — direto, SEM draft; testado no `#standup` em 15/07):**
+1. Mostrar a mensagem no chat e perguntar: "Mando pro #standup?"
+2. Apos o **OK explicito do Henrique**, enviar DIRETO via `slack_send_message` no canal **`#standup` (`C0BGNGDMHC7`)** — NAO usar `slack_send_message_draft` (o draft virou passo burocratico: o Henrique acabou de revisar a proposta do dia no chat). Se existir um `draft_id` de rascunho anterior, passa-lo no envio pra limpar o rascunho junto.
+3. **Excecao — conteudo sensivel** (numero de dinheiro, nome em cobranca dura, assunto de socio): destacar o trecho sensivel ao mostrar a mensagem e so enviar apos OK mesmo assim.
+4. **Fallback — Slack indisponivel nesta sessao** (o MCP `slack` e HTTP+OAuth no user scope — `https://mcp.slack.com/mcp` — e o token expira/desloga; quando isso acontece as tools `slack_*` somem da sessao): NAO travar. Entregar a mensagem como texto pro Henrique colar no `#standup`, sinalizar 1 linha ("Slack des-autenticado — cola manual e reautentique via `/mcp`") e seguir o ritual.
 
 ### 5.3 Salvar check-in no diario
 
@@ -398,11 +405,11 @@ O `TAREFAS.md` (raiz do cerebro) e o **trilho pessoal de execucao** — o que o 
    ```
    - `AAAA-MM-DD` = data de hoje (o gate da Fase 0 le esse carimbo).
    - **Ordenados por execucao**; **so o 1o** leva ` ← começa aqui`; **sem** `(iniciada:)` (isso e do `/iniciar`).
-5. **Nao duplica** ClickUp/WhatsApp: a proposta e a msg seguem pra consciencia de prazo/equipe; o HOJE e o trilho pessoal. Os MESMOS itens de execucao aparecem nos dois — aqui etiquetados por modo.
+5. **Nao duplica** ClickUp/stand-up: a proposta e a msg seguem pra consciencia de prazo/equipe; o HOJE e o trilho pessoal. Os MESMOS itens de execucao aparecem nos dois — aqui etiquetados por modo.
 6. Edit minimo: so a secao `## HOJE`. Nao mexer em SEMANA/AGUARDANDO/DECISOES/FRENTES/RESTO.
 
 ### 5.4 Encerrar
-Diga: "Stand-up feito. HOJE montado no trilho (N itens). Mensagem pronta. Rode `/iniciar` pra carimbar o 1o item e carregar o modo."
+Diga: "Stand-up feito. HOJE montado no trilho (N itens). Mensagem no #standup [enviada / aguardando OK / cola manual]. Rode `/iniciar` pra carimbar o 1o item e carregar o modo."
 
 ---
 
