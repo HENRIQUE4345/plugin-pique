@@ -78,15 +78,22 @@ Cheque TODOS os calendarios do usuario (ler IDs de `plugin-pique.local.md` e CLA
 
 **Filtro no calendario Pique Agenda (compartilhado):** incluir evento apenas se o email do usuario atual (`calendarios.primary` em `plugin-pique.local.md`) esta em `attendees`. Eventos no Pique Agenda **sem attendees** NAO sao default "compromisso seu" — sao eventos publicos. Liste-os em uma secao separada "Publico/a confirmar quem participa" no briefing e NAO desconte do tempo livre. NAO listar reuniao do outro socio como compromisso seu.
 
+⚠️ **RECONFERIR O DIA ISOLADO ANTES DE CRAVAR O TETO (obrigatorio).** A busca da janela larga (ontem→hoje+4) **ja devolveu horario ERRADO** de evento de hoje — em 22/07/2026 ela retornou "REC: YABA 15:30-16:30" quando o evento real era **11:00-12:00** (o Henrique flagrou com print; a releitura isolada do dia devolveu o certo). Provavel instancia errada de evento recorrente ou movido. Portanto: **depois** das 3 janelas, refaca UMA busca so de hoje (`timeMin=hoje 00:00`, `timeMax=hoje 23:59`) em cada calendario e use **essa** leitura pros horarios de hoje. Divergiu entre as duas? A do dia isolado vence — e **sinalize a divergencia no briefing**, nao corrija em silencio.
+
 **Calcule TEMPO LIVRE de hoje:**
 - Horas disponiveis = 8h uteis - reunioes de hoje - 1h buffer (contexto switching, imprevistos)
 - Esse numero e o TETO de estimativas que cabem no dia
+- **Nao trate o dia como um bloco unico:** reuniao no MEIO da manha/tarde parte a janela em pedacos curtos. Liste as janelas reais (ex: 09:15-11:00 · 12:00-14:00 · 15:30-18:00) antes de propor — item de 2h nao cabe em duas janelas de 1h. Evento **presencial** custa deslocamento/setup que nao aparece na duracao do evento; desconte.
 
 ### 1.2 ClickUp — overlay de prazo + cobranca (SO LEITURA)
 
 > ClickUp NAO e a fonte do dia — isso e o SEMANA do trilho (Fase 1.4). Aqui ele entra so como **overlay**: prazo duro que pode forcar um item, e cobranca. **Reorg 26/06:** "Essa semana"/"Hoje" NAO existem mais como status — NAO filtrar por eles, so por due_date + status atuais (a fazer / fazendo / aguardando terceiro / finalizado).
 
-Consulte `pique/infra/clickup-setup.md` para IDs dos Spaces. Busque sempre com `assignees: [user_clickup_id]` (nunca tasks do time), em TODOS os Spaces ativos (Pique Digital 901313561086, Pique Studio 901313561098, Yabadoo 901313567191, Beto Carvalho 901313567164, Pessoal 901313561154), `status NOT IN (finalizado, descartada)`:
+**NAO hardcode Space ID aqui** — a reorg move Space e os IDs mortos retornam vazio **em silencio** (mascara falta de dado em vez de avisar). Peca ao `gestor-clickup` pra comecar por `clickup_get_workspace_hierarchy`, listar os Spaces que existem HOJE, e so entao buscar. Cruze com `pique/infra/clickup-setup.md` / `clickup-mapa-real-*.md` se precisar.
+
+> **Foto de 22/07/2026 (referencia, nao filtro — reconfira sempre):** 10 Spaces vivos — Marketing `901313561098` · Produto `901313567191` · Clientes `901313869198` · Comercial `901313872609` · Demandas Internas `901313872623` · [NEW] Casa `901313888640` · [NEW] Crescimento `901313888670` · [NEW] Produto `901313890018` · [NEW] Clientes `901313890061` · [NEW] STUDIO `901313890136`. **MORTOS:** "Pique Digital" `901313561086` e "Beto Carvalho" `901313567164`. Os antigos "Studio" e "Yabadoo" sobrevivem com o MESMO id, so renomeados pra "Marketing" e "Produto".
+
+Busque sempre com `assignees: [user_clickup_id]` (nunca tasks do time), em TODOS os Spaces ativos, `status NOT IN (finalizado, descartada)`:
 
 | O que buscar | Filtro | Uso |
 |---|---|---|
