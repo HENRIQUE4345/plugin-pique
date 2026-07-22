@@ -11,7 +11,7 @@ Este ritual e o par do **Stand-up de segunda** (Carol conduz) — segunda commit
 ## Ferramentas
 
 - **WhatsApp** (ler o grupo de stand-up): MCP `plugin-whatsapp` — `whatsapp_read_messages`
-- **Google Drive** (transcricao do stand-up + reunioes): MCP `google-workspace` — `search_drive_files` + `get_drive_file_content`
+- ~~**Google Drive** (transcricao do stand-up + reunioes)~~ — **fonte orfa desde 22/07/2026** (ver 1.2/1.3): a gravacao deixou de ser centralizada e o destino novo ainda nao existe
 - **Google Calendar** (reunioes da semana): MCP `google-workspace` — `get_events`
 - **ClickUp** (confirmar entrega + surgiu-no-meio): agent `gestor-clickup`
 - **Arquivos do cerebro**: Read/Grep direto
@@ -52,15 +52,32 @@ Separe por pessoa (sender_jid) e classifique cada mensagem:
 - **BOM-DIA** (check-in): comeca com "Hoje:", "Bom dia", ou lista o que a pessoa VAI fazer.
 - **BOA-NOITE** (check-out): comeca com "Feito:", "Boa noite", ou lista o que FEZ + "Fica pra amanha".
 
-### 1.2 Drive — transcricao do stand-up de segunda (fonte dos commits da equipe)
+### 1.2 Commit congelado da equipe — ⚠️ FONTE ORFA (desde 22/07/2026)
 
-`search_drive_files` por `name contains 'Stand-up de entrega'` + `'Anotações do Gemini'`, `order_by: 'modifiedTime desc'`. Pegue o da **segunda** desta semana. `get_drive_file_content` no ID.
+**A fonte morreu e ainda nao tem substituta.** Ate 22/07 o commit vinha da transcricao
+automatica do **stand-up de segunda**, lida numa pasta unica do Drive. A empresa saiu da
+gravacao centralizada (cada um grava a propria reuniao, destino a definir) — **nao ha mais
+onde buscar o que cada pessoa declarou na segunda.**
 
-Extraia o **commit de cada pessoa da equipe** — o que ela DECLAROU que ia fazer na semana (secao "Proximas etapas" do Gemini + a fala literal na transcricao). Este e o commit CONGELADO.
+**Como rodar enquanto nao houver fonte — NAO improvise, avise:**
+1. Abrir o painel com a linha: *"Sem transcricao do stand-up de segunda — o commit congelado
+   desta semana nao tem fonte. O verde/vermelho abaixo compara entrega contra o que apareceu
+   no `#standup` (1.1) e no ClickUp (1.4), nao contra o que foi prometido na segunda."*
+2. Perguntar ao Henrique se ele quer **cravar o commit a mao** (ele estava na reuniao) — se
+   sim, o que ele ditar VIRA o commit congelado e entra no painel como tal.
+3. Se ele nao cravar, o painel roda **sem baseline**: reporta o que foi feito, nao julga
+   cumprimento. **Nunca inferir o commit do ClickUp** — o card nao decide (ver 1.4).
 
-### 1.3 Drive — transcricoes das reunioes da semana (leitura factual)
+**Quando existir destino novo pras gravacoes**, esta fase volta a ser automatica: buscar a
+transcricao do stand-up de segunda la, extrair o que cada um DECLAROU, congelar.
 
-`search_drive_files` por `'Anotações do Gemini'`, `order_by: 'modifiedTime desc'`, dos ultimos 5 dias. Sao a fonte da "leitura factual" de cada janela (o *porque* que o card nao conta).
+### 1.3 Leitura factual das reunioes da semana — ⚠️ mesma fonte orfa
+
+Era a transcricao das reunioes dos ultimos 5 dias (o *porque* que o card nao conta). Mesma
+causa, mesmo estado. Substituto parcial enquanto isso: as **sessoes ja documentadas** em
+`pique/sessoes/` da semana (as que passaram pelo `/pos-reuniao`) — sao menos completas que a
+transcricao crua, mas sao factuais. Se nao houver nenhuma, dizer que a leitura factual esta
+indisponivel em vez de preencher com suposicao.
 
 ### 1.4 ClickUp — entrega + surgiu-no-meio
 
@@ -155,7 +172,7 @@ Salve em `inbox/YYYY-MM-DD-painel-review-semana.html` (area de transito do cereb
 ## Fase 6: Modo degradado (fontes off)
 
 Roda so com **WhatsApp + ClickUp** (o nucleo: commits, ritmo, cumprimento). Se faltar:
-- **Drive off:** commits da equipe saem so do WhatsApp (sem a transcricao do stand-up pra cruzar); leitura factual sai so do ClickUp (sem o *porque* da transcricao). Avise o gap.
+- **Sem transcricao de stand-up (estado atual, ver 1.2):** commits da equipe saem so do `#standup`/WhatsApp ou do que o Henrique cravar a mao; leitura factual sai das sessoes ja documentadas + ClickUp (sem o *porque* da transcricao crua). Avise o gap — nao preencha com suposicao.
 - **Calendar off:** janela sem "reuniao nao planejada".
 Sempre **informe o gap, nao invente**.
 

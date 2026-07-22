@@ -8,7 +8,6 @@ Processamento pos-reuniao. Recebe transcricao de reuniao e extrai tudo que e aci
 
 - **Operacoes ClickUp** (criar tasks): delegar ao agent `gestor-clickup`
 - **Google Calendar** (criar eventos, buscar reunioes): chamar diretamente (connector leve)
-- **Gmail** (buscar anotacoes Gemini): chamar diretamente (connector leve)
 
 > **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis (agent gestor-clickup falhar), avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
 
@@ -16,7 +15,7 @@ Processamento pos-reuniao. Recebe transcricao de reuniao e extrai tudo que e aci
 
 - Apos qualquer reuniao gravada (cliente, interna, prospect, parceiro)
 - Quando o usuario colar transcricao de audio/video
-- Funciona pra reunioes presenciais (transcricao do celular) e online (Meet/Zoom)
+- Funciona pra reuniao presencial (transcricao do celular/Plaud) e online (qualquer gravador)
 
 ---
 
@@ -29,64 +28,24 @@ Caso contrario, pergunte:
 ```
 Como quer enviar a reuniao?
 
-1. **Automatico** — busco na agenda do Google e puxo as anotacoes do Gemini
-2. **Manual** — voce cola a transcricao aqui
-3. **Lote** — voce aponta uma PASTA (ex: inbox/yabadoo-desktop/) e eu processo todas as transcricoes de uma vez
+1. **Manual** — voce cola a transcricao aqui
+2. **Lote** — voce aponta uma PASTA (ex: inbox/yabadoo-desktop/) e eu processo todas as transcricoes de uma vez
 
 Qual?
 ```
 
-### Se modo automatico:
-
-#### 0.1 Listar reunioes recentes
-
-Busque eventos dos ultimos 7 dias no calendario Pique Agenda (ID em CLAUDE.md do plugin) com `condenseEventDetails: false`.
-
-Filtre apenas eventos que tenham attachment com `title: "Anotações do Gemini"` (mimeType `application/vnd.google-apps.document`).
-
-Apresente lista numerada:
-
-```
-Reunioes com anotacoes do Gemini (ultimos 7 dias):
-
-1. [24/03 09:00] Reuniao Edith — Marco
-2. [24/03 10:30] Reuniao Karine — Marco
-3. [24/03 13:00] Reuniao Projeto Beto — Henrique, Daniel, Beto
-4. [30/03 09:30] Reuniao Arthur — Arthur
-...
-
-Qual reuniao? (numero ou "todas")
-```
-
-Incluir data, hora, nome do evento e participantes (extrair dos attendees).
-
-#### 0.2 Buscar conteudo das anotacoes (Drive-first)
-
-Apos o usuario escolher, tente buscar o conteudo nesta ordem:
-
-**Tentativa 1 — Google Drive (preferida):**
-Pegue o `fileId` do attachment do evento (`title: "Anotações do Gemini"`) e leia direto via `mcp__claude_ai_Google_Drive__read_file_content`. Drive-first e mais direto: zero copy-paste manual, funciona mesmo quando o email do Gemini foi pra outro participante e captura reunioes nao agendadas (basta o doc existir).
-
-**Tentativa 2 — Gmail (fallback):**
-Se o Drive nao retornar conteudo (sem permissao, attachment removido), busque email de `from:gemini-notes@google.com` com o nome da reuniao no subject (`gmail_search_messages`). Leia body com `gmail_read_message`.
-
-**Tentativa 3 — Fallback manual:**
-Se nada funcionar, mostre o link do Google Doc:
-
-```
-Nao consegui ler a anotacao automatica. O doc esta aqui: [link do Google Doc]
-Abre, copia o conteudo e cola aqui que eu processo.
-```
-
-#### 0.3 Preencher contexto automaticamente
-
-Com o evento do Calendar + conteudo do Gemini, preencha automaticamente:
-- **Qual reuniao:** nome do evento
-- **Quem estava:** attendees do evento
-- **Data:** data do evento
-- **Proveniencia (registro de segunda-mao):** se o email do Henrique NAO esta nos attendees, marcar `henrique_presente = false`. Isso ativa o modo registro-de-segunda-mao: documenta a reuniao pro acervo Pique, mas (a) poe no header da sessao "Henrique nao presente — registro a partir das anotacoes do Gemini"; (b) **pula o gate de atribuicao de fala** (Fase 3.1b); (c) nao cria task com o Henrique como dono sem ele confirmar. Usado quando o `/boa-noite` delega reuniao que o Henrique nao participou.
-
-Pule a Fase 1 e va direto pra Fase 2.
+> **Modo Automatico — REMOVIDO (22/07/2026).** Ele buscava o evento no Calendar e lia a
+> anotacao automatica da reuniao (Drive → Gmail). A empresa saiu da gravacao centralizada:
+> **cada um grava a propria reuniao** e ainda **nao ha destino definido** pro material — nao
+> existe mais fonte pra buscar sozinho. Enquanto o destino novo nao existir, a transcricao
+> chega pela mao: colada (Manual) ou numa pasta (Lote). Quando houver destino, o modo volta
+> apontando pra ele.
+>
+> **O que veio junto e ainda vale:** o conceito de **proveniencia** (`henrique_presente`).
+> Se a transcricao e de uma reuniao que o Henrique NAO participou, marcar `henrique_presente
+> = false` — poe no header da sessao "Henrique nao presente — registro de segunda-mao",
+> **pula o gate de atribuicao de fala** (Fase 3.1b) e nao cria task com ele como dono sem
+> confirmar. Antes vinha automatico dos attendees; agora **pergunte** quando nao estiver obvio.
 
 ### Se modo manual:
 
@@ -94,7 +53,7 @@ Siga a Fase 1 normalmente.
 
 ### Se modo lote:
 
-Processa N transcricoes de uma pasta de uma vez (ex: exports do TRANSCRIB/Gemini acumulados em `inbox/yabadoo-desktop/`). Rodou a mao em 06/07 com 8 transcricoes, 0 erro — agora e caminho de 1a classe.
+Processa N transcricoes de uma pasta de uma vez (ex: exports do TRANSCRIB acumulados em `inbox/yabadoo-desktop/`). Rodou a mao em 06/07 com 8 transcricoes, 0 erro — agora e caminho de 1a classe.
 
 #### 0L.1 Inventariar a pasta
 
@@ -213,9 +172,9 @@ Classifique automaticamente:
 
 Quando o usuario colar a transcricao:
 
-### 3.0 Descartar ruido pre-reuniao (Meet/celular com microfone aberto)
+### 3.0 Descartar ruido pre-reuniao (gravacao com microfone aberto)
 
-Transcricao de Meet/celular costuma capturar audio solto ANTES da reuniao comecar (conversa paralela, futebol, WhatsApp). Se o inicio e tematicamente desconexo do titulo/participantes E ha um ponto claro onde a reuniao arranca (saudacoes, entrada de participante remoto, leitura de pauta), **descartar o trecho `[00:00–XX:XX]` e processar so dali**. Sinalizar: "descartei [00:00–XX:XX] como ruido pre-reuniao". Na duvida, manter — nao cortar conteudo de reuniao real.
+Transcricao de call/celular costuma capturar audio solto ANTES da reuniao comecar (conversa paralela, futebol, WhatsApp). Se o inicio e tematicamente desconexo do titulo/participantes E ha um ponto claro onde a reuniao arranca (saudacoes, entrada de participante remoto, leitura de pauta), **descartar o trecho `[00:00–XX:XX]` e processar so dali**. Sinalizar: "descartei [00:00–XX:XX] como ruido pre-reuniao". Na duvida, manter — nao cortar conteudo de reuniao real.
 
 ### 3.1 Cruzar com contexto existente
 
@@ -227,7 +186,7 @@ Para cada informacao na transcricao, classifique:
 
 ### 3.1b Confirmar atribuicao de falas ambiguas (gate)
 
-**Trigger:** transcricao multi-speaker SEM speaker labels (celular gravando presencial, microfone ambiente, audio de Meet sem diarizacao) E reuniao com 2+ participantes. **PULAR este gate** se `henrique_presente = false` (modo registro-de-segunda-mao, Fase 0.3): o Henrique nao estava na reuniao, nao ha narrativa dele pra separar de dor de prospect — documentar fiel ao que o Gemini ja rotulou.
+**Trigger:** transcricao multi-speaker SEM speaker labels (celular gravando presencial, microfone ambiente, audio de call sem diarizacao) E reuniao com 2+ participantes. **PULAR este gate** se `henrique_presente = false` (registro de segunda-mao — ver nota da Fase 0): o Henrique nao estava na reuniao, nao ha narrativa dele pra separar de dor de prospect — documentar fiel ao que a transcricao ja rotulou.
 
 Antes de extrair dores/fatos/decisoes, liste 5-10 frases estruturantes da transcricao (as que carregam dor, decisao, ou auto-narrativa) e pergunte ao usuario:
 

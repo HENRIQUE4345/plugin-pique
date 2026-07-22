@@ -60,7 +60,7 @@ Busque em TODOS os Spaces ativos (reorg 26/06 — frente=Space; **Beto Carvalho 
 
 **Amanha:** liste eventos de AMANHA (todos os calendarios do usuario — IDs em plugin-pique.local.md + CLAUDE.md do plugin). Alimenta o bloco "Amanha" do review.
 
-**Hoje:** liste tambem os eventos de HOJE (timeMin=hoje 00:00, timeMax=hoje 23:59) numa call extra, com `condenseEventDetails: false` (precisa dos attachments + attendees). Pra cada reuniao de hoje, guardar em `reunioes_hoje[]`: `{summary, start, attendees, tem_gemini_attachment}` (attachment com `title: "Anotacoes do Gemini"` / mimeType `application/vnd.google-apps.document`). Serve de (a) contexto do que rolou e (b) **chave de cruzamento com a 1.8 (Meet)** — casar a reuniao gravada com o evento pra saber participantes e proveniencia. Barato: 1 call.
+**Hoje:** liste tambem os eventos de HOJE (timeMin=hoje 00:00, timeMax=hoje 23:59) numa call extra, com `condenseEventDetails: false` (precisa dos attendees). Pra cada reuniao de hoje, guardar em `reunioes_hoje[]`: `{summary, start, attendees}`. Serve de contexto do que rolou no dia (quem esteve em que reuniao) — entra na narrativa do review, nao vira fila de processamento. Barato: 1 call.
 
 ### 1.4 Chats enriquecidos de hoje (telemetria destilada)
 
@@ -98,13 +98,13 @@ Agrupar commits por repo. Limitar output a 20 linhas por repo (mais que isso = d
 
 **Use isso pra:** (a) montar o **Balanco de modos** na Fase 2; (b) saber o que precisa de backfill/devolucao na Fase 5.2b; (c) cruzar o feito de hoje com os focos do SEMANA (passo 3.5 da 5.2b). Cruze com a telemetria (1.4) e commits (1.5): item `[x]` no HOJE mas ausente do log = feito sem `/encerrar`, vai precisar de backfill.
 
-> **Principio da varredura:** as fontes 1.1–1.6 sao **lentes que se sobrepoem, nao somam**. O mesmo trabalho aparece em 3-4 delas (uma sessao de codigo = chat enriquecido + commit + linha de log + task ClickUp). O boa-noite **cruza e deduplica na narrativa**, mas **nunca soma os relogios num numero unico** (ver Fase 5.4). As fontes 1.7–1.8 (TRANSCRIB, Meet) sao **sinais de "tem coisa pra documentar"**, nao tempo — entram no review e na proposta, nunca viram 4a lente de relogio.
+> **Principio da varredura:** as fontes 1.1–1.6 sao **lentes que se sobrepoem, nao somam**. O mesmo trabalho aparece em 3-4 delas (uma sessao de codigo = chat enriquecido + commit + linha de log + task ClickUp). O boa-noite **cruza e deduplica na narrativa**, mas **nunca soma os relogios num numero unico** (ver Fase 5.4). A fonte 1.7 (TRANSCRIB) e **sinal de "tem coisa pra documentar"**, nao tempo — entra no review e na proposta, nunca vira 4a lente de relogio.
 >
 > **WhatsApp NAO entra no boa-noite** (cortado 16/07 — pedido do Henrique desde 09/07): poluia o fechamento com ruido de caixa de entrada. Cobranca de mensagem e trabalho do `/plugin-whatsapp:triage`, sob demanda.
 
 ### 1.7 Timeline do dia (TRANSCRIB) — atras da flag `transcrib_conectado`
 
-**O que e.** TRANSCRIB (`C:\Users\Henrique Carvalho\Documents\PROGRAMAS\TRANSCRIB`, app "YabaDoo") e a fonte-mestra de contexto bruto do dia (mais rica que o `DIARIO.md`) — o Henrique fala por audio o tempo todo; o app guarda sessoes (Meet/Plaud/gravacao), notas rapidas e notas Plaud em `captura.db` (`%LOCALAPPDATA%\YabaDoo`). Conceito: `conhecimento/produtividade/transcrib-fonte-mestra-do-dia.md`.
+**O que e.** TRANSCRIB (`C:\Users\Henrique Carvalho\Documents\PROGRAMAS\TRANSCRIB`, app "YabaDoo") e a fonte-mestra de contexto bruto do dia (mais rica que o `DIARIO.md`) — o Henrique fala por audio o tempo todo; o app guarda sessoes (reuniao/Plaud/gravacao), notas rapidas e notas Plaud em `captura.db` (`%LOCALAPPDATA%\YabaDoo`). Conceito: `conhecimento/produtividade/transcrib-fonte-mestra-do-dia.md`.
 
 **Gate:** checar a flag `transcrib_conectado` em `plugin-pique.local.md`.
 
@@ -119,12 +119,13 @@ NAO processar aqui — so detectar (radar) e sinalizar: "N exports manuais no in
 
 **Se `true` (futuro) — DETECTAR a fila, NAO reimplementar o export.** O app ja encapsula a destilacao em `processor.exportar_dia_no_cerebro()` (escreve os `.md` do dia em `inbox/yabadoo-desktop/` e **so entao** chama `marcar_exportadas()` — dois-passos atomico e idempotente, ja no codigo). O boa-noite e RADAR: aqui ele so **detecta a fila** — ler a contagem de `notas_manager.nao_exportadas()` (quantas pendentes; quantas sao `nota`/`sessao` vs bruto) — e guarda pra apresentar na Fase 2. A leitura/escrita pesada e DELEGADA ao Export na Fase 5.2c. **O bruto-do-dia (clips de clipboard) NAO entra na destilacao** (decisao do Henrique): so notas+sessoes contam pro review/diario; o bruto fica como arquivo frio no inbox pro `/inbox` garimpar depois.
 
-### 1.8 Reunioes do Meet (deteccao — sempre roda, barato)
-
-`ls` **NAO-recursivo** na RAIZ de `G:\Meu Drive\Meet Recordings\` (nao entrar em `.arq`). Filtrar arquivos `*.gdoc` (sao **placeholders online-only** do Drive — so detecta, NAO le conteudo). Ignorar `desktop.ini`. Parsear o nome (`Titulo - YYYY MM DD HH MM GMT-03 00 - Anotacoes do Gemini`) → `{titulo, data, hora}`. Pra cada `.gdoc`, checar se ha um `... - Recording` par (mesmo prefixo). **Cruzar com `reunioes_hoje[]` (1.3) pelos attendees do evento** pra marcar proveniencia: email do Henrique nos attendees → "presente"; senao → "NAO presente". Dois `.gdoc` do mesmo titulo com horarios diferentes = reunioes/retomadas distintas (cada um e um item). Output: `meet_novas[]` = `{titulo, data, presente, tem_recording}`.
-
-**Edge — Drive OFF:** se o `ls` falhar/timeout (conector Drive desligado), imprimir 1 linha e seguir — nunca travar:
-`> Meet Recordings: Drive inacessivel agora — pulei a deteccao (rode /pos-reuniao manual depois).`
+> **1.8 — REMOVIDA (22/07/2026).** Era a deteccao de gravacoes numa pasta unica do Drive
+> (`Meet Recordings\`). A empresa saiu da gravacao centralizada: **cada um grava a propria
+> reuniao** e ainda **nao ha destino definido** pro material. Sem pasta unica, nao ha o que
+> varrer — o radar de reuniao sai do boa-noite inteiro (preview da 2.2, plano da 3, execucao
+> da 5.2d). O que sobra do assunto: as reunioes do dia aparecem como **contexto** via Calendar
+> (1.3), sem virar fila de processamento. Quando o destino novo for definido, esta secao volta
+> apontando pra ele.
 
 ---
 
@@ -134,7 +135,7 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 
 **FILTRO OBRIGATORIO — apenas profissional.** Cortar tudo que e pessoal: academia, conta de luz, familia, saude pessoal, lazer, compras domesticas, etc. Itens pessoais nao entram no review nem no diario do boa-noite. Se o usuario quiser registrar pessoal, ele faz separadamente em outro lugar.
 
-**ESTRUTURA OBRIGATORIA — 3 blocos separados**, mesmo que algum esteja vazio (escrever "Nenhum" em vez de omitir). **Excecao:** o bloco condicional **Reunioes de hoje (Meet)** so aparece se houver itens — omitir inteiro se vazio (nao escrever "Nenhum"), pra nao inflar o ritual.
+**ESTRUTURA OBRIGATORIA — 3 blocos separados**, mesmo que algum esteja vazio (escrever "Nenhum" em vez de omitir).
 
 ```
 ## Fechamento do dia (apenas profissional):
@@ -155,9 +156,6 @@ Apresente um resumo cruzando TODAS as fontes (check-in, ClickUp, chats enriqueci
 **Divergencias entre fontes** (so se houver):
 - Trabalhou em X (chat + commit) mas nao tem task — registrar retroativo?
 - Task Y ainda em "Hoje" mas chat indica que fechou — mover pra Finalizado?
-
-**Reunioes de hoje (Meet)** (so se houver novas — senao OMITIR o bloco):
-- [titulo] [HH:MM] — [✓ voce participou / ○ voce NAO estava (registro Pique)] — [tem gravacao / so anotacao] → documentar via /pos-reuniao?
 
 **Balanco de modos** (lente do TRILHO — so o que passou por /iniciar→/encerrar, do log da Fase 1.6):
 - Pensar: [n] · [Xmin] | Produzir: [n] · [Xmin] | Afiar: [n] · [Xmin]
@@ -221,7 +219,7 @@ Apos o envio (ou o fallback), ENTAO continue pra Fase 2.2.
 
 1. Tem algo que fez hoje que nao ta no ClickUp? (pra registrar)
 2. Os itens que ficaram — voltam pro radar (continuam no SEMANA / vao pro RESTO) ou ficam no HOJE pra amanha? _(se ficam pra amanha, o boa-noite NAO limpa esses; ver 5.2b)_
-3. Alguma nota ou contexto importante pra amanha? _(prep pra reuniao de amanha entra como "Notas pra amanha" no diario — o bom-dia oferece como candidato do HOJE)_ **+ (so se `meet_novas` nao-vazio):** documento as N reunioes de hoje agora (delego ao `/pos-reuniao`) ou deixo pra depois?
+3. Alguma nota ou contexto importante pra amanha? _(prep pra reuniao de amanha entra como "Notas pra amanha" no diario — o bom-dia oferece como candidato do HOJE)_
 
 Se NAO tinha check-in, adicione: "Nao achei check-in de hoje. O que foi planejado de manha?" (substitui a pergunta 1)
 
@@ -262,9 +260,6 @@ ANTES de executar qualquer coisa, apresente a proposta completa em UM bloco:
 
 **Trilho (TAREFAS.md) — consolidacao:**
 - [resumo do que vai pro log + o que volta pro radar — preview da 5.2b]
-
-**Reunioes (delegar ao /pos-reuniao) — so se aprovado na 2.2:**
-- [titulo] → documentar (proveniencia: presente / NAO presente) → ao terminar, mover par .gdoc+Recording pra .arq
 
 **TRANSCRIB (so se flag transcrib_conectado on):**
 - [N] notas/sessoes pendentes → disparar o Export do app → zerar a fila
@@ -387,22 +382,10 @@ Se a flag esta off E **nao ha** export manual: 1 linha e seguir (ver 1.7). Nao t
 - **NUNCA** inverter os dois-passos a mao (marcar antes de escrever = nota orfa + audio apagado pela auto-limpeza). O metodo do app ja e a ordem certa — o radar so delega.
 - **O1 (Compromisso → Calendar) NAO e coberto pelo Export** (que faz so cerebro+inbox): compromisso com data/hora detectado na timeline continua sendo roteado pelo boa-noite/inbox depois. Nao tratar o Export como se fizesse os 3 outputs.
 
-### 5.2d Documentar reunioes do Meet + arquivar (dois-passos)
-
-**So roda se houver `meet_novas[]` E o Henrique aprovou na 2.2.** Pra cada reuniao aprovada:
-
-**PASSO 1 — DOCUMENTAR (delegar, nao fazer inline):**
-- Invocar `/pos-reuniao` modo automatico passando o evento (titulo + data). Ele le o Gemini via Calendar→fileId→Drive→Gmail e salva em `pique/sessoes/YYYY-MM-DD-HHMM-reuniao-*.md` (fluxo dono, com a aprovacao DELE).
-- **Se "NAO presente":** passar a proveniencia → documentar com header "Henrique nao presente (detectado por attendees)" e **PULAR o gate de atribuicao de fala** (3.1b do pos-reuniao — nao ha dor de prospect a separar).
-- **Nao duplicar:** antes do PASSO 1, grep em `pique/sessoes/` por (data + slug do titulo). Se a sessao ja existe, **pular a documentacao** e ir direto ao PASSO 2.
-- Capturar o resultado: sucesso (sessao salva) OU falha (Drive OFF / sem anotacao Gemini).
-
-**PASSO 2 — ARQUIVAR (so se o PASSO 1 deu sucesso):**
-- Mover o PAR pra `.arq`: o `.gdoc` E o `Recording` (se existir; reuniao so-anotacao move so o `.gdoc`). `mkdir .arq` se faltar (idempotente). **Mover, NUNCA deletar** (sao ponteiros do Drive — mover reorganiza no Drive).
-
-**FALHA no PASSO 1 (Drive OFF / sem Gemini):** **NAO mover pra `.arq`** (senao perde o rastro do que falta) — fica na raiz, reaparece na deteccao de amanha. Sinalizar: "Reuniao X nao documentada (Drive OFF / sem Gemini) — rode /pos-reuniao manual depois."
-
-**Muitas (>3 reunioes):** documentar inline so as que o Henrique participou; as "NAO presente" → oferecer `/pos-reuniao` em lote depois (guarda de tempo).
+> **5.2d — REMOVIDA (22/07/2026).** Era o par da 1.8: documentar a reuniao detectada e so
+> entao arquivar o material na pasta do Drive. Some junto com a fonte. Reuniao gravada hoje
+> vira sessao pelo caminho manual: `/pos-reuniao` com a transcricao em maos (modo Manual ou
+> Lote).
 
 ### 5.3 Stand-up no Slack — JA FOI TRATADA na Fase 2.1
 
@@ -468,10 +451,10 @@ Diga: "Dia fechado. Descansa que amanha o /pique:bom-dia puxa esse contexto auto
 - Comunique-se em portugues brasileiro, direto e sem formalidade.
 - O fechamento inteiro deve levar no maximo 5-10 minutos.
 - SEMPRE apresente a proposta completa e espere aprovacao antes de executar.
-- O boa-noite e RADAR: DETECTA tudo (Fase 1, barato) e DELEGA o processamento pesado aos comandos donos (Meet→/pos-reuniao; TRANSCRIB→Export do app). NAO processa reuniao/inbox/sessao inline — isso quebra o tempo e duplica os comandos donos.
+- O boa-noite e RADAR: DETECTA tudo (Fase 1, barato) e DELEGA o processamento pesado aos comandos donos (TRANSCRIB→Export do app; transcricao em maos→/pos-reuniao). NAO processa reuniao/inbox/sessao inline — isso quebra o tempo e duplica os comandos donos.
 - WhatsApp NAO faz parte do boa-noite (cortado 16/07) — cobranca de mensagem e do `/plugin-whatsapp:triage`, sob demanda.
 - O envio da stand-up no `#standup` e DIRETO (`slack_send_message`) mas SEMPRE apos OK explicito do Henrique no chat. Nunca enviar sem mostrar antes.
-- Meet e TRANSCRIB sao DOIS-PASSOS: escrever o destino PRIMEIRO, marcar/arquivar SO depois. Nunca inverter (perde rastro / apaga audio).
+- O TRANSCRIB e DOIS-PASSOS: escrever o destino PRIMEIRO, marcar/arquivar SO depois. Nunca inverter (perde rastro / apaga audio).
 
 ## Auto-avaliacao (executar sempre ao final)
 
@@ -480,8 +463,7 @@ Avalie a execucao com base nestas perguntas:
 2. As notas pra amanha sao uteis o suficiente pro bom-dia funcionar bem?
 3. Tasks que nao foram feitas foram registradas sem julgamento?
 4. O fechamento levou menos de 10 minutos? (a deteccao dos 4 pontos e barata; se estourou, foi processamento pesado que devia ter sido delegado/opt-in)
-5. As reunioes novas do Meet foram detectadas e documentadas (ou registrado por que nao)? Arquivou pra `.arq` SO o que foi documentado (dois-passos)?
-6. A stand-up foi mostrada no chat ANTES do envio, e so foi pro `#standup` apos o OK explicito (ou caiu no fallback cola-manual sem travar)?
+5. A stand-up foi mostrada no chat ANTES do envio, e so foi pro `#standup` apos o OK explicito (ou caiu no fallback cola-manual sem travar)?
 
 Se identificar melhorias CONCRETAS e EVIDENCIADAS nesta execucao:
 
