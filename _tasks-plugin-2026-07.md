@@ -3,7 +3,7 @@
 **Outcome:** o plugin-pique instalável pela equipe, com os rituais amarrados às ferramentas por contrato explícito (fonte → ritual → artefato) e o ClickUp acessado por 6 tools em vez de 17.
 **Iniciado:** 2026-07-28
 **Status:** em-execucao
-**Proximo passo:** A.1 — extrair a tabela de contratos dos 11 comandos
+**Proximo passo:** B.0 — rodar a sessao de rumo (`_prompt-sessao-rumo.md`) antes de seguir pra A.1
 **Tags:** plugin-pique, rituais, clickup, mcp, equipe, afiar
 
 ---
@@ -82,6 +82,18 @@ que vai mudar.
 ## Fase B — Decisões que destravam (👤)
 
 > Nenhuma dá pra decidir por código. Cada uma trava pelo menos uma task da fase C ou D.
+
+#### `[ ]` B.0 👤 — Rodar a sessão de rumo
+Prompt pronto em `_prompt-sessao-rumo.md` — cola no chat novo. Cobre B.1–B.6 de uma vez, mais
+duas coisas que não são só decisão B: **a fronteira entre este ledger e o
+`_tasks-afiar-sistema-trabalho.md`** do cérebro (proposta: o que a equipe instala vive aqui, como
+o Henrique trabalha vive lá — Blocos 3 e 6 viram stub apontando pra cá, Bloco 4 racha em dois) e
+**duas discordâncias entre docs que só se resolvem decidindo**: Bloco 2 (28/06, funde
+review-semanal+planejamento-semanal e preserva o `fechamento-semana`) contradiz a auditoria
+(27/07, mantém os dois separados e exclui o `fechamento-semana`, 0 usos em 8 semanas); e o Bloco 4
+pede "dashboard honesto" pro comando `dashboard`, que a auditoria marcou excluir.
+- Depende de: nada — é a porta de entrada
+- Trava: B.1–B.6 (abaixo), e por tabela C.2 e E.4
 
 #### `[ ]` B.1 👤 — Os 4 comandos em limbo
 `continuar` · `modelo` · `news` · `aprender` estão marcados `[x] manter` na triagem item a item
@@ -281,3 +293,9 @@ Sobreviveu à triagem do `ROADMAP.md` (registro completo em `ROADMAP-ARCHIVE.md`
 
 - **2026-07-28** — Fase 0 do MCP fechada (6 itens, 4 commits). Auditoria do `ROADMAP.md` e criação
   deste ledger. Decidido: grafo de contratos antes dos spikes.
+- **2026-07-28 (tarde)** — Cruzei este ledger com `_auditoria-skills.md` e `_tasks-afiar-sistema-trabalho.md`
+  (cérebro) e achei sobreposição real: dois ledgers descrevendo o mesmo trabalho, e dois pontos
+  onde os docs se contradizem (Bloco 2 vs auditoria; Bloco 4 vs exclusão do `dashboard`). Em vez
+  de decidir sozinho, virou prompt de sessão dedicada — `_prompt-sessao-rumo.md` — e task **B.0**.
+  Proximo passo do cabeçalho movido de A.1 pra B.0: a fronteira entre os ledgers muda o que a
+  fase C executa, não faz sentido gastar o grafo de contratos antes disso.
