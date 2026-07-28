@@ -150,10 +150,11 @@ Se a Fase 2 decidiu salvar, crie o arquivo de sessao com template padrao (contex
 **Anexar a linha no log** via script (resolve a fragilidade de ancora — nao edite o md na mao):
 ```
 python "${CLAUDE_PLUGIN_ROOT}/scripts/append-log.py" feito --session-id <sid> \
-  --payload '{"data":"DD/MM","mes":"YYYY-MM","tarefa":"titulo curto","inicio_fim":"HH:MM–HH:MM","dur":"Nmin","modo":"Pensar|Produzir|Afiar","pe":"P|E"}'
+  --payload '{"data":"DD/MM","mes":"YYYY-MM","tarefa":"titulo curto","inicio_fim":"HH:MM–HH:MM","dur":"Nmin","modo":"Pensar|Produzir|Afiar|Dirigir","pe":"P|E"}'
 ```
 - `mes` = mes da **data de INICIO** do item (chat que vira o dia loga no mes do inicio). O script acha/cria a secao `## YYYY-MM` e faz dedup por (data, tarefa).
 - `modo` = etiqueta do item; `pe` = **P** se estava no HOJE, **E** se foi eventualidade.
+- Os valores aceitos de `modo`/`pe` vivem em `config/vocabulario.json` — `exit 3` com "esperado um de [...]" lista os atuais. Modo novo se adiciona la, nao no `.py`.
 - `dedup_skip` = ja logado, segue.
 
 **Item nao-feito** (parou no meio): deixa `[~]` no HOJE. Nao loga incompleto.
@@ -175,7 +176,7 @@ Se identificar algo, mostre ao usuario:
 **Sugestao:** [1 frase concreta — skill X, agent Y, MCP Z, mudanca de processo]
 **Categoria:** [automacao | skill | agent | contexto | workflow]
 ```
-E anexe via script (ele **roteia pelo categoria** — skill/agent/automacao vao pro doc compartilhado H+M `insights-operacao-pique.md`; contexto/workflow vao pro `insights-uso-ia.md` local):
+E anexe via script (ele **roteia pelo categoria**, pelo mapa em `config/vocabulario.json` — skill/agent/automacao vao pro doc compartilhado H+M `insights-operacao-pique.md`; contexto/workflow vao pro `insights-uso-ia.md` local):
 ```
 python "${CLAUDE_PLUGIN_ROOT}/scripts/append-log.py" insights --session-id <sid> \
   --payload '{"tema":"tema curto","padrao":"1 frase","acao":"1 frase concreta","categoria":"skill|agent|automacao|contexto|workflow"}'

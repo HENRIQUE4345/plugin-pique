@@ -3,14 +3,17 @@
 append-log.py — apenda entrada em um dos 3 logs acumulativos do cerebro Henrique.
 
 Uso:
-  python append-log.py <insights|feito|melhorias> --payload '<json>' [--session-id <uuid>] [--cerebro <path>] [--dry-run]
+  python append-log.py <insights|feito|melhorias> --payload '<json>' [--session-id <uuid>] [--cerebro <path>] [--vocabulario <path>] [--dry-run]
   echo '<json>' | python append-log.py <insights|feito|melhorias> --payload - [--session-id <uuid>] [--cerebro <path>] [--dry-run]
+
+Vocabulario (modos do feito, P/E, categorias de insight e para onde cada uma roteia) vive em
+config/vocabulario.json, NAO aqui. Adicionar modo ou categoria e editar JSON, nao codigo.
 
 Exit codes:
   0 ok
   2 argumentos invalidos
   3 payload invalido (JSON malformado ou campos faltando)
-  4 (reservado)
+  4 vocabulario.json ausente, malformado ou incompleto
   5 (reservado)
   6 arquivo/ancora alvo nao encontrada (LLM precisa criar o arquivo antes)
   7 erro de IO inesperado
@@ -38,9 +41,9 @@ MESES_PT = {
     "09": "set", "10": "out", "11": "nov", "12": "dez",
 }
 
-CATEGORIAS_INSIGHT = {"automacao", "skill", "agent", "contexto", "workflow"}
-MODOS_FEITO = {"Pensar", "Produzir", "Afiar"}
-PE_FEITO = {"P", "E"}
+DEFAULT_VOCABULARIO = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "config", "vocabulario.json"
+)
 
 
 def emit(doc, code):
@@ -52,6 +55,31 @@ def err(code, message, **extra):
     doc = {"ok": False, "error": message}
     doc.update(extra)
     emit(doc, code)
+
+
+def load_vocabulario(path):
+    path = os.path.normpath(path)
+    if not os.path.isfile(path):
+        err(4, f"vocabulario nao encontrado: {path}")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            vocab = json.load(f)
+    except json.JSONDecodeError as e:
+        err(4, f"vocabulario nao e JSON valido ({path}): {e}")
+    except OSError as e:
+        err(4, f"erro lendo vocabulario ({path}): {e}")
+
+    modos = vocab.get("feito", {}).get("modos")
+    pe = vocab.get("feito", {}).get("pe")
+    categorias = vocab.get("insights", {}).get("categorias")
+    if not isinstance(modos, list) or not modos:
+        err(4, f"vocabulario sem 'feito.modos' (lista nao-vazia): {path}")
+    if not isinstance(pe, list) or not pe:
+        err(4, f"vocabulario sem 'feito.pe' (lista nao-vazia): {path}")
+    if not isinstance(categorias, dict) or not categorias:
+        err(4, f"vocabulario sem 'insights.categorias' (objeto categoria->destino): {path}")
+
+    return {"modos": modos, "pe": pe, "categorias": categorias, "_path": path}
 
 
 def read_payload(args):
@@ -95,21 +123,17 @@ def touch_manifest(session_id, cerebro_root, target_file, dry_run):
 # insights
 # ---------------------------------------------------------------------------
 
-def do_insights(payload, cerebro_root, dry_run):
+def do_insights(payload, cerebro_root, vocab, dry_run):
     required = ["tema", "padrao", "acao", "categoria"]
     missing = [k for k in required if not payload.get(k)]
     if missing:
         err(3, f"payload insights faltando campos: {missing}")
-    if payload["categoria"] not in CATEGORIAS_INSIGHT:
-        err(3, f"categoria invalida: {payload['categoria']!r} (esperado um de {sorted(CATEGORIAS_INSIGHT)})")
+    categorias = vocab["categorias"]
+    if payload["categoria"] not in categorias:
+        err(3, f"categoria invalida: {payload['categoria']!r} (esperado um de {sorted(categorias)})")
 
-    # roteamento por categoria (regra do proprio doc compartilhado):
-    #   skill/agent/automacao -> insights-operacao-pique.md (submodule pique/, viaja pros 2 socios)
-    #   contexto/workflow      -> insights-uso-ia.md (local, dor pessoal do workflow)
-    if payload["categoria"] in {"skill", "agent", "automacao"}:
-        target = os.path.join(cerebro_root, "pique", "conhecimento", "produtividade", "insights-operacao-pique.md")
-    else:
-        target = os.path.join(cerebro_root, "conhecimento", "produtividade", "insights-uso-ia.md")
+    # o roteamento categoria -> doc mora no vocabulario.json, junto do enum que o valida
+    target = os.path.join(cerebro_root, *categorias[payload["categoria"]].split("/"))
     if not os.path.isfile(target):
         err(6, f"arquivo alvo nao existe: {target}")
 
@@ -117,7 +141,7 @@ def do_insights(payload, cerebro_root, dry_run):
         text = f.read()
 
     if "## Entradas" not in text:
-        err(6, "ancora '## Entradas' nao encontrada em insights-uso-ia.md")
+        err(6, f"ancora '## Entradas' nao encontrada em {os.path.basename(target)}")
 
     ts = payload.get("ts") or now_local_str("%Y-%m-%d %H:%M")
     tema = payload["tema"].strip()
@@ -148,15 +172,15 @@ def do_insights(payload, cerebro_root, dry_run):
 # feito
 # ---------------------------------------------------------------------------
 
-def do_feito(payload, cerebro_root, dry_run):
+def do_feito(payload, cerebro_root, vocab, dry_run):
     required = ["data", "mes", "tarefa", "inicio_fim", "dur", "modo", "pe"]
     missing = [k for k in required if not payload.get(k)]
     if missing:
         err(3, f"payload feito faltando campos: {missing}")
-    if payload["modo"] not in MODOS_FEITO:
-        err(3, f"modo invalido: {payload['modo']!r} (esperado um de {sorted(MODOS_FEITO)})")
-    if payload["pe"] not in PE_FEITO:
-        err(3, f"pe invalido: {payload['pe']!r} (esperado P ou E)")
+    if payload["modo"] not in vocab["modos"]:
+        err(3, f"modo invalido: {payload['modo']!r} (esperado um de {sorted(vocab['modos'])})")
+    if payload["pe"] not in vocab["pe"]:
+        err(3, f"pe invalido: {payload['pe']!r} (esperado um de {sorted(vocab['pe'])})")
     if not re.match(r"^\d{4}-\d{2}$", payload["mes"]):
         err(3, f"mes invalido: {payload['mes']!r} (esperado YYYY-MM)")
 
@@ -308,6 +332,7 @@ def main():
     parser.add_argument("--payload", default=None)
     parser.add_argument("--session-id", default=None)
     parser.add_argument("--cerebro", default=None)
+    parser.add_argument("--vocabulario", default=None)
     parser.add_argument("--dry-run", action="store_true")
 
     try:
@@ -323,12 +348,18 @@ def main():
     if not isinstance(payload, dict):
         err(3, "payload deve ser um objeto JSON")
 
+    vocab = None
+    if args.tipo in ("insights", "feito"):
+        vocab = load_vocabulario(
+            args.vocabulario or os.environ.get("PIQUE_VOCABULARIO") or DEFAULT_VOCABULARIO
+        )
+
     try:
         if args.tipo == "insights":
-            target, header = do_insights(payload, cerebro_root, args.dry_run)
+            target, header = do_insights(payload, cerebro_root, vocab, args.dry_run)
             result = {"ok": True, "status": "appended", "file": target, "header": header}
         elif args.tipo == "feito":
-            target, linha = do_feito(payload, cerebro_root, args.dry_run)
+            target, linha = do_feito(payload, cerebro_root, vocab, args.dry_run)
             result = {"ok": True, "status": "appended", "file": target, "linha": linha}
         else:
             target, header, status = do_melhorias(payload, cerebro_root, args.dry_run)

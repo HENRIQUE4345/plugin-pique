@@ -1,0 +1,17 @@
+{
+  "_leia": "Vocabulario dos logs acumulativos do cerebro. Editar AQUI, nunca dentro do append-log.py — o script so valida contra este arquivo. Paths de destino sao relativos ao CEREBRO_ROOT.",
+  "feito": {
+    "modos": ["Pensar", "Produzir", "Afiar", "Dirigir"],
+    "pe": ["P", "E"]
+  },
+  "insights": {
+    "_leia": "A chave e a categoria valida; o valor e o doc que recebe a entrada. Categoria nova = uma linha aqui, sem tocar em codigo.",
+    "categorias": {
+      "automacao": "pique/conhecimento/produtividade/insights-operacao-pique.md",
+      "skill": "pique/conhecimento/produtividade/insights-operacao-pique.md",
+      "agent": "pique/conhecimento/produtividade/insights-operacao-pique.md",
+      "contexto": "conhecimento/produtividade/insights-uso-ia.md",
+      "workflow": "conhecimento/produtividade/insights-uso-ia.md"
+    }
+  }
+}
