@@ -17,5 +17,21 @@
   "agents": [
     "./agents/gestor-clickup.md"
   ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "userConfig": {
+    "clickup_token": {
+      "type": "string",
+      "title": "Token do ClickUp",
+      "description": "Seu token pessoal da API do ClickUp (comeca com pk_). Pegue em ClickUp > Settings > Apps > API Token. Fica no keychain do SO, nunca em arquivo.",
+      "sensitive": true,
+      "required": true
+    },
+    "clickup_role": {
+      "type": "string",
+      "title": "Papel no ClickUp",
+      "description": "'editor' (le e escreve, default) ou 'viewer' (so leitura). Deixe vazio para editor.",
+      "sensitive": false,
+      "default": "editor"
+    }
+  }
 }

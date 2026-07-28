@@ -1,5 +1,7 @@
 node_modules/
-dist/
+# dist/ NAO e ignorado de proposito: o plugin distribui o MCP por clone, e sem o
+# build commitado o `node ${CLAUDE_PLUGIN_ROOT}/.../dist/server.js` nao existe na
+# maquina de quem instala. Rodar `npm run build` antes de commitar mudanca em src/.
 *.log
 .env
 .env.local

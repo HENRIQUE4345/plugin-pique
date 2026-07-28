@@ -1,5 +1,13 @@
 {
   "mcpServers": {
+    "pique-clickup": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcps/pique-clickup-mcp/dist/server.js"],
+      "env": {
+        "CLICKUP_TOKEN": "${user_config.clickup_token}",
+        "PIQUE_CLICKUP_ROLE": "${user_config.clickup_role}"
+      }
+    },
     "apify": {
       "command": "npx",
       "args": ["-y", "@apify/actors-mcp-server@latest"],
