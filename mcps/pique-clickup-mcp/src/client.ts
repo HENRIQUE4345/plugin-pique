@@ -9,7 +9,6 @@
 import { ClickUpError } from "./types.js";
 
 const BASE_V2 = "https://api.clickup.com/api/v2";
-const BASE_V3 = "https://api.clickup.com/api/v3";
 
 export interface ClientOptions {
   token: string;
@@ -49,17 +48,7 @@ export class ClickUpClient {
     return this.request<T>("DELETE", BASE_V2 + path, { query });
   }
 
-  /** PUT v3 — usado pra move_task */
-  async putV3<T = unknown>(path: string, body?: unknown): Promise<T> {
-    return this.request<T>("PUT", BASE_V3 + path, { body });
-  }
-
-  /** POST v3 — usado pra post_chat_message */
-  async postV3<T = unknown>(path: string, body?: unknown): Promise<T> {
-    return this.request<T>("POST", BASE_V3 + path, { body });
-  }
-
-  /** Upload multipart pra anexos */
+  /** Upload multipart pra anexos — sobrevive dentro do create_task_full */
   async uploadAttachment(taskId: string, fileName: string, contentBase64: string): Promise<unknown> {
     const url = `${BASE_V2}/task/${encodeURIComponent(taskId)}/attachment`;
     const buffer = Buffer.from(contentBase64, "base64");

@@ -7,7 +7,6 @@
  */
 import { ClickUpError } from "./types.js";
 const BASE_V2 = "https://api.clickup.com/api/v2";
-const BASE_V3 = "https://api.clickup.com/api/v3";
 export class ClickUpClient {
     token;
     maxRetries;
@@ -34,15 +33,7 @@ export class ClickUpClient {
     async deleteV2(path, query) {
         return this.request("DELETE", BASE_V2 + path, { query });
     }
-    /** PUT v3 — usado pra move_task */
-    async putV3(path, body) {
-        return this.request("PUT", BASE_V3 + path, { body });
-    }
-    /** POST v3 — usado pra post_chat_message */
-    async postV3(path, body) {
-        return this.request("POST", BASE_V3 + path, { body });
-    }
-    /** Upload multipart pra anexos */
+    /** Upload multipart pra anexos — sobrevive dentro do create_task_full */
     async uploadAttachment(taskId, fileName, contentBase64) {
         const url = `${BASE_V2}/task/${encodeURIComponent(taskId)}/attachment`;
         const buffer = Buffer.from(contentBase64, "base64");
