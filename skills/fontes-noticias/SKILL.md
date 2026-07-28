@@ -77,7 +77,7 @@ Cada noticia relevante deve ser cruzada com:
 ## Formato de entrega
 
 - **HTML:** visual estilo Pique (blueprint dark + amber), publicado em `docs.pique.digital/publico/pique/news/`
-- **ClickUp channel:** teaser postado no canal `1301zr-3373` via MCP `pique-clickup` (tool `post_chat_message`), com link pro HTML completo
+- **Slack:** teaser postado em `#pique-news` (`C0BHCBAGZ60`) via MCP `slack` (`slack_send_message`), em mrkdwn, com link pro HTML completo. Migrou do canal ClickUp em 16/07 — o canal `1301zr-3373` e a tool `post_chat_message` nao existem mais
 - **Maximo:** 15 noticias por briefing, 1 manchete destaque, 1-3 gaps
 
 ## Historico e inteligencia acumulativa

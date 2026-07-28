@@ -6,8 +6,11 @@
  * as tools permitidas pelo role — Claude nunca enxerga as proibidas.
  *
  * Permissoes reais sao SEMPRE herdadas do ClickUp (token do usuario).
- * O role aqui e a 2a camada de defesa: bloqueia destrutivos como delete_task
- * mesmo quando o ClickUp permitiria.
+ * O role aqui e a 2a camada de defesa sobre a escrita.
+ *
+ * Com `delete_task` morto (2026-07-27), owner e editor ficaram identicos:
+ * nao ha mais nenhuma tool destrutiva pra separar os dois. `owner` continua
+ * aceito no env por compatibilidade, mas e alias de `editor`.
  */
 
 import type { Role } from "./types.js";
@@ -15,19 +18,13 @@ import type { Role } from "./types.js";
 /** Tools disponiveis no MCP, em ordem alfabetica pra facilitar leitura */
 export const ALL_TOOLS = [
   "add_comment",
-  "add_dependency",
   "add_tag",
-  "attach_file",
   "create_task_full",
-  "delete_task",
   "get_hierarchy",
   "get_task",
   "list_tags",
   "list_tasks",
-  "move_task",
-  "post_chat_message",
   "refresh_hierarchy",
-  "remove_dependency",
   "remove_tag",
   "resolve_member",
   "update_task",
@@ -38,7 +35,7 @@ export type ToolName = (typeof ALL_TOOLS)[number];
 /** Mapa role → set de tools permitidas */
 const ROLE_TOOLS: Record<Role, Set<ToolName>> = {
   owner: new Set<ToolName>(ALL_TOOLS),
-  editor: new Set<ToolName>(ALL_TOOLS.filter((t) => t !== "delete_task")),
+  editor: new Set<ToolName>(ALL_TOOLS),
   viewer: new Set<ToolName>([
     "get_task",
     "list_tasks",
@@ -50,7 +47,9 @@ const ROLE_TOOLS: Record<Role, Set<ToolName>> = {
 };
 
 export function parseRole(value: string | undefined): Role {
-  const v = (value ?? "editor").toLowerCase().trim();
+  // String vazia e o caso normal, nao o excepcional: `${user_config.clickup_role}`
+  // expande pra "" quando o usuario nao preenche o campo opcional no enable do plugin.
+  const v = (value ?? "").toLowerCase().trim() || "editor";
   if (v === "owner" || v === "editor" || v === "viewer") return v;
   throw new Error(
     `PIQUE_CLICKUP_ROLE invalido: "${value}". Use owner, editor ou viewer.`,

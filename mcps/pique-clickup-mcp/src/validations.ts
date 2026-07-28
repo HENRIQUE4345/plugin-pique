@@ -5,8 +5,7 @@
  * Erros viram ValidationError com lista de razoes em PT-BR.
  */
 
-import { findFolder, findList } from "./cache.js";
-import { POLICIES } from "./defaults.js";
+import { findList } from "./cache.js";
 import { ValidationError, type CachedHierarchy, type WorkType } from "./types.js";
 
 export interface CreateTaskValidationInput {
@@ -75,9 +74,6 @@ export function validateCreateTask(
     const coherenceWarning = checkWorkTypeCoherence(input.work_type, listInfo);
     if (coherenceWarning) warnings.push(coherenceWarning);
   }
-
-  // 6. Policies por pessoa
-  applyPolicies(input, listInfo, errors);
 
   if (errors.length > 0) {
     throw new ValidationError(errors);
@@ -172,37 +168,6 @@ function checkWorkTypeCoherence(
     return `Task classificada como "projeto" mas folder "${listInfo.folder?.name}" parece pipeline.`;
   }
   return null;
-}
-
-function applyPolicies(
-  input: CreateTaskValidationInput,
-  listInfo: ReturnType<typeof findList>,
-  errors: string[],
-): void {
-  // Gabriel — nao cria conteudo em folders cliente do Studio
-  const gabrielPolicy = POLICIES.gabriel_no_content;
-  if (input.assignees.includes(gabrielPolicy.user_id) && listInfo) {
-    const folderId = listInfo.folder?.id;
-    if (folderId && gabrielPolicy.blocked_folders.has(folderId)) {
-      // Excecao: list "Operacional" no folder cliente e OK
-      const isOperacional = /operacional/i.test(listInfo.list.name);
-      if (!isOperacional) {
-        errors.push(gabrielPolicy.message);
-      }
-    }
-  }
-
-  // Daniel — so Beto Carvalho + secao Escopo de aprovacao
-  const danielPolicy = POLICIES.daniel_only_beto;
-  if (input.assignees.includes(danielPolicy.user_id) && listInfo) {
-    if (listInfo.space.id !== danielPolicy.allowed_space) {
-      errors.push(danielPolicy.space_message);
-    }
-    if (!input.markdown_description.toLowerCase().includes("## escopo de aprovacao") &&
-        !input.markdown_description.toLowerCase().includes("## escopo de aprovação")) {
-      errors.push(danielPolicy.section_message);
-    }
-  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

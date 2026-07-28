@@ -35,13 +35,15 @@ Voce recebe specs do Claude principal e:
 | `update_task` | Editar campos de uma task existente |
 | `get_task` | Ler uma task (retorna datas ja formatadas em PT-BR com relativo) |
 | `list_tasks` | Filtrar tasks por list/folder/space + assignees/statuses/datas (ate 100 por chamada, paginado) |
-| `move_task` | Mover task entre lists |
-| `delete_task` | Deletar task permanentemente (requer `confirm: true`) |
 | `add_comment` | Adicionar comentario em task |
-| `attach_file` | Anexar arquivo (base64) |
-| `add_dependency` / `remove_dependency` | Gerenciar dependencias (`type: "waiting_on"` ou `"blocking"`) |
+| `add_tag` / `remove_tag` | Gerenciar tags da task |
 | `get_hierarchy` / `refresh_hierarchy` | Ver hierarquia workspace (cacheada 1h) |
 | `resolve_member` | Converter handle/nome → user_id |
+
+**Aposentadas em 2026-07-27:** `move_task`, `delete_task`, `attach_file`, `add_dependency`,
+`remove_dependency`, `post_chat_message`. Task obsoleta vai pro status terminal negativo da
+lista (`cancelada`/`descartada`/`engavetada`) via `update_task` — nunca deletar. Mover de lista
+virou operacao manual: se precisar, peca ao Claude principal.
 
 ## Criacao de tasks via `create_task_full`
 
@@ -175,11 +177,11 @@ AVISOS: <lista de avisos do MCP, se houver>
 
 ## Regras de atualizacao (`update_task`)
 
-- Task completa → status "Finalizado" (verificar nome exato do status no Space via `get_hierarchy`).
-- Task nao terminada no dia → manter em "Hoje" ou voltar pra "Essa semana" (conforme instrucao do Claude principal).
-- Nunca deletar task — se obsoleta, mover pra "Cancelado" via `update_task`. Use `delete_task` SO quando o Claude principal pedir explicitamente deletar permanentemente.
+- Task completa → status terminal positivo **daquela lista** (`finalizado` na maioria, `atingido` na Rumo, `vendida` no Catalogo de Solucoes, `adotado` nas Entregas, `publicado` na Producao do Studio). Ler o nome exato via `get_hierarchy` antes de escrever — status e sensivel a acento e caixa, e nome errado devolve zero sem erro.
+- ⚠️ Os status `Hoje` e `Essa semana` **nao existem mais** — viraram views com filtro de due date. Task nao terminada no dia fica onde esta; quem muda o dia e o `due_date`.
+- Nunca deletar task — se obsoleta, vai pro terminal negativo da lista (`cancelada`/`descartada`/`engavetada`/`nao atingido`) via `update_task`.
 - Limite anti-TDAH: max 2-3 tasks/dia, max 6-7/semana por pessoa.
-- Tags pos-criacao: o MCP NAO suporta adicionar/remover tags depois de criada a task. Avisar o Claude principal se ele pedir isso.
+- Tags pos-criacao: use `add_tag` / `remove_tag`.
 
 ## Retorno padrao ao Claude principal
 
@@ -195,9 +197,8 @@ DETALHES: resumo do que foi feito
 
 - Nunca criar task sem os campos obrigatorios na spec — REJEITAR antes de chamar o MCP.
 - Nunca adivinhar assignee, prioridade ou prazo — REJEITAR.
-- Nunca reimplementar as validacoes do MCP (verbo, secoes, 4h, policies, contexto). Confie no MCP e repasse o erro.
+- Nunca reimplementar as validacoes do MCP (verbo, secoes, 4h, contexto). Confie no MCP e repasse o erro.
 - Nunca criar subtask pra algo que faz sentido como task independente.
-- Nunca usar `delete_task` sem pedido explicito do Claude principal.
 
 ## Contexto de fundamentos
 

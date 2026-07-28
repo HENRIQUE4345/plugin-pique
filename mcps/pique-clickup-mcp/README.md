@@ -1,10 +1,10 @@
 # pique-clickup-mcp
 
-MCP custom da Pique Digital pra ClickUp. Substitui o MCP oficial com 12 tools enxutas, defaults embutidos, operacoes compostas, cache de hierarquia e suporte multi-usuario via role.
+MCP custom da Pique Digital pra ClickUp. Substitui o MCP oficial com 11 tools enxutas, operacoes compostas, cache de hierarquia e suporte multi-usuario via role.
 
 ## Por que existe
 
-O MCP oficial expoe 58 tools, mas o plugin-pique usa so 17. As 41 restantes carregam ~40k tokens de schema em toda conversa. Alem disso o oficial tem gotchas conhecidos (markdown literal `\n`, `time_estimate` so no update, sem `move_task` v3, etc) que o agent `gestor-clickup` precisa contornar manualmente.
+O MCP oficial expoe 58 tools, e o plugin-pique usa so um punhado. As demais carregam ~40k tokens de schema em toda conversa. Alem disso o oficial tem gotchas conhecidos (markdown literal `\n`, `time_estimate` so no update, etc) que o agent `gestor-clickup` precisa contornar manualmente.
 
 Este MCP resolve tudo isso em codigo deterministico.
 
@@ -46,28 +46,30 @@ Adicionar ao `.mcp.json` do plugin-pique:
 
 | Role | Tools disponiveis |
 |---|---|
-| `owner` (Henrique) | Todas as 12 |
-| `editor` (Marco, Arthur, Gabriel) | Todas exceto `delete_task` |
-| `viewer` | So leitura: `get_task`, `list_tasks`, `get_hierarchy`, `resolve_member` |
+| `owner` | Alias de `editor` — sem `delete_task`, nao ha mais o que separar |
+| `editor` (default) | Todas as 11 |
+| `viewer` | So leitura: `get_task`, `list_tasks`, `list_tags`, `get_hierarchy`, `refresh_hierarchy`, `resolve_member` |
 
 ## Tools
 
-1. `create_task_full` — Cria task completa (1 chamada = create + update + dependencies + attach)
+1. `create_task_full` — Cria task completa (create + update + validacoes em 1 chamada)
 2. `update_task` — Atualiza qualquer campo
-3. `move_task` — Move task entre lists (API v3)
-4. `delete_task` — Deleta task (so owner)
-5. `get_task` — Le task com datas formatadas e assignees resolvidos
-6. `list_tasks` — Filtra tasks por list/folder/space/assignee/status/data
-7. `add_comment` — Adiciona comentario
-8. `attach_file` — Anexa arquivo (base64)
-9. `add_dependency` / `remove_dependency` — Gerencia dependencias
-10. `get_hierarchy` — Hierarquia workspace (cacheada)
-11. `refresh_hierarchy` — Forca refresh do cache
-12. `resolve_member` — Nome → ClickUp ID
+3. `get_task` — Le task com datas formatadas e assignees resolvidos
+4. `list_tasks` — Filtra tasks por list/folder/space/assignee/status/data
+5. `add_comment` — Adiciona comentario
+6. `add_tag` / `remove_tag` — Gerencia tags da task
+7. `list_tags` — Tags do space
+8. `get_hierarchy` — Hierarquia workspace (cacheada)
+9. `refresh_hierarchy` — Forca refresh do cache
+10. `resolve_member` — Nome → ClickUp ID
+
+**Aposentadas em 2026-07-27:** `move_task`, `delete_task`, `attach_file`, `add_dependency`,
+`remove_dependency`, `post_chat_message`. As tres primeiras tinham zero referencia em
+`commands/`; `post_chat_message` tinha um dono so, o `/news`, que migrou pro Slack em 16/07.
 
 ## Cache
 
-Hierarquia completa do workspace e cacheada em `~/.cache/pique-clickup-mcp/hierarchy.json` com TTL de 1 hora. Invalidacao automatica apos `move_task`/`delete_task`. Refresh manual via `refresh_hierarchy`.
+Hierarquia completa do workspace e cacheada em `~/.cache/pique-clickup-mcp/hierarchy.json` com TTL de 1 hora. Refresh manual via `refresh_hierarchy`.
 
 ## Validacoes embutidas (no MCP, nao no agent)
 
