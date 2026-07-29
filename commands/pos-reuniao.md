@@ -324,6 +324,8 @@ Posso executar?
 
 - **Resolver o dono antes de cravar assignee (`resolve_member`).** Antes de propor o assignee de cada task, rodar `resolve_member` no dono designado. Se NAO resolver (membro novo / guest sem acesso — ex: alguem que comecou essa semana), NAO atribuir silenciosamente: gerar task de onboarding "Adicionar [nome] ao ClickUp" + marcar o assignee como temporario (ex: Marco) na proposta, sinalizando. Conecta com a regra do guest sem acesso a list.
 
+- **Pontos que exigem decisao explicita do Henrique (nao dá pra aplicar default) NAO viram pergunta bloqueante inline.** No modo lote especialmente, um processamento pode gerar 3-5+ pontos onde so ele decide (ex: "apago ou arquivo o bruto duplicado?", "1:1 vira sessao ou fica so o delta financeiro?"). Em vez de listar como Q&A numerada esperando resposta antes de executar (trava o fluxo, vira questionario — ver `feedback_nao_questionario_em_discussao`), **tome a decisao mais segura/reversivel por default, execute, e registre CADA ponto que merece revisao como item em `TAREFAS.md › DECISOES`** (ou AGUARDANDO, se depende de terceiro) — com o suficiente de contexto pra ele revisar tudo junto, na hora que quiser, sem travar a execucao do resto. _(Henrique, lote `inbox/yabadoo-desktop` 28/07: "tudo que de fato precisar de revisao coloca em tarefas reviso tudo junto. de resto aprova" — ele prefere revisar em lote depois a aprovar item por item na hora.)_
+
 ESPERE o usuario revisar e aprovar antes de continuar.
 
 ---
