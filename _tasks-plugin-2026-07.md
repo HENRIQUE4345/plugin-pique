@@ -3,7 +3,7 @@
 **Outcome:** o plugin-pique instalável pela equipe, com os rituais amarrados às ferramentas por contrato explícito (fonte → ritual → artefato) e o ClickUp acessado por 6 tools em vez de 17.
 **Iniciado:** 2026-07-28
 **Status:** em-execucao
-**Proximo passo:** B.0 — rodar a sessao de rumo (`_prompt-sessao-rumo.md`) antes de seguir pra A.1
+**Proximo passo:** C.0 — os 3 consertos mecanicos (ANTES da migracao de qui 30/07); depois B.0 enxugada
 **Tags:** plugin-pique, rituais, clickup, mcp, equipe, afiar
 
 ---
@@ -55,27 +55,25 @@ que vai mudar.
 > Revela artefato órfão (escrito e não lido), fonte fantasma (lida e não produzida), loop aberto
 > e fonte divergente.
 
-#### `[ ]` A.1 🤖 — Tabela factual dos 11 comandos
-- Ler os 11 do escopo (~3.100 linhas) e extrair de cada um: **o que lê · o que escreve · o que
-  declara entregar pro próximo ritual**
-- Os 3 que ainda não existem no plugin (`iniciar`, `inbox`, `pre-reuniao`) entram pela fonte
-  atual: `~/.claude/commands/iniciar.md`, `plugin-whatsapp/commands/inbox.md`, e `pre-reuniao`
-  fica como linha vazia a preencher
-- Critério de pronto: tabela com 11 linhas, sem célula "não sei"
+#### `[x]` A.1 🤖 — Tabela factual dos 11 comandos — **fechada em 28/07**
+- Virou o **mapa de contratos**: `MEU-CEREBRO/conhecimento/produtividade/mapa-contratos-sistema-trabalho.md`
+  (Tabela A com ~22 peças — escopo ampliado pra tudo que produz/consome contexto, incluindo as
+  7 reuniões e a captura)
 
-#### `[ ]` A.2 🤖 — Grafo mermaid em cima da tabela
-- Critério de pronto: renderiza, e cada seta sai de um ritual que existe
+#### `[x]` A.2 🤖 — Grafo mermaid em cima da tabela — **fechada em 28/07**
+- Vista 1 do mapa de contratos (+ Vista 2 schema de entidades + Vista 3 por executor)
 
-#### `[ ]` A.3 🤖 — Lista de furos
-- Classificar cada achado: artefato órfão · fonte fantasma · loop aberto · fonte divergente
-- Já conhecido, tem que aparecer: `review-semanal` entrega "Levar pro fechamento" e o
-  `fechamento-semana` foi excluído (furo 4 da auditoria)
-- ⚠️ Ressalva registrada na auditoria: **o grafo não pega divergência de conteúdo** — se dois
-  rituais leem o `TAREFAS.md` com regras diferentes, ele desenha duas setas iguais. Isso só sai
-  lendo lado a lado, depois que o grafo mostrar onde olhar
+#### `[x]` A.3 🤖 — Lista de furos — **fechada em 28/07**
+- **15 furos** catalogados e tipados no mapa (órfão · fantasma · loop aberto · divergente), cada
+  um com prova na fonte. O padrão: o ciclo do dia fecha; o que atravessa pessoas não
 
-#### `[ ]` A.4 👤 — Conferir os furos e decidir o que conserta
-- Depende de A.3
+#### `[x]` A.4 👤 — Conferir os furos e decidir o que conserta — **fechada em 28/07 (noite)**
+- Brainstorm de arquitetura (chat da noite) decidiu o alvo: **§Alvo do mapa de contratos** —
+  4 martelos (barramento card-canônico · contrato do Slack · `pre-reuniao` único com presets,
+  roteador ancorado no Calendar · vigias em 2 fases) + lei "nenhum artefato sem leitor
+  declarado" + 4 famílias de peças + coluna alvo das 7 reuniões
+- Consertos imediatos viraram **C.0**; células 1–4 do mapa decididas, célula 5 (granularidade
+  do marco) segue aberta
 
 ---
 
@@ -83,7 +81,15 @@ que vai mudar.
 
 > Nenhuma dá pra decidir por código. Cada uma trava pelo menos uma task da fase C ou D.
 
-#### `[ ]` B.0 👤 — Rodar a sessão de rumo
+#### `[ ]` B.0 👤 — Rodar a sessão de rumo — **ENXUGADA em 28/07 (noite)**
+> O brainstorm de arquitetura já decidiu: barramento (card = cópia canônica), consolidador
+> (`pre-reuniao` único com presets, roteador Calendar), famílias de peças e vigias em 2 fases —
+> ver §Alvo do mapa de contratos. **Sobra pra B.0 (nenhum destes foi tocado pelo brainstorm):**
+> a fronteira entre ledgers · **B.1** (4 comandos em limbo) · **B.2** (segue ⏳ bloqueada pela
+> migração de qui — não cai da lista, só não decide antes dela) · **B.3** (cada membro precisa
+> de cérebro?) · **B.4** (medição por pessoa/cliente) · **B.5** (telemetria local/agregada).
+> **B.6** segue à parte, com o card `86ajp5064`.
+
 Prompt pronto em `_prompt-sessao-rumo.md` — cola no chat novo. Cobre B.1–B.6 de uma vez, mais
 duas coisas que não são só decisão B: **a fronteira entre este ledger e o
 `_tasks-afiar-sistema-trabalho.md`** do cérebro (proposta: o que a equipe instala vive aqui, como
@@ -129,6 +135,14 @@ A Fase 5 do MCP (placar da semana) só começa depois desse martelo.
 
 ## Fase C — Consolidação do plugin (Bloco 3 + auditoria)
 
+#### `[ ]` C.0 🤖 — Os 3 consertos mecânicos — **cravado 28/07: fazer ANTES da migração de qui**
+- Space IDs mortos + status "Essa semana"/"Hoje" inexistentes nos 2 rituais semanais (furo 5)
+- Matar a mensagem de WhatsApp do `planejamento-semanal` (furo 6 — canal morto desde 16/07)
+- Matar a "Fase 4 PAUSA — Reunião" do `planejamento-semanal` (furo 7 — é o que travou a Carol;
+  a v2 cravou solo)
+- ~1-2h, zero decisão, 3 skills voltam a funcionar. A migração de qui muda o **trilho**
+  (`TAREFAS.md`), não os Spaces que esses comandos leem — não é retrabalho
+
 #### `[ ]` C.1 🤖 — Criar `pre-reuniao` **antes** de excluir o que ele herda
 ⚠️ Ordem importa: `extensao-estrategica` e `painel-review` (ambos marcados excluir) **já têm a
 mecânica de coleta multi-fonte → pauta**. Extrair antes de apagar (furo 3 da auditoria). O item
@@ -136,6 +150,16 @@ está planejado desde abril (ROADMAP 2.2) e aparece na tabela Plugin↔Yabadoo c
 reunião → Feature do Yabadoo Business"*.
 - Regra da casa que ele tem que cumprir: pauta escrita com blocos + tempo, teto de 45min,
   termina com "quais foram as decisões" e "quem faz o que até quando"
+- **Desenho cravado 28/07 (noite), §Alvo do mapa de contratos:** UMA peça com **preset por
+  rito** (gatilho de separação: passo novo racha, fonte nova não), **roteador ancorado no
+  Calendar** — evento = chave primária (série recorrente → preset · avulsa → prep genérico com
+  contexto das pessoas · sem evento → cria). Puxa atas passadas + ficha DISC (gente de dentro)
+  + arquivo de cliente (gente de fora); contexto de pessoa vai pro condutor, não pra pauta
+  circulante. Ordem dos presets: "segunda" (Carol, furo 11) → "1:1" (Marco, furo 2/DISC) →
+  "fechamento"
+- **Par casado:** no mesmo movimento o `pos-reuniao` ganha contrato novo — backlink evento↔ata
+  no Calendar + cabeçalho estruturado na ata (`evento_id` · participantes · decisões · ações
+  com `card_id`). Detalhe no §Alvo
 
 #### `[ ]` C.2 🤖 — Excluir os comandos triados como fora
 `fechamento-semana` · `painel-review` · `extensao-estrategica` · `executar` · `tempo` ·
@@ -223,6 +247,8 @@ Pronto quando: dá pra mudar a definição de "travada em mim" editando JSON, se
 
 #### `[ ]` D.6 🤖 — `criar_cards`
 Destrava o `/encerrar`, que hoje detecta ação em 111 sessões e joga fora.
+- Confirmado 28/07 (noite) como a materialização do martelo 1 do §Alvo (card = cópia canônica
+  de ação/estado): peça que detecta ação e não cria card é furo por definição.
 
 #### `[-]` D.7 — Placar da semana
 Bloqueada por B.6 (formato da reunião de segunda).
@@ -299,3 +325,12 @@ Sobreviveu à triagem do `ROADMAP.md` (registro completo em `ROADMAP-ARCHIVE.md`
   de decidir sozinho, virou prompt de sessão dedicada — `_prompt-sessao-rumo.md` — e task **B.0**.
   Proximo passo do cabeçalho movido de A.1 pra B.0: a fronteira entre os ledgers muda o que a
   fase C executa, não faz sentido gastar o grafo de contratos antes disso.
+- **2026-07-28 (noite)** — Brainstorm de arquitetura dos rituais (chat): 4 martelos (card =
+  cópia canônica · Slack só sinal · `pre-reuniao` único com presets/roteador Calendar · vigias
+  em 2 fases) + lei "sem leitor declarado" + 4 famílias (planejadores/consolidadores/
+  processadores/vigias) → tudo no **§Alvo do mapa de contratos**. Fase A fechada (A.1–A.4).
+  Células 1–4 do mapa decididas; célula 5 aberta. Criada **C.0** (3 consertos antes de qui).
+  B.0 enxugada (sobra fronteira + B.1 + B.4 + B.5). Futuro registrado: `planejamento-mensal`
+  (spec sai do fechamento de sex 31/07 na mão) e `planejamento-trimestral` (set/2026). Nota de
+  rumo: reunião = fatia vertical nº1 do YabaBuss; promover a 2º tenant quando a versão-skill
+  provar.
