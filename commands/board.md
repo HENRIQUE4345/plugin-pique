@@ -115,13 +115,34 @@ Contrato completo: `BRAINSTORM-TEMPLATE/docs/arquitetura/formato-board.md`.
 
 Minhas regras ao escrever:
 
-1. **Omita `position`.** O canvas posiciona (perto de um vizinho ligado, senao espiral).
+1. **Omita `position`** ao adicionar 1-2 nos numa conversa (o canvas encaixa perto
+   de um vizinho ligado). Mas ao criar ou reestruturar um board inteiro,
+   **rode o layout** — ver 3.1.
 2. **Nao toque em `rev` nem `updatedAt`.**
 3. `type` e sempre `"generic"` (no) e `"smoothstep"` (aresta). `data.kind` = `"generic"` no no.
 4. IDs deterministicos: `n-<slug-do-titulo>`, `e-<source>-<target>`. Deixa reescrever sem duplicar.
 5. Indentacao 2 espacos, newline no fim. Mantem o diff do git limpo.
 6. **`Edit` cirurgico > `Write` do arquivo inteiro**, sempre que der.
 7. **Uma escrita por rodada.** Cinco `Edit` seguidos = cinco reloads no canvas dele.
+
+### 3.1 Layout: rodar o script, nao confiar no app
+
+Board novo ou reestruturado chega **empilhado** se ninguem posicionar — o
+auto-layout do app so dispara em certas condicoes de montagem. Depois de criar
+ou reorganizar um board, rode:
+
+```bash
+cd "C:\Users\Henrique Carvalho\Documents\PROGRAMAS\BRAINSTORM-TEMPLATE"
+node scripts/layout-board.mjs "<BOARDS_DIR>\<slug>.board.json"
+```
+
+- `--dir LR` pra fluxo/esteira (sequencia longa fica ilegivel em coluna),
+  `TB` (default) pra arvore de dependencia.
+- `--tab <id>` pra rodar so numa aba: `node scripts/layout-board.mjs <arq> --tab esteira --dir LR`
+- Idempotente. Orfaos (sem aresta) vao pra uma faixa propria a direita.
+
+**Nao rode depois que ele ja arrumou os nos a mao** — o script sobrescreve
+todas as posicoes. Nesse caso, so posicione o no novo (ou omita `position`).
 
 ---
 
