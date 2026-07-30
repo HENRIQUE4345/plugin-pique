@@ -204,7 +204,13 @@ Ao fim da conversa, **ofereca** (nao faca sozinho):
 - Nao invente `typeId` fora da lista dos 6.
 - Nao reposicione nos que ele arrastou.
 - **Nao apague no dele.** Proponha; deixe ele apagar.
-- Se o board passar de ~60 nos, sugira quebrar em outra tab antes de continuar.
+- 🔴 **Board nasce PEQUENO: 8-12 nos.** Um board de 27 nos foi rejeitado em 29/07
+  (*"ainda nao ta ilustrando nada, ta uma zona"*) — importar "tudo sobre um tema" produz
+  **inventario, nao raciocinio**. Um board responde **UMA pergunta**; o que nao serve
+  aquela pergunta fica de fora ou vira board proprio. Crescer no uso e o certo; nascer
+  grande, nao. _(⚠️ regra provisoria — o molde do board sera rediscutido; ver
+  `sessoes/2026-07-29-2300-workshop-board-grafo-fase1a.md`)_
+- Se mesmo assim o board passar de ~40 nos, pare e proponha dividir antes de escrever.
 - Titulo de no: **curto** (cabe em ~30 caracteres). O texto longo vai em
   `fields.descricao`.
 
