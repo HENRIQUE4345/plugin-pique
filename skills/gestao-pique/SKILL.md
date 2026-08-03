@@ -19,7 +19,7 @@ Todas as regras de criacao de tasks, workflow de status, membros, Spaces e limit
 
 Resumo rapido:
 - Tasks: verbo infinitivo + assignee + due_date + prioridade + descricao estruturada
-- Escopo: 1-4h por task. Maior = dividir.
+- Escopo: 1-4h por task. Maior = dividir. **O MCP ClickUp aplica isso como trava dura: `time_estimate` rejeita qualquer valor acima de 240min.** Se uma entrega precisar de mais, e sinal de que e projeto — quebre em 2+ tasks ANTES de criar, nao depois do erro (achado 03/08: card de 480min foi rejeitado e teve que ser dividido em execucao).
 - Limite anti-TDAH: max 2-3 tasks/dia, 6-7/semana por pessoa
 - Task empurrada 2+ vezes = bloqueio cronico
 - Calendar > ClickUp (reunioes definem teto do dia)

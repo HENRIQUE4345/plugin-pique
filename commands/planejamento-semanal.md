@@ -60,7 +60,9 @@ Busque em TODOS os Spaces ativos:
 
 #### 1.3 Google Calendar — Semana inteira
 
-Liste eventos de HOJE ate DOMINGO (todos os calendarios — IDs em plugin-pique.local.md + CLAUDE.md do plugin).
+⚠️ **Nao confie na lista de calendarios do config.** Chame `list_calendars` primeiro e itere TODAS as agendas que ele devolver — a lista do `plugin-pique.local.md`/CLAUDE.md do plugin envelhece (agenda nova de pessoa, agenda `# Financeiro`, etc. ficam de fora e ninguem percebe). _(Achado 03/08: rodar so 3 de 8 agendas escondeu a Revisao Financeira mensal que derrubava a premissa de "dia livre" e a agenda da pessoa cuja ida a cliente decidia quem conduz o ritual do dia — o Henrique teve que cobrar "voce olhou compromissos na agenda??".)_
+
+Liste eventos de HOJE ate DOMINGO em cada uma.
 
 Classifique:
 - **Reunioes que consomem bloco:** identificar quanto tempo "produtivo" sobra na semana
@@ -91,6 +93,12 @@ Faca **Read da secao `## SEMANA`** do `TAREFAS.md` (raiz do cerebro) — a que f
 - **`[ ]` parados** — nunca comecou (candidato a voltar, cortar, ou virar decisao).
 
 Isso e insumo direto do balanco no briefing (Fase 2) e do `/review-semanal`. Se a secao `## SEMANA` nao existir ou estiver toda `[ ]` (semana que nao rodou o boa-noite), sinalizar no briefing "sem sinal de progresso registrado nesta semana" em vez de assumir que nada foi feito — cruzar com o `log-do-feito.md` e o ClickUp (1.2) pra nao subestimar.
+
+#### 1.7 Inbox — reuniao/transcricao recente ainda nao processada
+
+Antes de montar o briefing, varra `inbox/` (inclusive subpastas como `inbox/yabadoo-desktop/`) por arquivo com data de hoje ou do fim de semana anterior. Segunda de manha e exatamente quando a gravacao de sexta/domingo/segunda-cedo ainda nao foi processada pelo `/inbox` ou `/pos-reuniao`. Se houver, **leia antes** de gerar o reconhecimento — nao trate como pendencia separada.
+
+_(Achado 03/08: o Henrique tinha feito 2 reunioes antes do planejamento e teve que interromper o fluxo — "preciso que entenda o contexto delas primeiro" — porque elas reescreviam papel, prazo e ate um marco que a Fase 1 ia levar como vivo. Sem isso, o plano nasce errado.)_
 
 ---
 
@@ -273,7 +281,7 @@ Montagem:
    - **Etiquetar o modo** de cada uma (Pensar=decidir/mapear · Produzir=entregar · Afiar=ferramenta). Se nao estiver claro, perguntar.
    - **Manter o titulo-nucleo** de um foco que volta (ancora pro match de progresso do boa-noite ao longo da nova semana).
 3. **So o Henrique vai pro trilho.** As prioridades do **Marco** continuam indo pro ClickUp (6.1), NAO pro `## SEMANA` (o trilho e o que o Henrique executa).
-4. Nao mexer em HOJE/AGUARDANDO/DECISOES/FRENTES/RESTO. O bom-dia da semana puxa daqui.
+4. **Segunda nao tem `/bom-dia`** (o slot da manha da segunda e este planejamento — ver Calendar: "aqui e terca a sexta"). Por isso **esta Fase tambem monta o `## HOJE`**, nao so o SEMANA: 2-4 itens puxados do que ja tem relogio hoje (reuniao do dia, foco nº1 da SEMANA que abre agora, pendencia critica), com o carimbo `<!-- hoje: montado YYYY-MM-DD pelo /planejamento-semanal -->`. Rodar o bom-dia depois seria repetir o reconhecimento que esta Fase 1 acabou de fazer. **De terca a sexta**, nao mexer em HOJE/AGUARDANDO/DECISOES/FRENTES/RESTO — ai sim o bom-dia da semana puxa daqui.
 
 #### 6.1 ClickUp
 - Criar/atualizar tasks confirmadas com status **"A fazer"** + campo de fase/onda (reorg 26/06). **NAO usar "Essa semana"/"Hoje"** — esses status nao existem mais (viraram views por due_date).
