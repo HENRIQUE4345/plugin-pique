@@ -37,8 +37,10 @@ Execute TUDO em paralelo:
 Faca DUAS buscas em paralelo:
 
 **Busca 1 — Tasks ativas:**
-- Tasks com status "Hoje" ou "Fazendo" (o que ficou pendente/em andamento)
+- ⚠ **NAO filtre por status `"Hoje"` — esse status NAO EXISTE mais** (confirmado 03/08: "Hoje"/"Essa semana" viraram **views por `due_date`**, nao status reais). Filtrar por ele retorna 0 **por definicao**, e o zero mente: parece "dia limpo" quando ha task vencendo hoje em "A fazer".
+- **Filtro certo:** `due_date` = hoje (`due_date_gt` = ontem, `due_date_lt` = amanha), **sem** filtro de status (o `include_closed: false` default ja tira Finalizado/Cancelado). Opcionalmente somar as em `"Fazendo"` — esse status e real.
 - Filtrar por assignee do usuario, em TODOS os Spaces ativos
+- Peca ao `gestor-clickup` o filtro por data **de primeira** — nao gaste uma rodada inteira de agent pra descobrir que o status nao existe.
 
 **Busca 2 — Tasks concluidas HOJE:**
 - ⚠ **Limitacao confirmada (03/07):** `list_tasks`/`clickup_filter_tasks` NAO tem parametro `date_done_from`/`date_done_to` e nao retorna campo de conclusao (so `due_date`/`start_date`/`due_relative`). Data de conclusao (`date_done`/`date_closed`, epoch) so existe via `get_task` **individual** — inviavel em lote (pode significar 100+ chamadas pra achar 0-3 tasks concluidas hoje).
@@ -224,6 +226,22 @@ Apos o envio (ou o fallback), ENTAO continue pra Fase 2.2.
 Se NAO tinha check-in, adicione: "Nao achei check-in de hoje. O que foi planejado de manha?" (substitui a pergunta 1)
 
 ESPERE a resposta antes de continuar.
+
+> ⚠️ **SALVE O DIARIO ANTES DE PERGUNTAR — nao deixe o dia refem da resposta.**
+> **Evidenciado 2x** (24/07 e 03/08): o ritual entrega o review, envia a stand-up, faz as 3 perguntas
+> **e morre ali** — o Henrique nao volta, e as Fases 3-5 nunca rodam. Resultado: o dia inteiro de
+> varredura (telemetria + commits + Calendar + ClickUp) evapora, o `diarios/YYYY-MM-DD.md` **nao
+> existe**, e o bom-dia do dia seguinte acorda sem ponte.
+>
+> **Regra:** logo apos mostrar as 3 perguntas, **escreva ja** o `diarios/YYYY-MM-DD.md` com o
+> check-out do que voce JA sabe (os 3 blocos + amanha + leitura do dia), marcando no fim:
+> `**Ritual incompleto:** aguardando as 3 respostas — trilho NAO consolidado.`
+> Quando as respostas chegarem, a Fase 5.2 **atualiza** esse arquivo (nao cria outro) e a 5.2b
+> consolida o trilho. Se nao chegarem, o dia ja esta salvo.
+>
+> O que **continua** dependendo da resposta (nao antecipar): consolidar o `## HOJE`, marcar `[x]`,
+> limpar/carimbar o trilho, mexer no ClickUp. Marcar item como feito sem confirmacao viola
+> "validar fonte real, nao derivar da memoria".
 
 ---
 
