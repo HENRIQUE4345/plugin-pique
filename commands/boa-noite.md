@@ -48,13 +48,14 @@ Faca DUAS buscas em paralelo:
 - **Se o Henrique pedir explicitamente** a varredura completa (quer saber com certeza o que fechou hoje no board), ai sim rode `get_task` tasks a tasks — mas avise antes o custo (N chamadas).
 - Cruze a Busca 1 com telemetria/commits/log pra identificar o que ficou parado — nao dependa do ClickUp pra saber o que "finalizou hoje".
 
-Busque em TODOS os Spaces ativos (reorg 26/06 — frente=Space; **Beto Carvalho e Pessoal nao existem mais como Spaces**, foram absorvidos):
-- Pique Digital (901313561086)
-- Marketing — era "Conteudo"/"Studio" (901313561098)
-- Produto — era "Yabadoo" (901313567191)
-- Clientes (901313869198)
-- Comercial (901313872609)
-- Adm/Fin (901313872623)
+Busque em TODOS os Spaces ativos. ⚠️ **IDs abaixo conferidos ao vivo em 04/08** contra `plugin-pique/CLAUDE.md` (fonte canonica) — a reorg de 26/06 tinha 6 Spaces com esses nomes/IDs, mas eles **morreram** numa reorg posterior pra 5 Spaces. IDs mortos devolvem 200 com zero tasks, **sem erro** — usar os antigos da um falso "dia limpo" quando na verdade ha task pendente:
+- Casa (901313888640)
+- Produto (901313890018)
+- Clientes (901313890061)
+- Studio (901313890136)
+- Crescimento (901313888670)
+
+Se a busca com esses IDs voltar 100% vazia em TODOS os Spaces, desconfie — confira contra `plugin-pique/CLAUDE.md` antes de reportar "nada pendente" (pode ter havido reorg de novo).
 
 **Ao consolidar:** cruzar as duas buscas e identificar TODAS as tasks que foram finalizadas hoje (comparar timestamps), as que estao em andamento, e as que ficaram paradas.
 
