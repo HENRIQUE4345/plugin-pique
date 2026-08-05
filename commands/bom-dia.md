@@ -254,6 +254,8 @@ Os candidatos NAO saem so do `## SEMANA` (lente FAZER). O bom-dia e coach: um it
 6. **Prep de ontem (B3):** se a Fase 0 trouxe "prep pra hoje/amanha" do diario, **oferecer** como candidato (sugere, nao entra sozinho).
 7. **Ad-hoc:** o que o usuario mencionou no chat (Fase 3.1).
 
+> **Micro nao compete por slot numerado.** Acao rapida (~5-15min, sem deep work — mandar mensagem, mover evento no Calendar, aprovar algo) NAO vira item numerado da proposta, mesmo se surgiu de uma das lentes acima. Ela dobra pra dentro do item de foco como sub-bullet `**Micro (fora de bloco):**` (mesmo padrao ja usado no `## SEMANA` do trilho) ou, se nao houver foco unico no dia, junta todas as micro num unico bullet `Micro (fora de bloco)` fora da lista numerada. **Sinal de que errou:** se o usuario disser "isso e so mensagem de 5min" sobre um item que voce numerou, e feedback de que inflacionou o WIP — corrige puxando pra micro, nao defende o numero. (Achado 05/08: Henrique cortou 2 dos 3 itens propostos — "reajuste de agenda" e "mensagem pro Filipe" — porque eram 5-15min cada, e o foco real era 1 so: o trabalho de fundo do dia.)
+
 > **Cobrar (bloco "Eles me devem" da lente 2) NAO vira task de execucao do Henrique** — vira linha na mensagem de stand-up / lembrete de cobranca, nao candidato do dia. Nunca criar task pra terceiro (gerar mensagem pro Henrique enviar).
 
 Mostrar a **estimativa de tempo** ao lado de cada um. **Filtrar bloqueados** (Fase 3.2.1).
@@ -293,6 +295,8 @@ Formato:
 2. **[Task]** (~Zh) — [justificativa curta]
 3. **[Task]** (~Zh) — [justificativa curta]
 Total estimado: [soma]h
+
+**Micro (fora de bloco, ~Nmin):** [acao rapida 1] · [acao rapida 2] — nao entram na lista numerada
 
 **Blocos:**
 - Stand-up
