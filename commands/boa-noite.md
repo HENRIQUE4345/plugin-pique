@@ -28,9 +28,9 @@ Se o arquivo nao existir, pergunte o nome do usuario e crie usando o template.
 Execute TUDO em paralelo:
 
 ### 1.1 Ler check-in de hoje
-- Leia `diarios/YYYY-MM-DD.md` (hoje).
+- Leia `diarios/YYYY-MM-DD.md` (hoje, pela data do sistema).
 - Extraia: tasks planejadas, reunioes, blockers do inicio do dia.
-- **Se o arquivo NAO existir:** nao trave. Siga pra Fase 2 e pergunte o que foi planejado junto com as outras perguntas.
+- **Se o arquivo NAO existir:** antes de assumir "sem check-in", cheque a hora real (BRT) e o `## HOJE` do `TAREFAS.md`. Se for madrugada (ritual rodando logo apos meia-noite) **e** o `## HOJE` ainda estiver carimbado `<!-- hoje: montado <data de ontem> -->` (nunca virou `consolidado`), o dia que precisa ser fechado e **ontem**, nao hoje — leia `diarios/<ontem>.md` em vez de criar um arquivo vazio pra hoje. Isso e o padrao normal quando uma sessao de trabalho atravessa a meia-noite sem pausa (ja aconteceu varias vezes — ver `log-do-feito.md`, rows "Boa-noite" que fecham no dia anterior ao do timestamp real). Sinalize a decisao pro Henrique em 1 frase no topo do review; nao pergunte antes de agir. Se realmente nao ha check-in nem de hoje nem de ontem, ai sim segue pra Fase 2 e pergunta.
 
 ### 1.2 ClickUp — Estado atual do board
 
@@ -79,11 +79,15 @@ Limitacao: so captura chats encerrados formalmente. Chat aberto/abandonado nao a
 
 ### 1.5 Commits do dia (repos PROGRAMAS)
 
-Rodar em paralelo nos repos ativos da pasta `C:\Users\Henrique Carvalho\Documents\PROGRAMAS\` que tem `.git/`:
+⚠️ **Achado 05-06/08: `--since="00:00"` sozinho e ERRADO nesta maquina e mente sem avisar.** O shell (Git Bash) nao tem tzdata — `date`/`git log` tratam tudo como se fosse UTC, entao `--since="00:00"` pega desde meia-noite **UTC**, que e **21:00 BRT do dia anterior**. Resultado pratico: um dia inteiro de commits (manha/tarde/inicio da noite em BRT) fica **fora da janela** e o log parece "quase sem commits" quando na real teve 15-20. Nao ha erro nem aviso — e um falso "dia limpo" silencioso, igual aos IDs de Space mortos do ClickUp (ver 1.2).
+
+**Fix: usar a mesma janela BRT explicita da Fase 1.4** (hoje 03:00Z ate amanha 03:00Z — equivale a 00:00–23:59 BRT), em vez de `--since="00:00"`:
 
 ```bash
-git -C "<repo>" log --since="00:00" --oneline --no-merges
+git -C "<repo>" log --since="<hoje> 03:00:00" --until="<amanha> 03:00:00" --oneline --no-merges
 ```
+
+(`<hoje>`/`<amanha>` em `YYYY-MM-DD`; como o shell trata local=UTC, "03:00:00" sem sufixo bate exatamente com a virada BRT.) Se rodar numa maquina com tzdata de verdade (ex: `TZ=America/Sao_Paulo` funcionando), o equivalente e `--since="<hoje> 00:00:00" --until="<hoje> 23:59:59"` com o `TZ` setado — mas **confira primeiro** (`date` deveria devolver `-03` no fuso, nao `GMT`/`UTC`) antes de trocar a formula, senao volta a mentir do jeito oposto.
 
 Repos relevantes (auto-detectar via `Get-ChildItem -Directory | Where-Object { Test-Path .git }`, mas priorizar): MEU-CEREBRO, pique (submodule), plugin-pique, plugin-social-media, plugin-pique-news, pique-consultoria-hub, pique-decks-react, yabadoo-brain, marco-brain, remotion-iairique, docs-pique-hosting.
 
