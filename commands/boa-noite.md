@@ -383,6 +383,11 @@ Fecha o ciclo do dia no `TAREFAS.md` + `log-do-feito.md`. **Re-Read o `## HOJE` 
    _(vazio — rodar /bom-dia)_
    ```
    (`consolidado` distingue "boa-noite fechou" de "nunca montado" — o gate do bom-dia Fase 0.2 le isso.) **Excecao:** se ficou item "pra amanha" no HOJE, ele NAO esta limpo → **nao** carimbar `consolidado`.
+
+   ⚠️ **Risco de edicao concorrente (achado 06/08) — `TAREFAS.md` e compartilhado por TODAS as janelas do Henrique, nao so pelo boa-noite.** Se uma sessao-irma (outro chat vivo, ex: uma sessao no `yababuss` escrevendo rastro `↻` direto no `## HOJE`) commitar entre a Fase 1.6 (quando voce LEU o arquivo) e este passo (quando voce ESCREVE o reset), um replace de bloco largo (ler tudo, cortar `## HOJE`...`## SEMANA`, escrever de volta) **apaga silenciosamente** o que a sessao-irma acabou de adicionar — sem conflito, sem erro, sem aviso. Ja aconteceu (rastro `chat seguinte 9` do yababuss, recuperado na mao via `git show <commit-perdido>:TAREFAS.md`). **Mitigacao obrigatoria antes de escrever o reset:**
+   1. Rode `git log -1 --format=%H -- TAREFAS.md` (ou `session-info.py list-active`) imediatamente ANTES de escrever — se o commit mudou desde a Fase 1.6, **re-leia o arquivo agora** e refaça o corte em cima da versao atual, nao da versao antiga em memoria.
+   2. Prefira Edit/patch cirurgico (achar o item especifico e cortar so ele) a reescrever o arquivo inteiro por script — reduz a janela de risco e o raio da perda se algo escapar.
+   3. Depois de commitar, rode `git show <commit-anterior-mais-recente-que-tocou-TAREFAS.md>` e confira que nao sobrou nenhuma linha ausente no diff — se sobrou, recupere com `git show <sha>:TAREFAS.md` e reinsira antes de seguir.
 5. **Regra de mes do log (N5):** a secao e `## YYYY-MM` da **data de inicio** do item (coluna Data), nao do relogio do ritual. Usar o **dia BRT sendo fechado** (janela `T03:00Z`, igual telemetria) — apos meia-noite fecha o dia anterior, nao o civil. **Grep se `## YYYY-MM` ja existe** antes de criar (idempotente) e dar append.
 6. **Commit do cerebro:** diario + TAREFAS.md + log-do-feito.md em 1 commit `cerebro: boa-noite YYYY-MM-DD` (submodule `pique/` separado se tocado). Sem push. O TAREFAS.md agora tambem carrega a mudanca do `## SEMANA` (passo 3.5) alem do `## HOJE`.
 
