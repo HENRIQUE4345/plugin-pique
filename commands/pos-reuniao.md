@@ -334,6 +334,25 @@ ESPERE o usuario revisar e aprovar antes de continuar.
 
 Apos aprovacao:
 
+### 5.0b Roteamento por sensibilidade (decidir ANTES de escolher a pasta)
+
+A Fase 2.3 roteia por TIPO de reuniao (interna/cliente/parceiro) — isso decide `sessoes/` vs
+`pique/sessoes/` quando o criterio e "quem deveria ter acesso". Mas sensibilidade e um eixo
+**separado**: reuniao de empresa pode conter miolo sensivel (avaliacao de socio, dinheiro
+pessoal, saude, conflito) mesmo com gente do time na sala. Regra do Henrique: **"coisas
+sensiveis guarda no meu repo, nao do pique."**
+
+Antes de gravar (5.1), classifique cada sessao:
+
+| Caso | Onde vai | Como |
+|------|----------|------|
+| O **miolo inteiro** e sensivel (1:1 de crise, avaliacao de socio/pessoa, dinheiro pessoal, saude, conflito) | `sessoes/` (repo PRIVADO), mesmo que a reuniao seja de empresa e todos os presentes "deveriam ter acesso" pelo teste antigo | Header leva `**Sensibilidade:** ⚠️ PRIVADO — nao circular, nao subir pro pique/` |
+| Sessao **operacional** com 1-2 trechos sensiveis (juizo sobre pessoa, headcount nominal, autorrelato de saude) | `pique/sessoes/` normalmente | **Omitir** os trechos sensiveis do arquivo (nao so resumir mais suave — tirar). Rodape: `> ⚠️ N pontos sensiveis desta sala ficaram fora desta ata — registrados no trilho privado do Henrique.` |
+
+O teste "o Marco deveria ter acesso?" (CLAUDE.md) **nao resolve sozinho** — no 1:1 de crise ele
+estava NA SALA e mesmo assim a ata e privada. Sensibilidade do CONTEUDO manda mais que presenca
+na reuniao.
+
 ### 5.1 Salvar sessao no cerebro
 
 Crie `sessoes/YYYY-MM-DD-HHMM-[tipo]-[descricao].md` com template padrao:
