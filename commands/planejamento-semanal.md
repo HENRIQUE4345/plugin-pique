@@ -45,11 +45,13 @@ Se existir, extraia:
 Consulte `pique/infra/clickup-setup.md` para IDs dos Spaces.
 
 Busque em TODOS os Spaces ativos:
-- Pique Digital (901313561086)
-- Conteudo (901313561098)
-- Yabadoo (901313567191)
-- Beto Carvalho (901313567164)
-- Pessoal (901313561154)
+- **Casa** (901313888640) — rumo, financeiro, rituais, processos, ferramentas
+- **Produto** (901313890018) — Yabadoo / YabaBuss
+- **Clientes** (901313890061) — Beco e demais
+- **Studio** (901313890136) — audiovisual, Beto Carvalho, Marcella
+- **Crescimento** (901313888670) — Maquina de Vender, captacao e conteudo
+
+> ⚠️ **Os 5 Spaces antigos MORRERAM na reorg de 26/06** — `901313561086` (Pique Digital), `901313561098`, `901313567191`, `901313567164`, `901313561154` **nao existem mais**. Se ver algum deles em qualquer lugar, e resquicio: corrija. **Reconfira sempre com `get_hierarchy` antes de usar** — esta lista tambem envelhece (conferida ao vivo em 10/08/2026).
 
 | O que buscar | Por que |
 |---|---|

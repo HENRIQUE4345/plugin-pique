@@ -53,7 +53,7 @@ Spec completa que o Claude principal deve te mandar:
 
 | Campo | Formato | Exemplo |
 |---|---|---|
-| `list_id` | string | `"901313561086"` |
+| `list_id` | string | `"901327847802"` (exemplo: Rituais & Reunioes, no Space Casa) |
 | `name` | string (verbo no infinitivo) | `"Configurar deploy automatico"` |
 | `markdown_description` | 3 secoes obrigatorias (ver template) | Ver abaixo |
 | `assignees` | array de user_ids ou handles | `["48769703"]` ou `["henrique"]` |

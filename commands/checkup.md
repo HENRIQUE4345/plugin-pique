@@ -13,7 +13,14 @@ Check-up de gestao do ClickUp. Auditoria completa de um ou mais Spaces. Execute 
 ## Configuracao
 
 - **Workspace ID:** 36702200
-- **Spaces profissionais:** Pique Digital (901313561086), Conteudo (901313691844), Studio (901313561098), Yabadoo (901313567191), Beto Carvalho (901313567164)
+- **Spaces profissionais:**
+- **Casa** (901313888640) — rumo, financeiro, rituais, processos, ferramentas
+- **Produto** (901313890018) — Yabadoo / YabaBuss
+- **Clientes** (901313890061) — Beco e demais
+- **Studio** (901313890136) — audiovisual, Beto Carvalho, Marcella
+- **Crescimento** (901313888670) — Maquina de Vender, captacao e conteudo
+
+> ⚠️ **Os 5 Spaces antigos MORRERAM na reorg de 26/06** — `901313561086` (Pique Digital), `901313561098`, `901313567191`, `901313567164`, `901313561154` **nao existem mais**. Se ver algum deles em qualquer lugar, e resquicio: corrija. **Reconfira sempre com `get_hierarchy` antes de usar** — esta lista tambem envelhece (conferida ao vivo em 10/08/2026).
 - **Setup completo:** `pique/infra/clickup-setup.md`
 - **Manual ClickUp:** Doc 1301zr-1153 (fonte de verdade das regras)
 - **Contexto do processo:** `pique/processos/internos/checkup-gestao.md`

@@ -91,7 +91,7 @@ Cheque TODOS os calendarios do usuario (ler IDs de `plugin-pique.local.md` e CLA
 
 **NAO hardcode Space ID aqui** — a reorg move Space e os IDs mortos retornam vazio **em silencio** (mascara falta de dado em vez de avisar). Peca ao `gestor-clickup` pra comecar por `clickup_get_workspace_hierarchy`, listar os Spaces que existem HOJE, e so entao buscar. Cruze com `pique/infra/clickup-setup.md` / `clickup-mapa-real-*.md` se precisar.
 
-> **Foto de 22/07/2026 (referencia, nao filtro — reconfira sempre):** 10 Spaces vivos — Marketing `901313561098` · Produto `901313567191` · Clientes `901313869198` · Comercial `901313872609` · Demandas Internas `901313872623` · [NEW] Casa `901313888640` · [NEW] Crescimento `901313888670` · [NEW] Produto `901313890018` · [NEW] Clientes `901313890061` · [NEW] STUDIO `901313890136`. **MORTOS:** "Pique Digital" `901313561086` e "Beto Carvalho" `901313567164`. Os antigos "Studio" e "Yabadoo" sobrevivem com o MESMO id, so renomeados pra "Marketing" e "Produto".
+> **Foto de 10/08/2026 (referencia, nao filtro — reconfira sempre com `get_hierarchy`):** **5 Spaces vivos** — **Casa** `901313888640` · **Produto** `901313890018` · **Clientes** `901313890061` · **Studio** `901313890136` · **Crescimento** `901313888670`. **MORTOS (nao usar):** `901313561086` (Pique Digital) · `901313561098` · `901313567191` · `901313567164` · `901313561154` · `901313869198` · `901313872609` · `901313872623`. _(A foto de 22/07 listava 10 Spaces — os antigos sairam de vez na virada pra estrutura nova.)_
 
 Busque sempre com `assignees: [user_clickup_id]` (nunca tasks do time), em TODOS os Spaces ativos, `status NOT IN (finalizado, descartada)`:
 
