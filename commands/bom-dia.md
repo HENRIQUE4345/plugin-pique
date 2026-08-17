@@ -89,6 +89,8 @@ Cheque TODOS os calendarios do usuario (ler IDs de `plugin-pique.local.md` e CLA
 
 > ClickUp NAO e a fonte do dia — isso e o SEMANA do trilho (Fase 1.4). Aqui ele entra so como **overlay**: prazo duro que pode forcar um item, e cobranca. **Reorg 26/06:** "Essa semana"/"Hoje" NAO existem mais como status — NAO filtrar por eles, so por due_date + status atuais (a fazer / fazendo / aguardando terceiro / finalizado).
 
+> ⚠️ **Esta busca tem que FECHAR antes de voce escrever a lente FAZER (Fase 2).** O board e a fonte de estado; o texto do trilho e narrativa e envelhece. Se o overlay chegar depois do briefing, prazo stale do `## SEMANA` ja virou afirmacao sua. **Nunca afirme "vencido/atrasado" a partir do texto do trilho — so a partir do `due_date` lido agora.** (Achado 17/08: o SEMANA dizia que o card da regua estava *"vencido 15/08, unico card seu com data vencida"*; o board dizia **due 20/08**, mexido na vespera as 20:17.)
+
 **NAO hardcode Space ID aqui** — a reorg move Space e os IDs mortos retornam vazio **em silencio** (mascara falta de dado em vez de avisar). Peca ao `gestor-clickup` pra comecar por `clickup_get_workspace_hierarchy`, listar os Spaces que existem HOJE, e so entao buscar. Cruze com `pique/infra/clickup-setup.md` / `clickup-mapa-real-*.md` se precisar.
 
 > **Foto de 10/08/2026 (referencia, nao filtro — reconfira sempre com `get_hierarchy`):** **5 Spaces vivos** — **Casa** `901313888640` · **Produto** `901313890018` · **Clientes** `901313890061` · **Studio** `901313890136` · **Crescimento** `901313888670`. **MORTOS (nao usar):** `901313561086` (Pique Digital) · `901313561098` · `901313567191` · `901313567164` · `901313561154` · `901313869198` · `901313872609` · `901313872623`. _(A foto de 22/07 listava 10 Spaces — os antigos sairam de vez na virada pra estrutura nova.)_
@@ -103,10 +105,13 @@ Busque sempre com `assignees: [user_clickup_id]` (nunca tasks do time), em TODOS
 
 Para **atrasadas** e **vence hoje** (sao poucas): apos `list_tasks`, chame `get_task` em cada uma pra puxar descricao+comentarios (inferir escopo pelo nome gera briefing errado). Nao buscar "vencendo essa semana" como pool — esse mecanismo morreu na reorg; a selecao do dia vem do SEMANA do trilho (Fase 1.4). Pessoal nao usa due_date (so prioridade) — normal nao retornar nada de prazo la.
 
-### 1.3 Inbox rapido
+### 1.3 Inbox rapido — o `inbox/` INTEIRO, nao so o DIARIO
 
 - Leia `inbox/DIARIO.md` — tem algo registrado que afeta o dia?
-- NAO processe o inbox, apenas escaneie por itens urgentes ou contexto relevante.
+- **Liste tambem `inbox/` e suas subpastas (`yabadoo-desktop/`, `contextos/`) filtrando por prefixo de data de HOJE e de ONTEM.** Transcricao de reuniao cai ali automaticamente e **nao passa pelo DIARIO.md**. Se houver arquivo de hoje, **LEIA antes de montar a lente FAZER** — reuniao da manha reordena o dia inteiro.
+- NAO processe o inbox (isso e do `/inbox` / `/pos-reuniao`), apenas escaneie por itens urgentes ou contexto relevante. Se houver 2+ transcricoes nao processadas do mesmo dia, sinalize no briefing (cruzar brainstorms paralelos).
+
+> **Achado 17/08:** a reuniao Marco+Carol que reorganizou o dia inteiro (galpao/Beco, foco-mae mudando de dono) ja estava transcrita em `inbox/yabadoo-desktop/` **antes** do ritual rodar. O bom-dia lia so o `DIARIO.md`, montou a proposta sem ela, e a proposta mudou de forma depois que o Henrique apontou o arquivo na mao. Havia 4 transcricoes nao processadas ali, 2 delas do proprio dia.
 
 ### 1.4 Trilho (`TAREFAS.md`) — espinha do dia + as 4 lentes
 
@@ -116,6 +121,10 @@ Read no `TAREFAS.md` (raiz do cerebro). Capture as secoes que alimentam as 4 len
 - `## AGUARDANDO` — o que o Henrique espera dos outros. **Fonte da lente SUPERVISIONAR (bloco "Eles me devem")** — cruza com a cobranca da Fase 1.2 e com o `_delegacao-equipe.md` (Fase 1.5) → visao unica de cobranca.
 
 Se o `## SEMANA` estiver vazio ou com data de semana antiga (ex: segunda antes do `/planejamento-semanal`): avise *"SEMANA nao montada/desatualizada — rode /planejamento-semanal primeiro, ou me diga o foco da semana."* Sem espinha, o dia so tem o prazo duro do ClickUp + o que voce mencionar.
+
+**⚠️ O SEMANA nao e a unica fonte da lente FAZER — o trabalho de `[Pensar]` da vespera mora no repo do projeto, nao no trilho.** Depois de ler o `## SEMANA`, olhe as linhas de **ONTEM no `log-do-feito.md`**: se 2+ apontarem pra sessoes de um repo de projeto (`yababuss/docs/sessoes/`, `pique-consultoria-hub/`, etc), **leia esses docs antes de montar a proposta**. O que o trabalho da vespera *produziu* (decisao pendente, fork em aberto, fila revista) e candidato de hoje, e o trilho nao sabe disso.
+
+> **Achado 17/08:** a `V.4` + `V.10g` de 16/08 (no `yababuss`) produziram 4 cadeiras do financeiro, 3 apostas que so o Filipe crava, 4 forks `J1`–`J4` que so o Henrique decide, e uma fila de auditoria revista. **Nada disso entrou em candidato** — o SEMANA citava a colisao mas nao o payoff. So apareceu quando o Henrique disse *"to perdido em que ordem seguir"*.
 
 ### 1.5 Delegacao + atas recentes (lentes SUPERVISIONAR e LEMBRAR)
 
@@ -269,6 +278,12 @@ Antes de incluir uma task na lista candidata, verificar:
 - Ela e subtask e a task-mae esta em status "Aguardando Terceiro" ou "Bloqueada"? NAO sugerir.
 
 Isso evita a frustracao de sugerir algo que a pessoa nao consegue comecar.
+
+**⚠️ Bloqueio NAO e binario — antes de descartar o item, procure a metade nao-bloqueada.** Item grande costuma ter duas metades com dependencias diferentes: uma que espera fonte externa (acesso, resposta de fornecedor, entrega de outro) e uma que **so o Henrique ou o cliente decide**. Descartar o item inteiro joga fora a metade que estava pronta pra andar. Pra cada item bloqueado, perguntar: *"o que dentro disso NAO depende do que esta travado?"* — e propor **essa** metade, com nome proprio (nao o nome do item bloqueado, senao volta a colar as duas).
+
+> **Achado 17/08:** *"a regua ERP × YabaBuss so vou conseguir quando liberarem o painel"* estava certo — pra metade "o que o Microvix absorve". Mas a outra metade (os 4 forks `J1`–`J4` + as 3 apostas teto/regua/alcada) **nao dependia de painel nenhum** — o proprio doc da `V.4` dizia *"nenhuma depende do ERP, uma conversa fecha as tres"*. Ficou parada semanas porque tinha o mesmo nome da metade bloqueada.
+
+**⚠️ A regra de micro protege contra inflar o WIP — nao contra o inverso.** Antes de rebaixar algo pra micro, **checar se existe card no ClickUp com estimativa**. Card com 1h+ estimada nao e micro, mesmo que o gesto imediato pareca "so mandar uma mensagem". (Achado 17/08: o repasse do cadastro a Karine foi rebaixado pra micro de cobranca quando havia card proprio urgent de 1h com `waiting_on` — `86ak1e41b`.)
 
 ### 3.3 Montar o dia
 
