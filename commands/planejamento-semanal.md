@@ -289,6 +289,8 @@ Montagem:
 - Criar/atualizar tasks confirmadas com status **"A fazer"** + campo de fase/onda (reorg 26/06). **NAO usar "Essa semana"/"Hoje"** — esses status nao existem mais (viraram views por due_date).
 - Criar tasks novas seguindo as regras do CLAUDE.md (verbo, responsavel, prazo, descricao).
 - Se alguma task foi removida/adiada, perguntar: volta pra "A fazer" ou fica?
+- 🔴 **Aplicar a tag `semana-NN` em cada card que virou foco da semana — e o unico "commit" que existe.** Decisao registrada em `plugin-pique/_arquitetura-plugin.md` §5: a tag e o mecanismo pelo qual o `/painel-review` mede comitado (segunda) x entregue (sexta), cruzando tag **e** `due_date` na janela. Sem esse passo o placar do Henrique fica sempre zerado (achado 17/08: nenhuma das tasks reais dele tinha `semana-34`, mesmo com o board atualizado). A tag ja existe nos 5 Spaces — usar `add_tag`, nao criar tag nova.
+- **Higiene: zerar tag de semana nos cards de RITUAL RECORRENTE.** A recorrencia do ClickUp copia a tag do ciclo anterior pra instancia nova (ja confirmado: cards de "Registrar review da semana"/"Postar planejamento da semana" nascem com `semana-NN` de 1-2 ciclos atras). Card de rito **nao e commit** — varrer os cards de ritual da lista "Rituais & Reunioes" no inicio desta fase e remover qualquer `semana-*` que a recorrencia tenha colado.
 
 #### 6.2 Google Calendar
 - Se houver eventos novos pra agendar, criar no calendario Pique Agenda
