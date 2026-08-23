@@ -85,6 +85,8 @@ Regras de parsing em `/pique:tempo` secao "Como ler" (slug cwd, pareamento start
 
 **Filtre por cwds do usuario**: todos os `cwd` cujo path contenha `Henrique Carvalho` (ou equivalente do user_name do local.md). Na pratica hoje = todos os chats da maquina do Henrique. Se o Marco rodar daqui uma vez, filtrar pelo home dele.
 
+**Exclua projetos pessoais.** Campo opcional `projetos_pessoais` (lista de nomes de pasta, ex: `["street-dogs"]`) no `plugin-pique.local.md` — projeto nesta lista sai da telemetria (nao e trabalho Pique/cliente, mesmo que tenha rodado na mesma maquina/janela). Se aparecer um projeto novo consumindo tempo relevante (>=10% do wall total da semana) que NAO esta na lista de pessoais nem e reconhecivel como Pique/cliente (nome bate com cliente conhecido, `yababuss`, `pique-*`, `MEU-CEREBRO`, `plugin-*`), pergunte na Fase 2 antes de incluir no placar em vez de assumir que e trabalho. (Achado 23/08: `street-dogs`, 219,9h/22 chats, entrou no placar bruto e precisou ser removido a mao pelo Henrique.)
+
 Agregue:
 - Horas totais na semana (wall)
 - Distribuicao por projeto (ultima componente do cwd)
