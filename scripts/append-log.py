@@ -87,7 +87,11 @@ def read_payload(args):
         err(2, "faltou --payload")
     raw = args.payload
     if raw == "-":
-        raw = sys.stdin.read()
+        # sys.stdin.read() em texto usa a codepage do console do Windows (cp1252/
+        # cp850), nao UTF-8 — acento e travessao viravam mojibake ("peça" ->
+        # "peÃ§a") mesmo com o arquivo de origem em UTF-8 correto. Ler em bytes e
+        # decodificar explicito e o que garante o encoding real do arquivo.
+        raw = sys.stdin.buffer.read().decode("utf-8")
     try:
         return json.loads(raw)
     except json.JSONDecodeError as e:
