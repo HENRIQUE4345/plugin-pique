@@ -166,15 +166,16 @@ ESPERE a resposta antes de continuar.
 
 ---
 
-### Fase 3: Proposta de prioridades
+### Fase 3: Proposta de prioridades (ritual SOLO — ver nota no passo 3)
 
 Com base no reconhecimento + respostas:
 
-1. Proponha **3-5 tasks por pessoa** para a semana (maximo 8 total entre os dois).
-2. Para cada task, justifique em 1 frase (prazo, dependencia, momentum).
-3. Distribua entre Henrique e Marco conforme papeis:
-   - **Henrique:** estrategia, arquitetura, specs, conteudo @iairique, financeiro
-   - **Marco:** operacao, campo, clientes, prospeccao, conteudo proprio
+1. Proponha **3-5 focos** para a semana do Henrique (maximo 8).
+2. Para cada um, justifique em 1 frase (prazo, dependencia, momentum).
+3. ⚠️ **Este ritual e SOLO desde 08/09/2026** — a sociedade com o Marco foi rompida em 07/09 e ele NAO
+   e mais assignee de nada. NAO proponha tasks pra ele, nao monte coluna dele, nao cite ele como dono.
+   O que a equipe (Arthur, Carol, Gabriel) entrega vira **mensagem + card no ClickUp** na 6.1 — nao
+   entra no trilho, que e so o que o Henrique executa com as proprias maos.
 4. Reserve tempo pra reunioes (brainstorm quarta, review sexta).
 5. Sinalize se alguma task precisa de prep antes de uma reuniao.
 
@@ -183,15 +184,15 @@ Formato:
 ```
 ## Proposta da semana:
 
-### Henrique (3-5 tasks)
-1. **[Task]** — [justificativa] [Space]
-2. **[Task]** — [justificativa] [Space]
-3. **[Task]** — [justificativa] [Space]
+### Focos do Henrique (3-5)
+1. **[Foco]** — [justificativa] [Space]
+2. **[Foco]** — [justificativa] [Space]
+3. **[Foco]** — [justificativa] [Space]
 
-### Marco (3-5 tasks)
-1. **[Task]** — [justificativa] [Space]
-2. **[Task]** — [justificativa] [Space]
-3. **[Task]** — [justificativa] [Space]
+### O que preciso da equipe (vira mensagem + card, nao vai pro trilho)
+- **Arthur:** [o que]
+- **Carol:** [o que]
+- **Gabriel:** [o que]
 
 ### Timeline da semana:
 [distribuicao visual dos blocos]
@@ -238,7 +239,7 @@ Apresente:
 
 ### Confirmado (ja estava na proposta):
 - [task] → Henrique, prazo [data]
-- [task] → Marco, prazo [data]
+- [task] → [pessoa da equipe], prazo [data]
 
 ### Novo (surgiu na reuniao):
 - [task] → [quem], [prazo]
@@ -282,7 +283,7 @@ Montagem:
    ```
    - **Etiquetar o modo** de cada uma (Pensar=decidir/mapear · Produzir=entregar · Afiar=ferramenta). Se nao estiver claro, perguntar.
    - **Manter o titulo-nucleo** de um foco que volta (ancora pro match de progresso do boa-noite ao longo da nova semana).
-3. **So o Henrique vai pro trilho.** As prioridades do **Marco** continuam indo pro ClickUp (6.1), NAO pro `## SEMANA` (o trilho e o que o Henrique executa).
+3. **So o Henrique vai pro trilho.** O que a equipe entrega continua indo pro ClickUp (6.1), NAO pro `## SEMANA` (o trilho e o que o Henrique executa).
 4. **Segunda nao tem `/bom-dia`** (o slot da manha da segunda e este planejamento — ver Calendar: "aqui e terca a sexta"). Por isso **esta Fase tambem monta o `## HOJE`**, nao so o SEMANA: 2-4 itens puxados do que ja tem relogio hoje (reuniao do dia, foco nº1 da SEMANA que abre agora, pendencia critica), com o carimbo `<!-- hoje: montado YYYY-MM-DD pelo /planejamento-semanal -->`. Rodar o bom-dia depois seria repetir o reconhecimento que esta Fase 1 acabou de fazer. **De terca a sexta**, nao mexer em HOJE/AGUARDANDO/DECISOES/FRENTES/RESTO — ai sim o bom-dia da semana puxa daqui.
 
 #### 6.1 ClickUp
@@ -308,7 +309,7 @@ Crie `sessoes/YYYY-MM-DD-HHMM-planejamento-semanal.md` com:
 **Tags:** sessao, pique-digital, planejamento
 
 ## Contexto
-Planejamento semanal de segunda-feira. Henrique + Marco.
+Planejamento semanal de segunda-feira. **Solo** (o ritual deixou de ser a dois em 08/09/2026).
 
 ## Semana anterior — Review
 - [resumo do que foi feito / nao feito]
@@ -316,14 +317,14 @@ Planejamento semanal de segunda-feira. Henrique + Marco.
 ## Prioridades definidas
 
 ### Henrique
-- [ ] [task 1]
-- [ ] [task 2]
-- [ ] [task 3]
+- [ ] [foco 1]
+- [ ] [foco 2]
+- [ ] [foco 3]
 
-### Marco
-- [ ] [task 1]
-- [ ] [task 2]
-- [ ] [task 3]
+### Pedido a equipe
+- **Arthur:** [o que]
+- **Carol:** [o que]
+- **Gabriel:** [o que]
 
 ## Decisoes
 - [decisao 1]
@@ -353,15 +354,15 @@ Gere a mensagem EXATAMENTE neste formato (pronta pra copiar e colar):
 ```
 Planejamento semana [DD/MM-DD/MM]:
 
-Henrique:
-- [task 1]
-- [task 2]
-- [task 3]
+Minhas prioridades:
+- [foco 1]
+- [foco 2]
+- [foco 3]
 
-Marco:
-- [task 1]
-- [task 2]
-- [task 3]
+O que preciso de voces:
+- Arthur: [o que]
+- Carol: [o que]
+- Gabriel: [o que]
 
 Reunioes: [lista ou "so as fixas"]
 ```
