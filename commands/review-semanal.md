@@ -9,6 +9,12 @@ Este ritual e o IRMAO do `/pique:fechamento-semana`. Primeiro cada socio roda o 
 ## Ferramentas
 
 - **Operacoes ClickUp** (buscar tasks do usuario): delegar ao agent `gestor-clickup`
+  > ⚠️ **CHECAR DE QUEM E A CONTA ANTES DE ESCREVER.** Pode haver DOIS ClickUp conectados, de
+  > **pessoas diferentes** (connector OAuth + MCP local). Resolva o dono de cada um antes da
+  > primeira escrita (`clickup_resolve_assignees(["me"])` no connector; a descricao de
+  > `searchTasks` do MCP local declara o dono dela) e cruze com o usuario do ritual.
+  > **Ler** por qualquer um; **escrever** (status, comentario de pulso nos marcos) SO pelo MCP do
+  > proprio usuario — senao o review assina a semana inteira dele no nome de outra pessoa.
 - **Google Calendar**: chamar diretamente (connector leve)
 
 > **IMPORTANTE**: Se as tools do ClickUp nao estiverem disponiveis (agent gestor-clickup falhar), avise o usuario: "ClickUp MCP esta desativado. Ative em: VS Code → MCP Servers → clickup → Enable. Depois me chame de novo." NAO tente continuar sem ClickUp — pare e espere.
@@ -62,7 +68,9 @@ Delegar ao `gestor-clickup` com filtro por assignee = `user_clickup_id`. Buscar 
 
 ### 1.3 Diarios dos ultimos 5 dias uteis
 
-Leia `diarios/YYYY-MM-DD.md` dos 5 dias uteis da semana (path: `diarios_path` do local.md).
+Leia os diarios dos 5 dias uteis pelo MCP `mcp__yabadoo__*` — **nao ha arquivo** (a pasta
+`diarios/` nao existe; auditado 04/08/2026): `buscar_diario(limite=7)` +
+`buscar_memorias("check-in check-out")` pros dias gravados como memoria pelo bom-dia/boa-noite.
 
 Extraia:
 - Blockers recorrentes
