@@ -347,7 +347,11 @@ Planejamento semanal de segunda-feira. **Solo** (o ritual deixou de ser a dois e
 - Planejamento anterior: [link se existir]
 ```
 
-#### 6.4 Gerar mensagem do WhatsApp
+#### 6.4 Gerar mensagem do Slack (`#standup`)
+
+> O stand-up e o planejamento da Pique vivem no **Slack, canal `#standup`** — o WhatsApp saiu
+> do processo. Nunca chame este bloco de "mensagem do WhatsApp". Mesmo destino que a mensagem
+> do `/pique:boa-noite` (Fase 2.1) e do `/pique:bom-dia`.
 
 Gere a mensagem EXATAMENTE neste formato (pronta pra copiar e colar):
 
