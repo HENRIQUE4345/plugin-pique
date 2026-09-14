@@ -104,10 +104,20 @@ Pra CADA feedback, aplique o **discriminador**:
 **Teste:** "da pra apontar QUAL `.md` e QUAL passo mudaria?" Sim → skill (ii). Nao → memoria (i). Em duvida, prefira (ii).
 
 ### 1.8 Item do trilho trabalhado?
-Esta sessao trabalhou um item do `## HOJE` do `TAREFAS.md` (raiz do cerebro)?
-- Read o `## HOJE`. Item `[~]` (iniciado por `/iniciar`) ou `[ ]` que casa com o tema → item a **fechar** (planejada = **P**).
-- Trabalho substantivo que NAO estava no HOJE (apareceu no dia) → **eventualidade** (**E**), tambem loga.
+Esta sessao trabalhou um item do `TAREFAS.md` (raiz do cerebro)?
+
+**Leia as DUAS camadas antes de classificar — `## HOJE` E `## SEMANA`.** P/E nao e "estava no HOJE",
+e **"estava planejado"**:
+- Item no `## HOJE` (`[~]` iniciado por `/iniciar`, ou `[ ]` que casa com o tema) → **fechar** o item, planejada = **P**.
+- Item que so existe no `## SEMANA` (nao desceu pro HOJE naquele dia) → **tambem e P**. Nao fecha o
+  HOJE (nao esta la); atualiza a linha do SEMANA com o avanco e loga como **P**.
+- Trabalho substantivo que **nao esta em nenhuma das duas** (apareceu no dia) → **eventualidade** (**E**).
 - Conversa puramente operacional (1-2 acoes simples) → nao loga, pula 3.3b.
+
+> ⚠️ Erro real 14/09/2026: o HOJE estava todo `[x]` e classifiquei um download sobre o Humberto como
+> **E** — mas o item *"Humberto — criterio, formato e data do teste"* estava no `## SEMANA 38`. O
+> Henrique corrigiu (*"mas essa tarefa ja existia pra essa semana"*). Checar so o HOJE subnotifica o
+> planejado e polui a metrica P/E.
 
 ---
 
